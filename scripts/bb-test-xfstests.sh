@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Check for a local cached configuration.
+if test -f /etc/buildslave; then
+    . /etc/buildslave
+fi
+
+# Custom test options will be saved in the tests directory.
+if test -f "../TEST"; then
+    . ../TEST
+fi
+
+TEST_XFSTESTS_SKIP=${TEST_XFSTESTS_SKIP:-"No"}
+if echo "$TEST_XFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
+    echo "Skipping disabled test"
+    exit 0
+fi
+
+ZPOOL=${ZPOOL:-"zpool"}
+ZFS=${ZFS:-"zfs"}
+ZFS_SH=${ZFS_SH:-"zfs.sh"}
+XFSTESTS=${XFSTESTS:-"./check"}
+CONFIG_LOG="$PWD/configure.log"
+MAKE_LOG="$PWD/make.log"
+CONSOLE_LOG="$PWD/console.log"
+
+# Cleanup the pool and restore any modified system state.  The console log
+# is dumped twice to maximize the odds of preserving debug information.
+cleanup()
+{
+    dmesg >$CONSOLE_LOG
+    sudo -E $ZPOOL destroy -f $TEST_XFSTESTS_POOL &>/dev/null
+    sudo -E rm -f /etc/zfs/zpool.cache $TEST_XFSTESTS_VDEV
+    sudo -E rm -Rf $TEST_DIR $SCRATCH_MNT
+    sudo -E $ZFS_SH -u
+    dmesg >$CONSOLE_LOG
+}
+trap cleanup EXIT SIGTERM
+
+set -x
+
+TEST_XFSTESTS_URL=${TEST_XFSTESTS_URL:-"https://github.com/zfsonlinux/xfstests/archive/"}
+TEST_XFSTESTS_VER=${TEST_XFSTESTS_VER:-"zfs.tar.gz"}
+TEST_XFSTESTS_POOL=${TEST_XFSTESTS_POOL:-"tank"}
+TEST_XFSTESTS_FS=${TEST_XFSTESTS_FS:-"xfstests"}
+TEST_XFSTESTS_VDEV=${TEST_XFSTESTS_VDEV:-"/var/tmp/vdev"}
+TEST_XFSTESTS_OPTIONS=${TEST_XFSTESTS_OPTIONS:-""}
+
+# Exported for use by xfstests.
+export TEST_DEV="$TEST_XFSTESTS_POOL/$TEST_XFSTESTS_FS"
+export TEST_DIR="/$TEST_XFSTESTS_POOL/$TEST_XFSTESTS_FS"
+export SCRATCH_DEV="$TEST_XFSTESTS_POOL/$TEST_XFSTESTS_FS-scratch"
+export SCRATCH_MNT="/$TEST_XFSTESTS_POOL/$TEST_XFSTESTS_FS-scratch"
+
+wget -qO${TEST_XFSTESTS_VER} ${TEST_XFSTESTS_URL}${TEST_XFSTESTS_VER} || exit 1
+tar -xzf ${TEST_XFSTESTS_VER} || exit 1
+rm ${TEST_XFSTESTS_VER}
+
+cd xfstests*
+autoheader >>$CONFIG_LOG 2>&1 || exit 1
+autoconf >>$CONFIG_LOG 2>&1 || exit 1
+./configure >>$CONFIG_LOG 2>&1 || exit 1
+make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
+
+# Create zpool and start with a clean slate
+sudo -E dmesg -c >/dev/null
+sudo -E mkdir -p $TEST_DIR $SCRATCH_MNT
+sudo -E $ZFS_SH || exit 1
+dd if=/dev/zero of=$TEST_XFSTESTS_VDEV bs=1M count=1 seek=4095 || exit 1
+sudo -E $ZPOOL create -m legacy -O acltype=posixacl \
+    -f $TEST_XFSTESTS_POOL $TEST_XFSTESTS_VDEV || exit 1
+
+#
+# Run xfstests skipping tests are currently unsupported
+# -zfs Filesystem type 'zfs'
+# -x dio      - Skip dio tests not yet implemented
+# -x sendfile - Skip sendfile tests not yet implemented
+#
+sudo -E $XFSTESTS -zfs -x dio -x sendfile -x user &
+CHILD=$!
+wait $CHILD
+RESULT=$?
+
+exit $RESULT

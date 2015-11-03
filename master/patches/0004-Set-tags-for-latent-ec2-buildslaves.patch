@@ -1,0 +1,31 @@
+From 9c9694a18a4b0e563683223a362d3af3f2cb44bb Mon Sep 17 00:00:00 2001
+From: Brian Behlendorf <behlendorf1@llnl.gov>
+Date: Wed, 4 Nov 2015 12:35:16 -0800
+Subject: [PATCH] Set tags for latent ec2 buildslaves
+
+EC2LatentBuildSlave does not respect the tags argument to __init__()
+when launching spot instances.  Apply the same logic for setting tags
+on demand instances to spot instances.
+
+http://trac.buildbot.net/ticket/2903
+---
+ master/buildbot/buildslave/ec2.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
+index 02fb8a2..84de44d 100644
+--- a/master/buildbot/buildslave/ec2.py
++++ b/master/buildbot/buildslave/ec2.py
+@@ -393,6 +393,9 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+                 self.attempt = attempt
+                 instance_id, image_id, start_time, success = self._submit_request()
+                 if success:
++                    if None not in [instance_id, image_id, start_time]:
++                        if len(self.tags) > 0:
++                            self.conn.create_tags(instance_id, self.tags)
+                     break
+                 if attempt >= self.retry:
+                     self.attempt = 0
+-- 
+1.9.1
+

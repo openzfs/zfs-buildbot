@@ -1,0 +1,200 @@
+#!/bin/sh
+#
+# runurl - Download a URL and run as a program, passing in arguments
+#
+# Copyright (C) 2009 Eric Hammond <ehammond@thinksome.com>
+#
+
+error() { echo "$@" 1>&2; }
+fail() { [ $# -eq 0 ] || error "${BNAME}:" "$1"; exit ${2:-1}; }
+debug() { [ "$DEBUG" = "0" ] || error "${BNAME}:" "$@"; }
+cleanup() { [ -z "${TEMP_D}" -o ! -d "${TEMP_D}" ] || rm -Rf "${TEMP_D}"; }
+
+DEBUG="0"
+TEMP_D=""
+BNAME=${0##*/}
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    -\?|--help) pod2text "${0}"; exit 0;;
+    -d|--debug) DEBUG=1;                    shift 1 ;;
+    -*)         fail "Unrecognized option: $1 (try --help)";;
+    *)          url="$1";                   shift 1; break ;;
+  esac
+done
+
+[ -n "$url" ] || fail "Missing URL specification (try --help)"
+
+trap cleanup 0
+
+TEMP_D=$(mktemp -d ${TEMPDIR:-/tmp}/${BNAME}.XXXXXX) &&
+  runfile="${TEMP_D}/runfile" && wgetfile="${TEMP_D}/wget.out" ||
+  fail "failed to make tempdir"
+
+debug "downloading $url"
+
+wget                           \
+  --retry-connrefused          \
+  --tries=20                   \
+  "--output-document=$runfile" \
+  "--output-file=$wgetfile"    \
+  "$url"
+
+wgetstatus=$?
+if [ $wgetstatus != 0 ]; then
+  cat $wgetfile >&2
+  fail "wget failed: $wgetstatus" "${wgetstatus}"
+fi
+
+chmod 700 "${runfile}" || fail "failed to change perms of ${runfile}"
+
+debug "running"
+$runfile "$@"
+
+exitstatus=$?
+
+debug "exit status $exitstatus"
+
+exit $exitstatus
+
+#
+# To read the documentation in this file use the command:
+#
+#   perldoc runurl
+#
+
+=head1 NAME
+
+runurl - Download a URL and run as a program, passing in arguments
+
+=head1 SYNOPSYS
+
+runurl [I<OPTS>] I<URL> [I<ARGS>]...
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-?> B<--help>
+
+Debug mode
+
+=item B<-d> B<--debug>
+
+Debug mode
+
+=back
+
+=head1 ARGUMENTS
+
+=over 8
+
+=item B<URL>
+
+The URL of the progran to download and run
+
+=item B<ARGS>
+
+Options and arguments for the downloaded program
+
+=back
+
+=head1 DESCRIPTION
+
+The B<runurl> command is a simple tool that downloads a program (or
+script) from the specified URL and runs it.
+
+The first argument to the B<runurl> command is the URL of a script or
+program that should be run.  Any leading "http://" may be omitted, but
+"https://" or "ftp://" and the like must still be specified.
+
+All remaining arguments listed after the URL (including ones which
+look like options) are passed verbatim to the program as its own
+options and arguments when it is run.
+
+The exit code of B<runurl> is the exit code of the program, unless the
+original download of the URL failed, in which case that error is
+returned.
+
+=head1 EXAMPLES
+
+If the following content is stored at http://run.alestic.com/demo/hello
+
+  #!/bin/bash
+  echo "hello, $1"
+
+then this command:
+
+  runurl run.alestic.com/demo/hello world
+
+will itself output:
+
+  hello, world
+
+=head1 CAVEATS
+
+Only run content that you control or completely trust.
+
+Just because you like the content of a URL when you look at it in your
+browser does not mean that it will still look like that when B<runurl>
+goes to run it.  It could change at any point to something that is
+broken or even malicious unless it is under your control.
+
+Realize that you are depending on the network for commands to succeed.
+If the content is temporarily unavailable or has been moved, then the
+B<runurl> command will fail.
+
+=head1 DEPENDENCIES
+
+This program requires that the following already be installed:
+
+  wget
+
+=head1 SEE ALSO
+
+The B<runurl> project site:
+
+  https://launchpad.net/runurl
+
+Article about using B<runurl> for initial configuration of Amazon EC2
+instances:
+
+  http://alestic.com/2009/08/runurl
+
+=head1 INSTALLATION
+
+On most Ubuntu releases, the B<runurl> package can be installed
+directly from the Alestic.com PPA using the following commands:
+
+ code=$(lsb_release -cs)
+ echo "deb http://ppa.launchpad.net/alestic/ppa/ubuntu $code main"|
+   sudo tee /etc/apt/sources.list.d/alestic-ppa.list
+ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BE09C571
+ sudo apt-get update
+ sudo apt-get install -y runurl
+
+=head1 BUGS
+
+Please report bugs at https://bugs.launchpad.net/runurl
+
+=head1 AUTHOR
+
+Eric Hammond <ehammond@thinksome.com>
+
+=head1 LICENSE
+
+Copyright 2009 Eric Hammond <ehammond@thinksome.com>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=cut

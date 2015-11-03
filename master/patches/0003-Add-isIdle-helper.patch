@@ -1,0 +1,32 @@
+From 83a2db655f3ac9e0c59f5d55b5b688f1a93a7bc5 Mon Sep 17 00:00:00 2001
+From: Brian Behlendorf <behlendorf1@llnl.gov>
+Date: Tue, 3 Nov 2015 11:04:10 -0800
+Subject: [PATCH 3/3] Add isIdle helper
+
+Checks if a buildslave is available and currently idle.  In the case
+of a latent buildslave it may be available but not substantiated.  This
+helper allows us to determine if a build can be immediately serviced
+without the cost of substantiating a new buildslave.
+
+Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
+---
+ master/buildbot/process/slavebuilder.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/master/buildbot/process/slavebuilder.py b/master/buildbot/process/slavebuilder.py
+index 0782c8e..6c2b757 100644
+--- a/master/buildbot/process/slavebuilder.py
++++ b/master/buildbot/process/slavebuilder.py
+@@ -65,6 +65,9 @@ class AbstractSlaveBuilder(object):
+         # no slave? not very available.
+         return False
+ 
++    def isIdle(self):
++        return self.isAvailable() and self.state is IDLE
++
+     def isBusy(self):
+         return self.state not in (IDLE, LATENT)
+ 
+-- 
+1.9.1
+
