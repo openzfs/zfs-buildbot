@@ -1,10 +1,10 @@
 # The ZFS on Linux Buildbot Configuration
 
 Welcome, this is the buildbot infrastructure used by the ZFS on Linux project
-at http://build.zfsonlinux.org/console.  It's used to automate the process of
-testing new pull requests found at https://github.com/zfsonlinux/zfs/pulls.
-If you would like to contribute to improving our testing infrastructure please
-open a pull request against this Github repository.
+at http://build.zfsonlinux.org.  It's used to automate the process of testing
+new [pull requests](https://github.com/zfsonlinux/zfs/pulls).  If you would
+like to contribute to improving our testing infrastructure please open a pull
+request against this Github repository.
 
 ## Build and Test Strategy
 
@@ -278,3 +278,5 @@ finally start the builder master.  It's assumed you're already familiar with
 Amazon ec2 instances and their terminology.
 
 ## Licensing
+
+See the [LICENSE](LICENSE) file for license rights and limitations.
