@@ -172,10 +172,10 @@ RHEL*)
     ;;
 
 SUSE*)
-    # SLES amis appear to occasionally not register their repos properly.
-    while ! /usr/sbin/registercloudguest; do
-        sleep 10
-    done
+    # SLES appears to not always register their repos properly.
+    echo "solver.allowVendorChange = true" >>/etc/zypp/zypp.conf
+    while ! zypper --non-interactive up; do sleep 10; done
+    while ! /usr/sbin/registercloudguest --force-new; do sleep 10; done
 
     # Zypper auto-refreshes on boot retry to avoid spurious failures.
     zypper --non-interactive install gcc python-devel python-pip
