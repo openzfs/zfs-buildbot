@@ -13,7 +13,7 @@ fi
 TEST_SPLAT_SKIP=${TEST_SPLAT_SKIP:-"No"}
 if echo "$TEST_SPLAT_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
-    exit 0
+    exit 3
 fi
 
 SPLAT=${SPLAT:-"splat"}

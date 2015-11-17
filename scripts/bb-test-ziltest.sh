@@ -13,7 +13,7 @@ fi
 TEST_ZILTEST_SKIP=${TEST_ZILTEST_SKIP:-"No"}
 if echo "$TEST_ZILTEST_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
-    exit 0
+    exit 3
 fi
 
 ZFS_SH=${ZFS_SH:-"zfs.sh"}

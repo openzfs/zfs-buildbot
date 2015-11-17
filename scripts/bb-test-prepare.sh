@@ -8,7 +8,7 @@ fi
 TEST_PREPARE_SKIP=${TEST_PREPARE_SKIP:-"No"}
 if echo "$TEST_PREPARE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
-    exit 0
+    exit 3
 fi
 
 CONSOLE_LOG="$PWD/console.log"

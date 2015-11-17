@@ -13,7 +13,7 @@ fi
 TEST_ZFSSTRESS_SKIP=${TEST_ZFSSTRESS_SKIP:-"No"}
 if echo "$TEST_ZFSSTRESS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
-    exit 0
+    exit 3
 fi
 
 ZPOOL=${ZPOOL:-"zpool"}

@@ -122,12 +122,15 @@ described above and may further customize the environment as needed.
 
 After the environment has been prepared all of the registered test suites are
 run as separate build steps using `runurl`.  By convention each of these
-scripts is named `bb-test-*` and expected to exit with zero on success.  Any
-non-zero exit value will be treated as a failure marking this build step and
-the entire build as a failure.  The test script is expected to attempt to
-cleanup the environment so subsequent test suites can be run.  However,
-depending on the severity of the failure this may not be possible and
-additional test results should be treated skeptically.
+scripts is named `bb-test-*` and expected to exit with zero on success.  An
+exit value of 1 indicates failure, 2 indicates a warning, and 3 indicates the
+step was skipped.  If a build step fails the entire build is consider a failure.
+However, individual steps may exit with a warning or skipped exit code without
+failing the build.  These steps are color coded in the waterfall and console
+views so they are easy to identify.  A test script is expected to attempt to
+cleanup the environment so subsequent test suites can be run.  Depending on the
+severity of the failure this may not be possible and additional test results
+should be treated skeptically.
 
 A `bb-test-*` script should be designed to be as self-contained, flexible, and
 resilient as possible.  A good example of this is the `bb-test-ztest.sh`

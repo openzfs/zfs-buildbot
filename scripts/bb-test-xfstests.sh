@@ -13,7 +13,7 @@ fi
 TEST_XFSTESTS_SKIP=${TEST_XFSTESTS_SKIP:-"No"}
 if echo "$TEST_XFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
-    exit 0
+    exit 3
 fi
 
 ZPOOL=${ZPOOL:-"zpool"}
