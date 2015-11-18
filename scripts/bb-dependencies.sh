@@ -42,7 +42,7 @@ CentOS*)
 
 Debian*)
     # Required development tools.
-    sudo apt-get --yes install build-essential autoconf libtool
+    sudo apt-get --yes install build-essential autoconf libtool libtool-bin
 
     # Required utilties.
     sudo apt-get --yes install git alien fakeroot wget curl \
