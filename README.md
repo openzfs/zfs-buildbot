@@ -14,9 +14,9 @@ The ZFS on Linux project relies on Github pull requests to track proposed
 changes.  Your pull request will be automatically tested by the buildbot and
 updated to reflect the results of the testing.  As you fix the code and push
 revisions to your branch at Github those changes will queued for testing.
-There is no need to close a pull request and open a new one.  It's strongly
-recommended that when refreshing a pull request you frequently rebase it
-against the latest code to avoid merge conflicts.
+There is no need to close a pull request and open a new one.  However, it is
+strongly recommended that when refreshing a pull request you rebase it against
+the latest code to avoid merge conflicts.
 
 Once a pull request passes all the automated regression testing it will be
 reviewed for inclusion by at least one core ZFS on Linux developer.  Normally
@@ -33,6 +33,13 @@ In the unlikely event that this final round of testing reveals an issue the
 merge may be reverted and the pull request reopened.  Please continue
 iterating with the ZFS on Linux developers in the pull request until the issue
 is resolved the changes can be merged.
+
+By default all ZFS patches are built against the master SPL branch.  However,
+on occasion a corresponding SPL patch is required to build a ZFS patch.  In
+this case add `Requires-spl: refs/pull/PR/head` to the top commit comment in
+your ZFS pull request, where `PR` is an open SPL pull request number.  This
+will instruct the buildbot to use that SPL pull request rather than the
+default master branch.
 
 ### Builder Types
 
