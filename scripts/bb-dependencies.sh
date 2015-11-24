@@ -46,7 +46,7 @@ Debian*)
 
     # Required utilties.
     sudo apt-get --yes install git alien fakeroot wget curl \
-        lsscsi parted gdebi attr dbench watchdog
+        lsscsi parted gdebi attr dbench watchdog bc
 
     # Required development libraries
     sudo apt-get --yes install linux-headers-$(uname -r) \
