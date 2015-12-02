@@ -89,17 +89,26 @@ Amazon*)
     ;;
 
 CentOS*)
-    yum -y install deltarpm gcc python-pip python-devel
-    easy_install --quiet buildbot-slave
-    BUILDSLAVE="/usr/bin/buildslave"
+    if cat /etc/redhat-release | grep -Eq "6."; then
+        # The buildbot-slave package isn't available from a common repo.
+        BUILDSLAVE_URL="http://build.zfsonlinux.org"
+        BUILDSLAVE_RPM="buildbot-slave-0.8.8-2.el6.noarch.rpm"
+        yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
+        BUILDSLAVE="/usr/bin/buildslave"
+    else
+        yum -y install gcc python-pip python-devel
+        easy_install --quiet buildbot-slave
+        BUILDSLAVE="/usr/bin/buildslave"
+    fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser buildbot
-        echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-        sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/d' /etc/sudoers
     fi
+
+    echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
+    sed -i.bak '/secure_path/d' /etc/sudoers
     ;;
 
 Debian*)
