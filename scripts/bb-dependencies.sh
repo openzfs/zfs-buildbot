@@ -37,7 +37,7 @@ CentOS*)
         watchdog
 
     # Required development libraries
-    $SUDO yum -y install kernel-devel-$(uname -r) \
+    $SUDO yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel
     ;;
