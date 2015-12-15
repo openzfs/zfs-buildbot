@@ -36,6 +36,9 @@ fi
 if test ! "$BB_PASSWORD"; then
     BB_PASSWORD="password"
 fi
+if test ! "$BB_MODE"; then
+    BB_MODE="BUILD"
+fi
 if test ! "$BB_ADMIN"; then
     BB_ADMIN="Automated latent BuildBot slave <buildbot@zfsonlinux.org>"
 fi
@@ -50,6 +53,7 @@ if test ! -f /etc/buildslave; then
     echo "BB_MASTER=\"$BB_MASTER\""      > /etc/buildslave
     echo "BB_NAME=\"$BB_NAME\""         >> /etc/buildslave
     echo "BB_PASSWORD=\"$BB_PASSWORD\"" >> /etc/buildslave
+    echo "BB_MODE=\"$BB_MODE\""         >> /etc/buildslave
     echo "BB_ADMIN=\"$BB_ADMIN\""       >> /etc/buildslave
     echo "BB_DIR=\"$BB_DIR\""           >> /etc/buildslave
 fi
@@ -79,6 +83,11 @@ Amazon*)
     easy_install --quiet buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"
 
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        yum -y update kernel
+    fi
+
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser buildbot
@@ -99,6 +108,11 @@ CentOS*)
         yum -y install gcc python-pip python-devel
         easy_install --quiet buildbot-slave
         BUILDSLAVE="/usr/bin/buildslave"
+    fi
+
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        yum -y update kernel
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -125,6 +139,11 @@ Debian*)
         BUILDSLAVE="/usr/bin/buildslave"
     fi
 
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        apt-get --yes install --only-upgrade linux-image-amd64
+    fi
+
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser --disabled-password --gecos "" buildbot
@@ -145,6 +164,11 @@ Fedora*)
     else
         dnf -y install buildbot-slave
         BUILDSLAVE="/usr/bin/buildslave"
+    fi
+
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        yum -y update kernel
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -170,6 +194,11 @@ RHEL*)
     yum -y install deltarpm gcc python-pip python-devel
     easy_install --quiet buildbot-slave
     BUILDSLAVE="/usr/bin/buildslave"
+
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        yum -y update kernel
+    fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
@@ -215,6 +244,11 @@ Ubuntu*)
         BUILDSLAVE="/usr/bin/buildslave"
     fi
 
+    # Install the latest kernel to reboot on to.
+    if test "$BB_MODE" = "TEST"; then
+        apt-get --yes install --only-upgrade linux-image-generic
+    fi
+
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser --disabled-password --gecos "" buildbot
@@ -252,8 +286,13 @@ grep MemTotal /proc/meminfo >> $BB_DIR/info/host
 grep 'model name' /proc/cpuinfo >> $BB_DIR/info/host
 grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
 
-# Finally, start it.
-sudo -u buildbot $BUILDSLAVE start $BB_DIR
-
-# If all goes well, at this point you should see a buildbot slave joining your
-# farm.  You can then manage the rest of the work from the buildbot master.
+# Finally, start it.  If all goes well, at this point you should see a buildbot
+# slave joining your farm.  You can then manage the rest of the work from the
+# buildbot master.
+if test "$BB_MODE" = "BUILD"; then
+    sudo -u buildbot $BUILDSLAVE start $BB_DIR
+else
+    echo "@reboot sudo -u buildbot $BUILDSLAVE start $BB_DIR" | crontab
+    crontab -l
+    sudo reboot
+fi
