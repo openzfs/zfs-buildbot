@@ -18,6 +18,8 @@ ZFS_DIR="../zfs"
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
 
+SUDO="sudo -E"
+
 set -x
 
 # Create a TEST file which includes parameters which may appear in a top
@@ -57,40 +59,40 @@ TEST_PREPARE_WATCHDOG=${TEST_PREPARE_WATCHDOG:-"Yes"}
 if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     case "$BB_NAME" in
     Amazon*)
-        sudo /etc/init.d/watchdog start
+        $SUDO /etc/init.d/watchdog start
         ;;
 
     CentOS*)
         if cat /etc/redhat-release | grep -Eq "6."; then
-            sudo /etc/init.d/watchdog start
+            $SUDO /etc/init.d/watchdog start
         elif cat /etc/redhat-release | grep -Eq "7."; then
-            sudo systemctl start watchdog
+            $SUDO systemctl start watchdog
         fi
         ;;
 
     Debian*)
-        sudo systemctl start watchdog
+        $SUDO systemctl start watchdog
         ;;
 
     Fedora*)
-        sudo systemctl start watchdog
+        $SUDO systemctl start watchdog
         ;;
 
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
-            sudo /etc/init.d/watchdog start
+            $SUDO /etc/init.d/watchdog start
         elif cat /etc/redhat-release | grep -Eq "7."; then
-            sudo systemctl start watchdog
+            $SUDO systemctl start watchdog
         fi
         ;;
 
     SUSE*)
-        sudo systemctl start watchdog
+        $SUDO systemctl start watchdog
         ;;
 
     Ubuntu*)
-        sudo apt-get install watchdog
-        sudo service watchdog start
+        $SUDO apt-get install watchdog
+        $SUDO service watchdog start
         ;;
 
     *)

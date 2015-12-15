@@ -67,6 +67,7 @@ METAIP="169.254.169.254"
 METAROOT="http://${METAIP}/latest"
 # Don't print 404 error documents. Don't print progress information.
 CURL="curl --fail --silent"
+SUDO="sudo -E"
 
 
 testbin () {
@@ -268,7 +269,7 @@ esac
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR
     chown buildbot.buildbot $BB_DIR
-    sudo -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
+    $SUDO -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
 
 # Extract some of the EC2 meta-data and make it visible in the buildslave
@@ -290,9 +291,9 @@ grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
 # slave joining your farm.  You can then manage the rest of the work from the
 # buildbot master.
 if test "$BB_MODE" = "BUILD"; then
-    sudo -u buildbot $BUILDSLAVE start $BB_DIR
+    $SUDO -u buildbot $BUILDSLAVE start $BB_DIR
 else
-    echo "@reboot sudo -u buildbot $BUILDSLAVE start $BB_DIR" | crontab
+    echo "@reboot $SUDO -u buildbot $BUILDSLAVE start $BB_DIR" | crontab
     crontab -l
-    sudo reboot
+    $SUDO reboot
 fi

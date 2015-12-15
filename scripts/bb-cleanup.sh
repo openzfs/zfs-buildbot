@@ -8,9 +8,13 @@ else
    exit 1
 fi
 
+SUDO="sudo -E"
+
+set -x
+
 case "$BB_NAME" in
 Amazon*)
-    sudo yum -y remove \
+    $SUDO yum -y remove \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
@@ -19,7 +23,7 @@ Amazon*)
     ;;
 
 CentOS*)
-    sudo yum -y remove \
+    $SUDO yum -y remove \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
@@ -28,7 +32,7 @@ CentOS*)
     ;;
 
 Debian*)
-    sudo apt-get --yes purge \
+    $SUDO apt-get --yes purge \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
@@ -36,7 +40,7 @@ Debian*)
     ;;
 
 Fedora*)
-    sudo dnf -y remove \
+    $SUDO dnf -y remove \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
@@ -45,7 +49,7 @@ Fedora*)
     ;;
 
 RHEL*)
-    sudo yum -y remove \
+    $SUDO yum -y remove \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
@@ -54,13 +58,13 @@ RHEL*)
     ;;
 
 SUSE*)
-    sudo zypper --non-interactive remove \
+    $SUDO zypper --non-interactive remove \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
         zfs zfs-dracut  zfs-test spl
     ;;
 
 Ubuntu*)
-    sudo apt-get --yes purge \
+    $SUDO apt-get --yes purge \
         kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
         kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
         libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \

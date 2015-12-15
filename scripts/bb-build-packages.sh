@@ -23,45 +23,47 @@ MAKE_LOG="make.log"
 MAKE_OPTIONS=""
 INSTALL_LOG="install.log"
 
+SUDO="sudo -E"
+
 ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
 ./configure $CONFIG_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
 make $MAKE_OPTIONS pkg >>$MAKE_LOG 2>&1 || exit 1
 
 case "$BB_NAME" in
 Amazon*)
-    sudo rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    sudo yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
     ;;
 
 CentOS*)
-    sudo rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    sudo yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
     ;;
 
 Debian*)
     for file in *.deb; do
-        sudo gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
+        $SUDO gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
     done
     ;;
 
 Fedora*)
-    sudo rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    sudo dnf -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
+    $SUDO dnf -y localinstall *.rpm >>$INSTALL_LOG 2>&1
     ;;
 
 RHEL*)
-    sudo rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    sudo yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
     ;;
 
 SUSE*)
-    sudo rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    sudo zypper --non-interactive install *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
+    $SUDO zypper --non-interactive install *.rpm >>$INSTALL_LOG 2>&1
     ;;
 
 Ubuntu*)
     for file in *.deb; do
-        sudo gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
+        $SUDO gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
     done
     ;;
 
