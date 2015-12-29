@@ -48,6 +48,9 @@ fi
 if test ! "$BB_USE_PIP"; then
     BB_USE_PIP=0
 fi
+if test ! "$BB_KERNEL_TYPE"; then
+    BB_KERNEL_TYPE="STD"
+fi
 
 if test ! -f /etc/buildslave; then
     echo "BB_MASTER=\"$BB_MASTER\""      > /etc/buildslave
@@ -76,6 +79,25 @@ testbin () {
             return 1
     fi
     return 0
+}
+
+set_boot_kernel () {
+	if [[ -f /boot/grub2/grub.cfg ]]; then
+		entry=$(awk -F "'" '
+			/^menuentry.*x86_64.debug/ {
+				print $2; exit
+			};' /boot/grub2/grub.cfg)
+		sed --in-place "s/^saved_entry=.*/saved_entry=${entry}/" /boot/grub2/grubenv
+	fi
+
+	if [[ -f /boot/grub/grub.conf ]]; then
+		entry=$(awk '
+			BEGIN {entry=0};
+			/^title.*debug/ {print entry; exit};
+			/^title/ {entry++}
+			' /boot/grub/grub.conf)
+		sed --in-place "s/^default=.*/default=${entry}/" /boot/grub/grub.conf
+	fi
 }
 
 case "$BB_NAME" in
@@ -114,6 +136,12 @@ CentOS*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST"; then
         yum -y update kernel
+    fi
+
+    # Use the debug kernel instead if indicated
+    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
+        yum -y install kernel-debug
+        set_boot_kernel
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -172,6 +200,12 @@ Fedora*)
         yum -y update kernel
     fi
 
+    # Use the debug kernel instead if indicated
+    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
+        yum -y install kernel-debug
+        set_boot_kernel
+    fi
+
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser buildbot
@@ -199,6 +233,12 @@ RHEL*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST"; then
         yum -y update kernel
+    fi
+
+    # Use the debug kernel instead if indicated
+    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
+        yum -y install kernel-debug
+        set_boot_kernel
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
