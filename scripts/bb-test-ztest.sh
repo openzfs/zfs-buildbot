@@ -43,4 +43,9 @@ CHILD=$!
 wait $CHILD
 RESULT=$?
 
+if test $RESULT != 0; then
+    echo "Exited ztest with error $RESULT"
+    exit 1
+fi
+
 exit $RESULT
