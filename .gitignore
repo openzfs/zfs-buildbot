@@ -10,4 +10,5 @@ master/twistd.log*
 master/twistd.pid
 master/password.py
 master/password.pyc
+master/builderinfo.pyc
 master/public_html/*.rpm
