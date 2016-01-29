@@ -74,7 +74,7 @@ class EC2SlaveInfo(BuildSlaveInfo):
     def makeBuildSlave(self, **kwargs):
         instance_type="t2.micro"
         region="us-west-2"
-        placement="c"
+        placement=None
         spot_instance=False
         max_spot_price=0.08
         price_multiplier=1.25
@@ -155,7 +155,7 @@ runurl """ + self.url + """bb-bootstrap.sh
 class EC2LargeSlaveInfo(EC2SlaveInfo):
     def makeBuildSlave(self, **kwargs):
         return super(EC2LargeSlaveInfo, self).makeBuildSlave(
-            build_wait_timeout=30 * 60, instance_type="m4.xlarge",
+            build_wait_timeout=30 * 60, instance_type="m3.large",
             spot_instance=True, max_spot_price=0.08,
             price_multiplier=1.25, **kwargs)
 
