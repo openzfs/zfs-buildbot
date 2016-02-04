@@ -209,10 +209,31 @@ class BuilderInfo(object):
     def makeSlaves(self):
         return [info.makeBuildSlave() for info in self.slaves]
 
+    @staticmethod
+    def nextSlave(builder, slaves):
+        availableSlave = None
+
+        for slave in slaves:
+            # if we found an idle slave, immediate use this one
+            if slave.isIdle():
+                return slave
+
+            # hold onto the first slave thats not spun up but free
+            if availableSlave is None and slave.isAvailable():
+                availableSlave = slave
+
+        # we got here because there was no idle slave
+        if availableSlave is not None:
+            return availableSlave
+
+        # randomly choose among all our busy slaves
+        return (random.choice(slaves) if slaves else None)
+
     def getBuilderConfig(self):
         """Returns the configuration for the builder."""
         return util.BuilderConfig(
                     name=self.name, slavenames=self.getSlaveNames(),
                     factory=self.factory, properties=self.properties, 
-                    tags=self.tags, mergeRequests=False)
-
+                    tags=self.tags, mergeRequests=False,
+                    nextSlave=BuilderInfo.nextSlave
+               )
