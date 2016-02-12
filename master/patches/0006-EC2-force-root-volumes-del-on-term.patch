@@ -1,0 +1,68 @@
+diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
+index 64abf29..54286ab 100644
+--- a/master/buildbot/buildslave/ec2.py
++++ b/master/buildbot/buildslave/ec2.py
+@@ -59,7 +59,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+                  max_builds=None, notify_on_missing=[], missing_timeout=60 * 20,
+                  build_wait_timeout=60 * 10, properties={}, locks=None,
+                  spot_instance=False, max_spot_price=1.6, volumes=[],
+-                 placement=None, price_multiplier=1.2, tags={}):
++                 placement=None, price_multiplier=1.2, tags={},
++                 delete_vol_term=True):
+ 
+         AbstractLatentBuildSlave.__init__(
+             self, name, password, max_builds, notify_on_missing,
+@@ -97,6 +98,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+         self.max_spot_price = max_spot_price
+         self.volumes = volumes
+         self.price_multiplier = price_multiplier
++        self.delete_vol_term = delete_vol_term
++
+         if None not in [placement, region]:
+             self.placement = '%s%s' % (region, placement)
+         else:
+@@ -295,12 +298,34 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+         return threads.deferToThread(
+             self._stop_instance, instance, fast)
+ 
++    def _handle_delete_on_term(self):
++        if self.delete_vol_term is False:
++            return
++
++        block_map = self.conn.get_instance_attribute(self.instance.id, attribute='blockDeviceMapping')
++        log.msg("%s: %s" % (self.instance.id, block_map))
++
++        del_on_term = []
++        for devname in block_map['blockDeviceMapping']:
++            del_on_term.append('%s=true' % devname)
++
++        if del_on_term:
++            log.msg(str(del_on_term))
++            if not self.conn.modify_instance_attribute(self.instance.id, 'blockDeviceMapping', del_on_term):
++                log.msg("Failed to set deletion on termination")
++
+     def _attach_volumes(self):
+         for volume_id, device_node in self.volumes:
+             self.conn.attach_volume(volume_id, self.instance.id, device_node)
+             log.msg('Attaching EBS volume %s to %s.' %
+                     (volume_id, device_node))
+ 
++    def _handle_volumes(self):
++        self._handle_delete_on_term()
++
++        if len(self.volumes) > 0:
++            self._attach_volumes()
++
+     def _stop_instance(self, instance, fast):
+         if self.elastic_ip is not None:
+             self.conn.disassociate_address(self.elastic_ip.public_ip)
+@@ -396,8 +421,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+                 self.instance.use_ip(self.elastic_ip)
+             start_time = '%02d:%02d:%02d' % (
+                 minutes // 60, minutes % 60, seconds)
+-            if len(self.volumes) > 0:
+-                self._attach_volumes()
++            self._handle_volumes()
+             return self.instance.id, image.id, start_time
+         else:
+             return None, None, None
