@@ -1,5 +1,5 @@
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index 64abf29..9e415e0 100644
+index 64abf29..54286ab 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
 @@ -59,7 +59,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
@@ -21,14 +21,11 @@ index 64abf29..9e415e0 100644
          if None not in [placement, region]:
              self.placement = '%s%s' % (region, placement)
          else:
-@@ -295,12 +298,37 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -295,12 +298,34 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
          return threads.deferToThread(
              self._stop_instance, instance, fast)
  
 +    def _handle_delete_on_term(self):
-+        if self.spot_instance is True:
-+            return
-+
 +        if self.delete_vol_term is False:
 +            return
 +
@@ -59,7 +56,7 @@ index 64abf29..9e415e0 100644
      def _stop_instance(self, instance, fast):
          if self.elastic_ip is not None:
              self.conn.disassociate_address(self.elastic_ip.public_ip)
-@@ -396,8 +424,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -396,8 +421,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                  self.instance.use_ip(self.elastic_ip)
              start_time = '%02d:%02d:%02d' % (
                  minutes // 60, minutes % 60, seconds)
