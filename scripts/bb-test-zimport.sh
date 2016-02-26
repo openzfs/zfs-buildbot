@@ -38,9 +38,9 @@ TEST_ZIMPORT_POOLS=${TEST_ZIMPORT_POOLS:-"zol-0.6.1 zol-0.6.2 master installed"}
 TEST_ZIMPORT_OPTIONS=${TEST_ZIMPORT_OPTIONS:-"-c"}
 
 sudo -E dmesg -c >/dev/null
-mkdir -p $TEST_ZIMPORT_DIR || exit 1
-rm -Rf $TEST_ZIMPORT_DIR/src/spl/master || exit 1
-rm -Rf $TEST_ZIMPORT_DIR/src/zfs/master || exit 1
+sudo -E mkdir -p $TEST_ZIMPORT_DIR || exit 1
+sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/spl/master || exit 1
+sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/zfs/master || exit 1
 
 sudo -E $ZIMPORT $TEST_ZIMPORT_OPTIONS -f $TEST_ZIMPORT_DIR \
     -s "$TEST_ZIMPORT_VERSIONS" -p "$TEST_ZIMPORT_POOLS" &
