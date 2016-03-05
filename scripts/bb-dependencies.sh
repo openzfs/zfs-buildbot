@@ -20,7 +20,7 @@ Amazon*)
 
     # Required utilties.
     $SUDO yum -y install git rpm-build wget curl lsscsi parted attr dbench \
-        watchdog
+        watchdog ksh
 
     # Required development libraries
     $SUDO yum -y install kernel-devel-$(uname -r) \
@@ -34,7 +34,7 @@ CentOS*)
 
     # Required utilties.
     $SUDO yum -y install git rpm-build wget curl lsscsi parted attr dbench \
-        watchdog
+        watchdog ksh
 
     # Required development libraries
     $SUDO yum -y install kernel-devel \
@@ -48,7 +48,7 @@ Debian*)
 
     # Required utilties.
     $SUDO apt-get --yes install git alien fakeroot wget curl bc \
-        lsscsi parted gdebi attr dbench watchdog
+        lsscsi parted gdebi attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
@@ -62,7 +62,7 @@ Fedora*)
 
     # Required utilties.
     $SUDO dnf -y install git rpm-build wget curl lsscsi parted attr dbench \
-        watchdog
+        watchdog ksh
 
     # Required development libraries
     $SUDO dnf -y install kernel-devel-$(uname -r) zlib-devel \
@@ -84,7 +84,7 @@ RHEL*)
 
     # Required utilties.
     $SUDO yum -y install git rpm-build wget curl lsscsi parted attr dbench \
-        watchdog
+        watchdog ksh
 
     # Required development libraries
     $SUDO yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
@@ -98,7 +98,7 @@ SUSE*)
 
     # Required utilties.
     $SUDO zypper --non-interactive install git rpm-build wget curl \
-        lsscsi parted attr
+        lsscsi parted attr ksh
 
     # Required development libraries
     $SUDO zypper --non-interactive install kernel-devel zlib-devel \
@@ -112,7 +112,7 @@ Ubuntu*)
 
     # Required utilties.
     $SUDO apt-get --yes install git alien fakeroot wget curl \
-        lsscsi parted gdebi attr dbench watchdog
+        lsscsi parted gdebi attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
