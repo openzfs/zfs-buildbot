@@ -116,7 +116,7 @@ Amazon*)
         adduser buildbot
         echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/d' /etc/sudoers
+        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
     ;;
 
@@ -151,7 +151,7 @@ CentOS*)
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-    sed -i.bak '/secure_path/d' /etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     ;;
 
 Debian*)
@@ -180,7 +180,7 @@ Debian*)
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-    sed -i.bak '/secure_path/d' /etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     ;;
 
 Fedora*)
@@ -213,7 +213,7 @@ Fedora*)
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-    sed -i.bak '/secure_path/d' /etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     ;;
 
 Gentoo*)
@@ -246,7 +246,7 @@ RHEL*)
         adduser buildbot
         echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/d' /etc/sudoers
+        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
     ;;
 
@@ -267,7 +267,7 @@ SUSE*)
         useradd -g buildbot buildbot
         echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/d' /etc/sudoers
+        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
     ;;
 
@@ -297,7 +297,7 @@ Ubuntu*)
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-    sed -i.bak '/secure_path/d' /etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     ;;
 
 *)
