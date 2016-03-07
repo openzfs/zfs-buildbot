@@ -78,7 +78,6 @@ class EC2SlaveInfo(BuildSlaveInfo):
         spot_instance=False
         max_spot_price=0.08
         price_multiplier=1.25
-        keepalive_interval=3600
         security_name="ZFSBuilder"
         password = self.password
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -163,7 +162,7 @@ class EC2LargeSlaveInfo(EC2SlaveInfo):
 class EC2TestSlaveInfo(EC2LargeSlaveInfo):
     def makeBuildSlave(self, **kwargs):
         return super(EC2TestSlaveInfo, self).makeBuildSlave(
-            keepalive_interval=60, **kwargs)
+            **kwargs)
 
 # Builder info which will help us keep track of our slaves
 class BuilderInfo(object):
