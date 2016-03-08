@@ -190,7 +190,7 @@ Debian*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
-    mount /dev/xvdc /mnt
+    mount /dev/xvdb /mnt
     ;;
 
 Fedora*)
@@ -226,7 +226,7 @@ Fedora*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
-    mount /dev/xvdb /mnt
+    # This is the default.
     ;;
 
 Gentoo*)
