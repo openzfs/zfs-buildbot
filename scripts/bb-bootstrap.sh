@@ -118,6 +118,10 @@ Amazon*)
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
         sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    umount /media/ephemeral0
+    mount /dev/xvdb /mnt
     ;;
 
 CentOS*)
@@ -152,6 +156,9 @@ CentOS*)
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    # This is the default.
     ;;
 
 Debian*)
@@ -181,6 +188,9 @@ Debian*)
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    mount /dev/xvdc /mnt
     ;;
 
 Fedora*)
@@ -214,6 +224,9 @@ Fedora*)
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    mount /dev/xvdb /mnt
     ;;
 
 Gentoo*)
@@ -248,6 +261,9 @@ RHEL*)
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
         sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    # This is the default.
     ;;
 
 SUSE*)
@@ -299,6 +315,9 @@ Ubuntu*)
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     ;;
+
+    # Standardize ephemeral storage so it's available under /mnt.
+    # This is the default.
 
 *)
     echo "Unknown distribution, cannot bootstrap $BB_NAME"
