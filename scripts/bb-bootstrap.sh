@@ -190,7 +190,7 @@ Debian*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
-    # This is the default.
+    sed -i.bak 's/nobootwait/nofail/' /etc/fstab
     ;;
 
 Fedora*)
