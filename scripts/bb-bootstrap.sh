@@ -120,8 +120,7 @@ Amazon*)
     fi
 
     # Standardize ephemeral storage so it's available under /mnt.
-    umount /media/ephemeral0
-    mount /dev/xvdb /mnt
+    sed -i.bak 's/\/media\/ephemeral0/\/mnt/' /etc/fstab
     ;;
 
 CentOS*)
