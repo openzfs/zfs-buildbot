@@ -154,15 +154,17 @@ runurl """ + self.url + """bb-bootstrap.sh
 class EC2LargeSlaveInfo(EC2SlaveInfo):
     def makeBuildSlave(self, **kwargs):
         return super(EC2LargeSlaveInfo, self).makeBuildSlave(
-            build_wait_timeout=30 * 60, instance_type="m3.large",
+            build_wait_timeout=100 * 60, instance_type="m3.large",
             spot_instance=True, max_spot_price=0.08,
             price_multiplier=1.25, **kwargs)
 
 # Create an EC2 latent test slave.
-class EC2TestSlaveInfo(EC2LargeSlaveInfo):
+class EC2TestSlaveInfo(EC2SlaveInfo):
     def makeBuildSlave(self, **kwargs):
         return super(EC2TestSlaveInfo, self).makeBuildSlave(
-            **kwargs)
+            build_wait_timeout=1, instance_type="m3.large",
+            spot_instance=True, max_spot_price=0.08,
+            price_multiplier=1.25, **kwargs)
 
 # Builder info which will help us keep track of our slaves
 class BuilderInfo(object):
