@@ -64,7 +64,4 @@ wait $CHILD
 # FAILURE: One or more test cases failed.
 grep "\[FAIL\]" log && exit 1
 
-# WARNING: One or more test cases were skipped.
-grep "\[SKIP\]" log && exit 2
-
 exit 0
