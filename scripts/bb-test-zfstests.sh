@@ -10,7 +10,7 @@ if test -f "../TEST"; then
     . ../TEST
 fi
 
-TEST_ZFSTESTS_SKIP=${TEST_ZFSTESTS_SKIP:-"Yes"}
+TEST_ZFSTESTS_SKIP=${TEST_ZFSTESTS_SKIP:-"No"}
 if echo "$TEST_ZFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
     exit 3
