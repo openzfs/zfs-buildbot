@@ -158,11 +158,27 @@ class EC2LargeSlaveInfo(EC2SlaveInfo):
             spot_instance=True, max_spot_price=0.08,
             price_multiplier=1.25, **kwargs)
 
-# Create an EC2 latent test slave.
+# Create a PV (paravirtual) large EC2 latent build slave.
+class EC2PVLargeSlaveInfo(EC2SlaveInfo):
+    def makeBuildSlave(self, **kwargs):
+        return super(EC2PVLargeSlaveInfo, self).makeBuildSlave(
+            build_wait_timeout=100 * 60, instance_type="c3.large",
+            spot_instance=True, max_spot_price=0.08,
+            price_multiplier=1.25, **kwargs)
+
+# Create a HVM EC2 latent test slave.
 class EC2TestSlaveInfo(EC2SlaveInfo):
     def makeBuildSlave(self, **kwargs):
         return super(EC2TestSlaveInfo, self).makeBuildSlave(
             build_wait_timeout=1, instance_type="m3.large",
+            spot_instance=True, max_spot_price=0.08,
+            price_multiplier=1.25, **kwargs)
+
+# Create a PV (paravirtual) EC2 latent test slave.
+class EC2PVTestSlaveInfo(EC2SlaveInfo):
+    def makeBuildSlave(self, **kwargs):
+        return super(EC2PVTestSlaveInfo, self).makeBuildSlave(
+            build_wait_timeout=1, instance_type="c3.large",
             spot_instance=True, max_spot_price=0.08,
             price_multiplier=1.25, **kwargs)
 
