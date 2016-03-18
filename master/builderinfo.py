@@ -182,6 +182,14 @@ class EC2PVTestSlaveInfo(EC2SlaveInfo):
             spot_instance=True, max_spot_price=0.08,
             price_multiplier=1.25, **kwargs)
 
+# Create a HVM EC2 latent test slave with x86 vector support (avx2, etc).
+class EC2VectorTestSlaveInfo(EC2SlaveInfo):
+    def makeBuildSlave(self, **kwargs):
+        return super(EC2VectorTestSlaveInfo, self).makeBuildSlave(
+            build_wait_timeout=1, instance_type="d2.xlarge",
+            spot_instance=True, max_spot_price=0.30,
+            placement='a', price_multiplier=1.25, **kwargs)
+
 # Builder info which will help us keep track of our slaves
 class BuilderInfo(object):
     """
