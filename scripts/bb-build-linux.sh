@@ -15,8 +15,7 @@ sed -i '/EXTRAVERSION = / s/$/.zfs/' Makefile
 make mrproper >>$CONFIG_LOG 2>&1 || exit 1
 make defconfig >>$CONFIG_LOG 2>&1 || exit 1
 cat >>$CONFIG_FILE <<EOF
-CONFIG_CRYPTO_PCOMP=y
-CONFIG_CRYPTO_ZLIB=y
+CONFIG_CRYPTO_DEFLATE=y
 CONFIG_ZLIB_DEFLATE=y
 CONFIG_KALLSYMS=y
 CONFIG_EFI_PARTITION=y
