@@ -121,6 +121,9 @@ Amazon*)
 
     # Standardize ephemeral storage so it's available under /mnt.
     sed -i.bak 's/\/media\/ephemeral0/\/mnt/' /etc/fstab
+    if ! blkid /dev/xvdb >/dev/null 2>&1; then
+        mkfs.ext4 /dev/xvdb
+    fi
 
     # Enable partitions for loopback devices, they are disabled by default.
     echo "options loop max_part=15" >/etc/modprobe.d/loop.conf
