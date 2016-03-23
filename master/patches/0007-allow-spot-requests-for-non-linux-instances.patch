@@ -1,0 +1,29 @@
+diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
+index 54286ab..29300f2 100644
+--- a/master/buildbot/buildslave/ec2.py
++++ b/master/buildbot/buildslave/ec2.py
+@@ -60,6 +60,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+                  build_wait_timeout=60 * 10, properties={}, locks=None,
+                  spot_instance=False, max_spot_price=1.6, volumes=[],
+                  placement=None, price_multiplier=1.2, tags={},
++                 product_description='Linux/UNIX (Amazon VPC)',
+                  delete_vol_term=True):
+ 
+         AbstractLatentBuildSlave.__init__(
+@@ -99,6 +100,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+         self.volumes = volumes
+         self.price_multiplier = price_multiplier
+         self.delete_vol_term = delete_vol_term
++        self.product_description = product_description
+ 
+         if None not in [placement, region]:
+             self.placement = '%s%s' % (region, placement)
+@@ -361,7 +363,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+             '%Y-%m-%dT%H:%M:%SZ', timestamp_yesterday)
+         spot_prices = self.conn.get_spot_price_history(
+             start_time=spot_history_starttime,
+-            product_description='Linux/UNIX (Amazon VPC)',
++            product_description=self.product_description,
+             availability_zone=self.placement)
+         price_sum = 0.0
+         price_count = 0

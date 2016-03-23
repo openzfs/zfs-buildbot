@@ -76,6 +76,7 @@ class EC2SlaveInfo(BuildSlaveInfo):
         region="us-west-2"
         placement=None
         spot_instance=False
+        product_description="Linux/UNIX (Amazon VPC)"
         max_spot_price=0.08
         price_multiplier=1.25
         security_name="ZFSBuilder"
@@ -130,6 +131,8 @@ runurl """ + self.url + """bb-bootstrap.sh
                 price_multiplier=kwargs[key]
             if key=="placement":
                 placement=kwargs[key]
+            if key=="product_description":
+                product_description=kwargs[key]
 
         return EC2LatentBuildSlave(
             self.name, self.password, instance_type, ami=self.ami,
@@ -141,6 +144,7 @@ runurl """ + self.url + """bb-bootstrap.sh
             build_wait_timeout=build_wait_timeout, properties={}, locks=None,
             spot_instance=spot_instance, max_spot_price=max_spot_price, volumes=[],
             placement=placement, price_multiplier=price_multiplier,
+            product_description=product_description,
             tags={
                 "ENV"      : "DEV",
                 "Name"     : "ZFSBuilder",
@@ -156,6 +160,15 @@ class EC2LargeSlaveInfo(EC2SlaveInfo):
         return super(EC2LargeSlaveInfo, self).makeBuildSlave(
             build_wait_timeout=100 * 60, instance_type="m3.large",
             spot_instance=True, max_spot_price=0.08,
+            price_multiplier=1.25, **kwargs)
+
+# Create a large EC2 latent build slave.
+class EC2LargeSUSESlaveInfo(EC2SlaveInfo):
+    def makeBuildSlave(self, **kwargs):
+        return super(EC2LargeSUSESlaveInfo, self).makeBuildSlave(
+            build_wait_timeout=30 * 60, instance_type="m3.large",
+            spot_instance=True, max_spot_price=0.16,
+            product_description="SUSE Linux (Amazon VPC)",
             price_multiplier=1.25, **kwargs)
 
 # Create an EC2 latent test slave.
