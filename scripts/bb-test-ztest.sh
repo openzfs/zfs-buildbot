@@ -17,7 +17,7 @@ if echo "$TEST_ZTEST_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 fi
 
 ZFS_SH=${ZFS_SH:-"zfs.sh"}
-ZTEST=${ZTEST:-"ztest"}
+ZLOOP=${ZLOOP:-"zloop.sh"}
 CONSOLE_LOG="$PWD/console.log"
 
 # Cleanup the pool and restore any modified system state.  The console log
@@ -33,12 +33,16 @@ trap cleanup EXIT SIGTERM
 set -x
 
 TEST_ZTEST_TIMEOUT=${TEST_ZTEST_TIMEOUT:-900}
-TEST_ZTEST_DIR=${TEST_ZTEST_DIR:-"/mnt/"}
-TEST_ZTEST_OPTIONS=${TEST_ZTEST_OPTIONS:-"-V"}
+TEST_ZTEST_DIR=${TEST_ZTEST_DIR:-"/mnt"}
+TEST_ZTEST_CORE_DIR=${TEST_ZTEST_CORE_DIR:-"/mnt/zloop"}
+TEST_ZTEST_OPTIONS=${TEST_ZTEST_OPTIONS:-""}
 
 sudo -E dmesg -c >/dev/null
 sudo -E $ZFS_SH || exit 1
-sudo -E $ZTEST $TEST_ZTEST_OPTIONS -T $TEST_ZTEST_TIMEOUT -f $TEST_ZTEST_DIR &
+sudo -E $ZLOOP $TEST_ZTEST_OPTIONS \
+    -t $TEST_ZTEST_TIMEOUT \
+    -f $TEST_ZTEST_DIR \
+    -c $TEST_ZTEST_CORE_DIR &
 CHILD=$!
 wait $CHILD
 RESULT=$?
