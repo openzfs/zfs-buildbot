@@ -16,7 +16,7 @@ set -x
 case "$BB_NAME" in
 Amazon*)
     # Required development tools.
-    $SUDO yum -y install gcc autoconf libtool
+    $SUDO yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
     $SUDO yum -y install git rpm-build wget curl bc \
@@ -30,7 +30,7 @@ Amazon*)
 
 CentOS*)
     # Required development tools.
-    $SUDO yum -y install gcc make autoconf libtool
+    $SUDO yum -y install gcc make autoconf libtool gdb
 
     # Required utilities.
     $SUDO yum -y install git rpm-build wget curl bc \
@@ -44,7 +44,8 @@ CentOS*)
 
 Debian*)
     # Required development tools.
-    $SUDO apt-get --yes install build-essential autoconf libtool libtool-bin
+    $SUDO apt-get --yes install build-essential autoconf libtool \
+        libtool-bin gdb
 
     # Required utilities.
     $SUDO apt-get --yes install git alien fakeroot wget curl bc \
@@ -58,7 +59,7 @@ Debian*)
 
 Fedora*)
     # Required development tools.
-    $SUDO dnf -y install gcc autoconf libtool
+    $SUDO dnf -y install gcc autoconf libtool gdb
 
     # Required utilities.
     $SUDO dnf -y install git rpm-build wget curl bc \
@@ -80,7 +81,7 @@ RHEL*)
     fi
 
     # Required development tools.
-    $SUDO yum -y install gcc autoconf libtool
+    $SUDO yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
     $SUDO yum -y install git rpm-build wget curl bc \
@@ -94,7 +95,7 @@ RHEL*)
 
 SUSE*)
     # Required development tools.
-    $SUDO zypper --non-interactive install gcc autoconf libtool
+    $SUDO zypper --non-interactive install gcc autoconf libtool gdb
 
     # Required utilities.
     $SUDO zypper --non-interactive install git rpm-build wget curl bc \
@@ -108,7 +109,7 @@ SUSE*)
 
 Ubuntu*)
     # Required development tools.
-    $SUDO apt-get --yes install build-essential autoconf libtool
+    $SUDO apt-get --yes install build-essential autoconf libtool gdb
 
     # Required utilities.
     $SUDO apt-get --yes install git alien fakeroot wget curl bc \
