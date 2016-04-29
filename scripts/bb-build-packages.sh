@@ -32,38 +32,38 @@ make $MAKE_OPTIONS pkg >>$MAKE_LOG 2>&1 || exit 1
 case "$BB_NAME" in
 Amazon*)
     $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 CentOS*)
     $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 Debian*)
     for file in *.deb; do
-        $SUDO gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
+        $SUDO gdebi -q --non-interactive $file >>$INSTALL_LOG 2>&1 || exit 1
     done
     ;;
 
 Fedora*)
     $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO dnf -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO dnf -y localinstall *.rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 RHEL*)
     $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO yum -y localinstall *.rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 SUSE*)
     $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO zypper --non-interactive install *.rpm >>$INSTALL_LOG 2>&1
+    $SUDO zypper --non-interactive install *.rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 Ubuntu*)
     for file in *.deb; do
-        $SUDO gdebi --quiet --non-interactive $file >>$INSTALL_LOG 2>&1
+        $SUDO gdebi -q --non-interactive $file >>$INSTALL_LOG 2>&1 || exit 1
     done
     ;;
 
