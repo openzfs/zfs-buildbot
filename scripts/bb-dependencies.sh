@@ -59,7 +59,7 @@ Debian*)
 
 Fedora*)
     # Required development tools.
-    $SUDO dnf -y install gcc autoconf libtool gdb
+    $SUDO dnf groupinstall "C Development Tools and Libraries"
 
     # Required utilities.
     $SUDO dnf -y install git rpm-build wget curl bc \
@@ -69,6 +69,9 @@ Fedora*)
     $SUDO dnf -y install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel
+
+    # Required testing utilities (for bb-test-bootable-image.sh)
+    $SUDO dnf -y install qemu-system-x86 rsync cryptsetup
     ;;
 
 RHEL*)

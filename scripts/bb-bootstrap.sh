@@ -212,12 +212,12 @@ Fedora*)
 
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST"; then
-        yum -y update kernel
+        dnf -y update kernel-core
     fi
 
     # Use the debug kernel instead if indicated
     if test "$BB_KERNEL_TYPE" = "DEBUG"; then
-        yum -y install kernel-debug
+        dnf -y install kernel-debug
         set_boot_kernel
     fi
 

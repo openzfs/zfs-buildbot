@@ -47,8 +47,7 @@ Debian*)
     ;;
 
 Fedora*)
-    $SUDO rm *.src.rpm *.noarch.rpm >>$INSTALL_LOG 2>&1
-    $SUDO dnf -y localinstall *.rpm >>$INSTALL_LOG 2>&1 || exit 1
+    $SUDO dnf -y install *.$(arch).rpm >>$INSTALL_LOG 2>&1 || exit 1
     ;;
 
 RHEL*)
