@@ -16,8 +16,6 @@ if echo "$TEST_BOOTABLE_IMAGE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-ZPOOL=${ZPOOL:-"zpool"}
-ZFS=${ZFS:-"zfs"}
 CONSOLE_LOG="$PWD/console.log"
 OUTPUT_LOG="$PWD/output.log"
 
