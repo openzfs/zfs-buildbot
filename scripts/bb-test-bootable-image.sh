@@ -49,7 +49,7 @@ TEST_BOOTABLE_IMAGE_OPTIONS=${TEST_BOOTABLE_IMAGE_OPTIONS:-""}
 echo -n >$OUTPUT_LOG 2>&1
 
 wget -qO${TEST_BOOTABLE_IMAGE_TAR} ${TEST_BOOTABLE_IMAGE_URL} || exit 1
-tar -xzf --strip-components=1 ${TEST_BOOTABLE_IMAGE_TAR} || exit 1
+tar -xz --strip-components=1 -f ${TEST_BOOTABLE_IMAGE_TAR} || exit 1
 rm -f ${TEST_BOOTABLE_IMAGE_TAR}
 
 rm -rf rpms/                            >>$OUTPUT_LOG 2>&1
