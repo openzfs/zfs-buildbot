@@ -36,9 +36,6 @@ Fedora*)
 cleanup()
 {
     dmesg >$CONSOLE_LOG
-    sudo -E $ZPOOL destroy -f "$TEST_BOOTABLE_IMAGE_POOL" &>/dev/null
-    sudo -E rm -f /etc/zfs/zpool.cache "$TEST_BOOTABLE_IMAGE_VDEV"
-    dmesg >$CONSOLE_LOG
 }
 trap cleanup EXIT SIGTERM
 
