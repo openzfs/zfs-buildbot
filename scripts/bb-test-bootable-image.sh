@@ -44,11 +44,17 @@ trap cleanup EXIT SIGTERM
 
 set -x
 
+TEST_BOOTABLE_IMAGE_URL=${TEST_BOOTABLE_IMAGE_URL:-"https://github.com/Rudd-O/zfs-fedora-installer/archive/master.tar.gz"}
+TEST_BOOTABLE_IMAGE_TAR=${TEST_BOOTABLE_IMAGE_TAR:-"zfs-fedora-installer.tar.gz"}
 TEST_BOOTABLE_IMAGE_POOL=${TEST_BOOTABLE_IMAGE_POOL:-"bootable_image"}
 TEST_BOOTABLE_IMAGE_VDEV=${TEST_BOOTABLE_IMAGE_VDEV:-"/var/tmp/bootable_image.img"}
 TEST_BOOTABLE_IMAGE_OPTIONS=${TEST_BOOTABLE_IMAGE_OPTIONS:-""}
 
 echo -n >$OUTPUT_LOG 2>&1
+
+wget -qO${TEST_BOOTABLE_IMAGE_TAR} ${TEST_BOOTABLE_IMAGE_URL} || exit 1
+tar -xzf --strip-components=1 ${TEST_BOOTABLE_IMAGE_TAR} || exit 1
+rm -f ${TEST_BOOTABLE_IMAGE_TAR}
 
 rm -rf rpms/                            >>$OUTPUT_LOG 2>&1
 mkdir -p rpms/                          >>$OUTPUT_LOG 2>&1
