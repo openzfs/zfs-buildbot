@@ -28,6 +28,7 @@ Fedora*)
     echo "$BB_NAME unknown platform, skipping image test" >>$OUTPUT_LOG 2>&1
     exit 3
     ;;
+esac
 
 # Cleanup the pool and restore any modified system state.  The console log
 # is dumped twice to maximize the odds of preserving debug information.
