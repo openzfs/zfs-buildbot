@@ -28,7 +28,7 @@ Fedora*)
 
 *)
     echo "$BB_NAME unknown platform, skipping image test" >>$OUTPUT_LOG 2>&1
-    exit 18
+    exit 3
     ;;
 
 # Cleanup the pool and restore any modified system state.  The console log
