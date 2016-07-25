@@ -17,7 +17,6 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 set -e
-set -x
 
 # Check for a local cached configuration.
 if test -f /etc/buildslave; then
@@ -99,6 +98,8 @@ set_boot_kernel () {
 		sed --in-place "s/^default=.*/default=${entry}/" /boot/grub/grub.conf
 	fi
 }
+
+set -x
 
 case "$BB_NAME" in
 Amazon*)
@@ -329,6 +330,8 @@ Ubuntu*)
     ;;
 esac
 
+set +x
+
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR
@@ -350,6 +353,8 @@ uname -a >> $BB_DIR/info/host
 grep MemTotal /proc/meminfo >> $BB_DIR/info/host
 grep 'model name' /proc/cpuinfo >> $BB_DIR/info/host
 grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
+
+set -x
 
 # Finally, start it.  If all goes well, at this point you should see a buildbot
 # slave joining your farm.  You can then manage the rest of the work from the
