@@ -87,9 +87,9 @@ runurl $BB_URL/bb-bootstrap.sh
                 instance_type="m3.large", identifier=ec2_default_access,
                 secret_identifier=ec2_default_secret,
                 keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
-                user_data=None, region="us-west-2", placement=None, max_builds=1, 
-                build_wait_timeout=30 * 60, spot_instance=True, max_spot_price=.08,
-                price_multiplier=1.25, missing_timeout=60 * 20, **kwargs):
+                user_data=None, region="us-west-2", placement='b', max_builds=1,
+                build_wait_timeout=30 * 60, spot_instance=True, max_spot_price=0.20,
+                price_multiplier=None, missing_timeout=60 * 20, **kwargs):
 
         self.name = name
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -129,23 +129,25 @@ runurl $BB_URL/bb-bootstrap.sh
 # Create a PV (paravirtual) large EC2 latent build slave
 class ZFSEC2PVSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
-        ZFSEC2Slave.__init__(self, name, instance_type="c3.large", **kwargs)
+        ZFSEC2Slave.__init__(self, name, instance_type="m1.medium",
+            max_spot_price=0.20, placement='b', **kwargs)
 
 # Create an HVM EC2 latent test slave 
 class ZFSEC2TestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
-        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST", **kwargs)
+        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
+            placement='b', **kwargs)
 
 # Create an PV (paravirtual) EC2 latent test slave 
 class ZFSEC2PVTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-                             instance_type="c3.large", **kwargs)
+            instance_type="c3.large", max_spot_price=0.20,
+            placement='b', **kwargs)
 
 # Create an HVM EC2 latent test slave with x86 vector support (avx2, etc).
 class ZFSEC2VectorTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-                             instance_type="d2.xlarge", max_spot_price=0.30,
-                             placement='a', **kwargs)
-
+            instance_type="d2.xlarge", max_spot_price=0.30,
+            placement='c', **kwargs)
