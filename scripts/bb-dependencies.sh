@@ -49,7 +49,7 @@ Debian*)
 
     # Required utilities.
     $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
-        sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh
+        sysstat lsscsi parted gdebi attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
