@@ -19,8 +19,8 @@ Amazon*)
     $SUDO yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc \
-        lsscsi parted attr dbench watchdog ksh
+    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+        mdadm lsscsi parted attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO yum -y install kernel-devel-$(uname -r) \
@@ -33,8 +33,8 @@ CentOS*)
     $SUDO yum -y install gcc make autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc \
-        lsscsi parted attr dbench watchdog ksh
+    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+        mdadm lsscsi parted attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO yum -y install kernel-devel \
@@ -48,8 +48,8 @@ Debian*)
         libtool-bin gdb
 
     # Required utilities.
-    $SUDO apt-get --yes install git alien fakeroot wget curl bc \
-        lsscsi parted gdebi attr dbench watchdog ksh
+    $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
+        sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
@@ -62,8 +62,8 @@ Fedora*)
     $SUDO dnf -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO dnf -y install git rpm-build wget curl bc \
-        lsscsi parted attr dbench watchdog ksh
+    $SUDO dnf -y install git rpm-build wget curl bc fio acl sysstat \
+        mdadm lsscsi parted attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO dnf -y install kernel-devel-$(uname -r) zlib-devel \
@@ -84,8 +84,8 @@ RHEL*)
     $SUDO yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc \
-        lsscsi parted attr dbench watchdog ksh
+    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+        mdadm lsscsi parted attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
@@ -99,7 +99,7 @@ SUSE*)
 
     # Required utilities.
     $SUDO zypper --non-interactive install git rpm-build wget curl bc \
-        lsscsi parted attr ksh
+        fio acl sysstat mdadm lsscsi parted attr ksh
 
     # Required development libraries
     $SUDO zypper --non-interactive install kernel-devel zlib-devel \
@@ -112,8 +112,8 @@ Ubuntu*)
     $SUDO apt-get --yes install build-essential autoconf libtool gdb
 
     # Required utilities.
-    $SUDO apt-get --yes install git alien fakeroot wget curl bc \
-        lsscsi parted gdebi attr dbench watchdog ksh
+    $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
+        sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh
 
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
