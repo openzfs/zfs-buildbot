@@ -108,7 +108,7 @@ Amazon*)
     BUILDSLAVE="/usr/local/bin/buildslave"
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
     fi
 
@@ -120,10 +120,12 @@ Amazon*)
         sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
 
-    # Standardize ephemeral storage so it's available under /mnt.
-    sed -i.bak 's/\/media\/ephemeral0/\/mnt/' /etc/fstab
-    if ! blkid /dev/xvdb >/dev/null 2>&1; then
-        mkfs.ext4 /dev/xvdb
+    if test "$BB_MODE" != "PERF"; then
+        # Standardize ephemeral storage so it's available under /mnt.
+        sed -i.bak 's/\/media\/ephemeral0/\/mnt/' /etc/fstab
+        if ! blkid /dev/xvdb >/dev/null 2>&1; then
+            mkfs.ext4 /dev/xvdb
+        fi
     fi
 
     # Enable partitions for loopback devices, they are disabled by default.
@@ -144,7 +146,7 @@ CentOS*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
     fi
 
@@ -182,7 +184,7 @@ Debian*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         apt-get --yes install --only-upgrade linux-image-amd64
     fi
 
@@ -212,7 +214,7 @@ Fedora*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
     fi
 
@@ -250,7 +252,7 @@ RHEL*)
     BUILDSLAVE="/usr/bin/buildslave"
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
     fi
 
@@ -308,7 +310,7 @@ Ubuntu*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST"; then
+    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         apt-get --yes install --only-upgrade linux-image-generic
     fi
 
