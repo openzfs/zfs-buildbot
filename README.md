@@ -45,7 +45,7 @@ By default, all commits in your ZFS pull request are compiled by the BUILD
 builders.  Additionally, the top commit of your ZFS pull request is tested by
 TEST builders. However, there is the option to override which types of builder
 should be used on a per commit basis. In this case, you can add
-`Requires-builders: <style|build|arch|distro|test>` to your
+`Requires-builders: <style|build|arch|distro|test|perf>` to your
 commit message. A comma separated list of options can be
 provided. Supported options are:
 
@@ -59,10 +59,12 @@ provided. Supported options are:
 
 * `test`: This commit should be built and tested by the TEST builders
 
+* `perf`: This commit should be built and tested by the PERF builders
+
 ### Builder Types
 
 When a new pull request is opened it is queued up for testing on all of the
-available builders.  There are three primary types of builders:
+available builders.  There are four primary types of builders:
 
 * STYLE: These builders are responsible for performing static analysis.
   Currently, style checking and linting is performed for each submitted
@@ -91,6 +93,11 @@ available builders.  There are three primary types of builders:
   and finally running a standard battery of tests.  Due to the time
   involved in running the entire suite of tests only the last commit in the
   pull request will be tested.
+
+* PERF: These builders are responsible for running performance regression
+  tests for a change. These builders are not used by default and are only used
+  when `perf` is provided as an option to `Requires-builders` in a commit
+  message.
 
 Reliable test results are obtained by using ec2 latent builders.  This is
 important because when testing kernel modules it is not uncommon for a flaw in
