@@ -44,7 +44,12 @@ default master branch.
 ### Builder Types
 
 When a new pull request is opened it is queued up for testing on all of the
-available builders.  There are two primary types of builders:
+available builders.  There are three primary types of builders:
+
+* STYLE: These builders are responsible for performing static analysis.
+  Currently, style checking and linting is performed for each submitted
+  change. Changes are required to pass static analysis before being
+  accepted.
 
 * BUILD: These builders are responsible for verifying that a change
   doesn't break the build on a given platform.  Every commit in the pull
