@@ -10,7 +10,7 @@ if test -f "../TEST"; then
     . ../TEST
 fi
 
-TEST_SPLAT_SKIP=${TEST_SPLAT_SKIP:-"No"}
+TEST_SPLAT_SKIP=${TEST_SPLAT_SKIP:-"Yes"}
 if echo "$TEST_SPLAT_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
     exit 3
