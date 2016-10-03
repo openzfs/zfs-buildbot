@@ -21,7 +21,7 @@ Amazon*)
     # Required utilities.
     $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh
-    $SUDO yum -y install --enablerepo=epel cppcheck
+    $SUDO yum -y install --enablerepo=epel cppcheck python-pep8
 
     # Required development libraries
     $SUDO yum -y install kernel-devel-$(uname -r) \
