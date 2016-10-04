@@ -21,13 +21,15 @@ Amazon*)
     # Required utilities.
     $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh
-    $SUDO yum -y install --enablerepo=epel cppcheck python-pep8
+    $SUDO yum -y install --enablerepo=epel cppcheck
 
     # Required development libraries
     $SUDO yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel
+
+    $SUDO pip --quiet install flake8
     ;;
 
 CentOS*)
