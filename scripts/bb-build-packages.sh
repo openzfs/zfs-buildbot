@@ -8,17 +8,9 @@ else
     exit 1
 fi
 
+CONFIG_OPTIONS=${CONFIG_OPTIONS:-""}
+
 CONFIG_LOG="configure.log"
-case "$BB_NAME" in
-CentOS*|RHEL*)
-    # CentOS/RHEL provide a stable kabi use weak modules.
-    CONFIG_OPTIONS="--enable-debug --with-spec=redhat"
-    ;;
-*)
-    # Default build these packages are tied to this exact kernel version.
-    CONFIG_OPTIONS="--enable-debug"
-    ;;
-esac
 MAKE_LOG="make.log"
 MAKE_OPTIONS=""
 INSTALL_LOG="install.log"
