@@ -48,18 +48,13 @@ set +x
 sudo -E chmod 777 $TEST_ZFSTESTS_DIR
 sudo -E dmesg -c >/dev/null
 sudo -E $ZFS_SH || exit 1
+
+ln -s /var/tmp/test_results/current/log log
+
 $ZFSTESTS $TEST_ZFSTESTS_OPTIONS \
     -d $TEST_ZFSTESTS_DIR \
     -s $TEST_ZFSTESTS_DISKSIZE \
-    -r $TEST_ZFSTESTS_RUNFILE &
-CHILD=$!
-
-sleep 1
-TEST_LOG=$(ls -t /var/tmp/test_results/*/log | head -1)
-rm -f log
-ln -s $TEST_LOG log
-
-wait $CHILD
+    -r $TEST_ZFSTESTS_RUNFILE
 
 # FAILURE: One or more test cases failed.
 grep "\[FAIL\]" log && exit 1
