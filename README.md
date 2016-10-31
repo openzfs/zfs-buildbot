@@ -41,6 +41,19 @@ your ZFS pull request, where `PR` is an open SPL pull request number.  This
 will instruct the buildbot to use that SPL pull request rather than the
 default master branch.
 
+By default, all commits in your ZFS pull request are compiled by the BUILD
+builders.  Additionally, the top commit of your ZFS pull request is tested by
+TEST builders. However, there is the option to override which types of builder
+should be used on a per commit basis. In this case, you can add
+`Requires-builders: <style|build|test>` to your commit message. A comma
+separated list of options can be provided. Supported options are:
+
+* `style`: This commit should be built by STYLE builders
+
+* `build`: This commit should be built by BUILD builders
+
+* `test`: This commit should be built and tested by the TEST builders
+
 ### Builder Types
 
 When a new pull request is opened it is queued up for testing on all of the
