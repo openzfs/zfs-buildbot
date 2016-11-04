@@ -133,7 +133,7 @@ class ZFSEC2BuildSlave(ZFSEC2Slave):
             instance_type="m3.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
-# Create a PV (paravirtual) large EC2 latent build slave
+# Create a PV (paravirtual) EC2 latent build slave
 class ZFSEC2PVSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
@@ -151,7 +151,7 @@ class ZFSEC2TestSlave(ZFSEC2Slave):
 class ZFSEC2PVTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="c3.large", max_spot_price=0.20, placement='a',
+            instance_type="m1.medium", max_spot_price=0.20, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave with x86 vector support (avx2, etc).
