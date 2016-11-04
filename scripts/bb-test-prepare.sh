@@ -101,4 +101,19 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
      esac
 fi
 
+# other test environment prep by distro
+case "$BB_NAME" in
+    Amazon*)
+        if test "$BB_MODE" = "PERF"; then
+            for disk in $AVAILABLE_DISKS; do
+                $SUDO parted --script /dev/$disk mklabel gpt
+                $SUDO parted --script /dev/$disk mkpart logical 1MiB 64GiB
+                $SUDO dd if=/dev/zero of=/dev/${disk}1 bs=1M &
+            done
+
+            wait
+        fi
+        ;;
+esac
+
 exit 0
