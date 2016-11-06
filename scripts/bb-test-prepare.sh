@@ -101,7 +101,66 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
      esac
 fi
 
-# other test environment prep by distro
+# Start both NFS and Samba servers, needed by the ZFS Test Suite to run
+# zfs_share and zfs_unshare scripts.
+TEST_PREPARE_SHARES=${TEST_PREPARE_SHARES:-"Yes"}
+if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
+    case "$BB_NAME" in
+    Amazon*)
+        $SUDO /etc/init.d/rpcbind start
+        $SUDO /etc/init.d/nfs start
+        $SUDO /etc/init.d/smb start
+        ;;
+
+    CentOS*)
+        if cat /etc/redhat-release | grep -Eq "6."; then
+            $SUDO /etc/init.d/rpcbind start
+            $SUDO /etc/init.d/nfs start
+            $SUDO /etc/init.d/smb start
+        elif cat /etc/redhat-release | grep -Eq "7."; then
+            $SUDO systemctl start nfs-server
+            $SUDO systemctl start smb
+        fi
+        ;;
+
+    Debian*)
+        $SUDO systemctl start nfs-kernel-server
+        $SUDO systemctl start samba
+        ;;
+
+    Fedora*)
+        $SUDO systemctl start nfs-server
+        $SUDO systemctl start smb
+        ;;
+
+    RHEL*)
+        if cat /etc/redhat-release | grep -Eq "6."; then
+            $SUDO /etc/init.d/rpcbind start
+            $SUDO /etc/init.d/nfs start
+            $SUDO /etc/init.d/smb start
+        elif cat /etc/redhat-release | grep -Eq "7."; then
+            $SUDO systemctl start nfs-server
+            $SUDO systemctl start smb
+        fi
+        ;;
+
+    SUSE*)
+        $SUDO systemctl start nfsserver
+        $SUDO systemctl start smb
+        ;;
+
+    Ubuntu*)
+        $SUDO service nfs-kernel-server start
+        $SUDO service smbd start
+        ;;
+
+    *)
+        echo "$BB_NAME unknown platform"
+        ;;
+     esac
+fi
+
+# Other test environment prep by distro
 case "$BB_NAME" in
     Amazon*)
         if test "$BB_MODE" = "PERF"; then
