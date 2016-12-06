@@ -294,6 +294,7 @@ SUSE*)
     ;;
 
 Ubuntu*)
+    while [ -s /var/lib/dpkg/lock ]; do sleep 1; done
     apt-get --yes update
 
     # Relying on the pip version of the buildslave is more portable but
