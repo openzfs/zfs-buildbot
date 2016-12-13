@@ -42,7 +42,6 @@ class ZFSBuilderConfig(util.BuilderConfig):
 # Create large EC2 latent build slave
 class ZFSEC2Slave(EC2LatentBuildSlave):
     default_user_data = user_data = """#!/bin/bash                                                                                   
-set -e
 set -x
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
