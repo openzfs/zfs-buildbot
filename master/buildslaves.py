@@ -31,11 +31,27 @@ class ZFSBuilderConfig(util.BuilderConfig):
         # randomly choose among all our busy slaves
         return (random.choice(slaves) if slaves else None)
 
+    @staticmethod
+    def nextBuild(builder, requests):
+        min_part = None
+        min_request = None
+        for request in requests:
+            # head commits take priority, first (= oldest) seen is taken
+            if request.source.commit_part == request.source.commits_total:
+                return request
+            # other commits are ordered by their part number in the
+            # respective pull request.  when equal, older are taken first
+            if not min_part or request.source.commit_part < min_part:
+                min_part = request.source.commit_part
+                min_request = request
+        return request
+
     def __init__(self, mergeRequests=False, nextSlave=None, **kwargs):
         if nextSlave is None:
             nextSlave = ZFSBuilderConfig.nextSlave
 
-        util.BuilderConfig.__init__(self, nextSlave=nextSlave, 
+        util.BuilderConfig.__init__(self, nextSlave=nextSlave,
+                                    nextBuild=nextBuild,
                                     mergeRequests=mergeRequests, **kwargs)
 
 ### BUILD SLAVE CLASSES
