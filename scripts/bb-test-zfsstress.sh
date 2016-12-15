@@ -61,8 +61,8 @@ cd zfsstress*
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
 	echo "Kmemleak enabled.  Disabling scan thread and clearing log"
-	sudo -E sh -c 'echo "scan=off" >"$KMEMLEAK_FILE"'
-	sudo -E sh -c 'echo "clear" >"$KMEMLEAK_FILE"'
+	sudo -E sh -c "echo scan=off >$KMEMLEAK_FILE"
+	sudo -E sh -c "echo clear >$KMEMLEAK_FILE"
 fi
 
 # Create zpool and start with a clean slate.
@@ -87,15 +87,15 @@ sleep 5
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
 	# Scan must be run twice to ensure all leaks are detected.
-	sudo -E sh -c 'echo "scan" >"$KMEMLEAK_FILE"'
-	sudo -E sh -c 'echo "scan" >"$KMEMLEAK_FILE"'
-	sudo -E cat "$KMEMLEAK_FILE" >"$KMEMLEAK_LOG"
+	sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
+	sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
+	sudo -E cat $KMEMLEAK_FILE >$KMEMLEAK_LOG
 
 	if [ -s "$KMEMLEAK_LOG" ]; then
 		echo "Kmemleak detected see $KMEMLEAK_LOG"
 		[ $RESULT -eq 0 ] && RESULT=2
 	else
-		echo "Kmemleak detected no leaks" >"$KMEMLEAK_LOG"
+		echo "Kmemleak detected no leaks" >$KMEMLEAK_LOG
 	fi
 fi
 
