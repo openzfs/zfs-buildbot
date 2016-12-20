@@ -31,11 +31,41 @@ class ZFSBuilderConfig(util.BuilderConfig):
         # randomly choose among all our busy slaves
         return (random.choice(slaves) if slaves else None)
 
-    def __init__(self, mergeRequests=False, nextSlave=None, **kwargs):
+    # builders should prioritize a merge into master or the final commit
+    # from a pull request before building other commits. This avoids
+    # starving smaller pull requests from getting feedback.
+    @staticmethod
+    def nextBuild(builder, requests):
+        pattern = '^Pull-request:\s*#\d+\s*part\s*(?P<part>\d+)/(?P<total>\d+)$'
+
+        # go thru each request's changes to prioritize them
+        for request in requests:
+            for change in request.source.changes:
+                m = re.search(pattern, change.comments, re.I | re.M)
+
+                # if we don't find the pattern, this was a merge to master
+                if m is None:
+                    return request
+
+                part = int(m.group('part'))
+                total = int(m.group('total'))
+
+                # if the part is the same as the total, then we have the last commit
+                if part == total:
+                    return request
+
+        # we didn't have a merge into master or a final commit on a pull request
+        return requests[0]
+
+    def __init__(self, mergeRequests=False, nextSlave=None, nextBuild=None, **kwargs):
         if nextSlave is None:
             nextSlave = ZFSBuilderConfig.nextSlave
 
-        util.BuilderConfig.__init__(self, nextSlave=nextSlave, 
+        if nextBuild is None:
+            nextBuild = ZFSBuilderConfig.nextBuild
+
+        util.BuilderConfig.__init__(self, nextSlave=nextSlave,
+                                    nextBuild=nextBuild,
                                     mergeRequests=mergeRequests, **kwargs)
 
 ### BUILD SLAVE CLASSES
