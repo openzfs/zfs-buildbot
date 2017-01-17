@@ -15,9 +15,10 @@
 # cd zfs
 # git remote add openzfs https://github.com/openzfs/openzfs.git
 #
+SCRIPTPATH=`pwd -P`
 ZFSONLINUX_BRANCH="zfsonlinux/master"
 ZFSONLINUX_GIT="https://github.com/zfsonlinux/zfs/commit"
-ZFSONLINUX_EXCEPTIONS="openzfs-exceptions.txt"
+ZFSONLINUX_EXCEPTIONS=$SCRIPTPATH/"openzfs-exceptions.txt"
 ZFSONLINUX_DIR="."
 
 OPENZFS_BRANCH="openzfs/master"
@@ -34,15 +35,28 @@ OPENZFS_PATHS=" \
     usr/src/lib/libzfs_core usr/src/lib/libzpool usr/src/man/man1m/zdb.1m \
     usr/src/man/man1m/zfs.1m usr/src/man/man1m/zpool.1m \
     usr/src/man/man1m/zstreamdump.1m usr/src/common/zfs \
-    usr/src/uts/common/fs/zfs usr/src/tools/scripts/cstyle.pl"
+    usr/src/tools/scripts/cstyle.pl"
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
 
-STATUS_APPLIED="#80ff00"
-STATUS_EXCEPTION="#80ff00"
-STATUS_MISSING="#ff9999"
-STATUS_PR="#ffee3a"
+STATUS_APPLIED_COLOR="#80ff00"
+STATUS_EXCEPTION_COLOR="#80ff00"
+STATUS_MISSING_COLOR="#ff9999"
+STATUS_PR_COLOR="#ffee3a"
+STATUS_NONAPPLICABLE_COLOR="#DDDDDD"
+
+STATUS_APPLIED="st_appl"
+STATUS_EXCEPTION="st_exc"
+STATUS_MISSING="st_mis"
+STATUS_PR="st_pr"
+STATUS_NONAPPLICABLE="st_na"
+
+STATUS_APPLIED_TEXT="Applied"
+STATUS_EXCEPTION_TEXT="Applied"
+STATUS_MISSING_TEXT="No existing pull request"
+STATUS_PR_TEXT="Pull request"
+STATUS_NONAPPLICABLE_TEXT="Not applicable to Linux"
 
 usage() {
 cat << EOF
@@ -84,22 +98,102 @@ while getopts 'hd:e:' OPTION; do
 done
 
 cat << EOF
+<!DOCTYPE html>
 <html>
 <head>
 <title>OpenZFS Tracking</title>
 <meta name="keyword" content="zfs, linux"/>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<script		  src="https://code.jquery.com/jquery-1.12.4.min.js"
+			  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+			  crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+\$(document).ready(function() {
+	\$('#maintable').DataTable( {
+		"bPaginate": false,
+		"order": [],
+		sDom: "lrtip",
+		initComplete: function () {
+				var column = this.api().column(4);
+				var select = \$('<select><option value=""></option></select>')
+					.appendTo( \$(column.header()).empty() )
+					.on( 'change', function () {
+						var val = $.fn.dataTable.util.escapeRegex(
+							\$(this).val()
+						);
+
+						column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+					} );
+
+				column.data().unique().sort().each( function ( d, j ) {
+					select.append( '<option value="'+d+'">'+d+'</option>' )
+				} );
+		}
+	} );
+} );
+</script>
+
+<style>
+#maindiv {
+	width:90%;
+	display: table;
+	margin: 0 auto;
+}
+#intro {
+	text-align:center;
+	padding:20px;	
+}
+#f_date {
+	text-align:right;
+}
+#maintable {
+	text-align:center;
+	border:0px;	
+}
+.st_appl {
+	background:$STATUS_APPLIED_COLOR !important;
+}
+.st_exc {
+	background:$STATUS_EXCEPTION_COLOR !important;
+}
+.st_mis {
+	background:$STATUS_MISSING_COLOR !important;
+}
+.st_pr {
+	background:$STATUS_PR_COLOR !important;
+}
+.st_na {
+	background:$STATUS_NONAPPLICABLE_COLOR !important;
+}
+.td_text {
+	text-align:left;
+	min-width:60%;
+}
+</style>
+
 </head>
 <body>
-<table align="center" width="80%" border="0">
-<tr bgcolor='#aaaaaa'>
-  <th colspan='4'>OpenZFS Commit Tracking</th>
-</tr>
-<tr bgcolor='#dddddd'>
+<h1 align='center'>OpenZFS Commit Tracking</h1>
+<div id="intro">
+This page is updated regularly and shows a list of OpenZFS commits and their status in regard to the ZFS on Linux master branch. See <a href="https://github.com/zfsonlinux/zfs/wiki/OpenZFS-Patches">wiki</a> for more information about OpenZFS patches.
+</div>
+<div id='maindiv'>
+<table id="maintable" class="display">
+<thead>
+<tr>
   <th>OpenZFS Issue</th>
   <th>OpenZFS Commit</th>
   <th>Linux Commit</th>
-  <th>Description</th>
+  <th class='td_text'>Description</th>
+  <th>Status</th>
 </tr>
+</thead>
+<tbody>
 EOF
 
 pushd $ZFSONLINUX_DIR >/dev/null
@@ -127,19 +221,23 @@ do
 	ZFSONLINUX_REGEX="^(openzfs|illumos)+.*[ #]+$OPENZFS_ISSUE[ ,]+*.*"
 
 	# Commit exceptions reference this Linux commit for an OpenZFS issue.
-	EXCEPTION=$(grep -E "^$OPENZFS_ISSUE.+" $ZFSONLINUX_EXCEPTIONS)
+	EXCEPTION=$(grep -E "^$OPENZFS_ISSUE.+" "$ZFSONLINUX_EXCEPTIONS")
 	if [ -n "$EXCEPTION" ]; then
 		EXCEPTION_HASH=$(echo $EXCEPTION | cut -f2 -d' ')
 		if [ "$EXCEPTION_HASH" == "-" ]; then
-			continue
+			ZFSONLINUX_HASH="-"
+			ZFSONLINUX_STATUS=$STATUS_NONAPPLICABLE
+			ZFSONLINUX_STATUS_TEXT=$STATUS_NONAPPLICABLE_TEXT
 		elif [ -n "$EXCEPTION_HASH" ]; then
 			ZFSONLINUX_HASH="<a href='$ZFSONLINUX_GIT/$EXCEPTION_HASH'>$EXCEPTION_HASH</a>"
 			ZFSONLINUX_STATUS=$STATUS_EXCEPTION
+			ZFSONLINUX_STATUS_TEXT=$STATUS_EXCEPTION_TEXT
 		fi
 	elif [ -n "$ZFSONLINUX_PR" ]; then
 			ZFSONLINUX_ISSUE=$(basename $ZFSONLINUX_PR)
 			ZFSONLINUX_HASH="<a href='$ZFSONLINUX_PR'>PR-$ZFSONLINUX_ISSUE</a>"
 			ZFSONLINUX_STATUS=$STATUS_PR
+			ZFSONLINUX_STATUS_TEXT=$STATUS_PR_TEXT
 	else
 		LINE2=$(git log --regexp-ignore-case --extended-regexp \
 		    --no-merges --oneline \
@@ -149,18 +247,21 @@ do
 		if [ -n "$MATCH" ]; then
 			ZFSONLINUX_HASH="<a href='$ZFSONLINUX_GIT/$MATCH'>$MATCH</a>"
 			ZFSONLINUX_STATUS=$STATUS_APPLIED
+			ZFSONLINUX_STATUS_TEXT=$STATUS_APPLIED_TEXT
 		else
 			ZFSONLINUX_HASH=""
 			ZFSONLINUX_STATUS=$STATUS_MISSING
+			ZFSONLINUX_STATUS_TEXT=$STATUS_MISSING_TEXT
 		fi
 	fi
 
 	cat << EOF
-<tr bgcolor='$ZFSONLINUX_STATUS'>
-  <td align='center'><a href='$OPENZFS_URL/$OPENZFS_ISSUE'>$OPENZFS_ISSUE</a></td>
-  <td align='center'><a href='$OPENZFS_GIT/$OPENZFS_HASH'>$OPENZFS_HASH</a></td>
-  <td align='center'>$ZFSONLINUX_HASH</td>
-  <td align='left' width='70%'>$OPENZFS_DESC</td>
+<tr class='$ZFSONLINUX_STATUS'>
+  <td><a href='$OPENZFS_URL/$OPENZFS_ISSUE'>$OPENZFS_ISSUE</a></td>
+  <td><a href='$OPENZFS_GIT/$OPENZFS_HASH'>$OPENZFS_HASH</a></td>
+  <td>$ZFSONLINUX_HASH</td>
+  <td class='td_text'>$OPENZFS_DESC</td>
+  <td>$ZFSONLINUX_STATUS_TEXT</td>
 </tr>
 EOF
 
@@ -169,10 +270,10 @@ done
 popd >/dev/null
 
 cat << EOF
-<tr bgcolor='#dddddd'>
-  <td align='right' colspan='4'>Last Update: $DATE</td>
-</tr>
+</tbody>
 </table>
+<div id="f_date">Last Update: $DATE by <a href="https://github.com/zfsonlinux/zfs-buildbot/blob/master/scripts/openzfs-tracking.sh">openzfs-tracking.sh</a></div>
+</div>
 </body>
 </html>
 EOF
