@@ -113,26 +113,27 @@ cat << EOF
 <script type="text/javascript">
 \$(document).ready(function() {
 	\$('#maintable').DataTable( {
-		"bPaginate": false,
+		"lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
+		"pageLength": -1,
 		"order": [],
-		sDom: "lrtip",
 		initComplete: function () {
-				var column = this.api().column(4);
-				var select = \$('<select><option value=""></option></select>')
-					.appendTo( \$(column.header()).empty() )
-					.on( 'change', function () {
-						var val = $.fn.dataTable.util.escapeRegex(
-							\$(this).val()
-						);
-
-						column
-							.search( val ? '^'+val+'$' : '', true, false )
-							.draw();
-					} );
-
-				column.data().unique().sort().each( function ( d, j ) {
-					select.append( '<option value="'+d+'">'+d+'</option>' )
-				} );
+			var column = this.api().column(4);
+			var select = \$('<select><option value=""></option></select>')
+				.appendTo( \$(column.header()).empty() )
+				.on( 'change', function () {
+					var val = $.fn.dataTable.util.escapeRegex(
+						\$(this).val()
+					);
+					column
+						.search( val ? '^'+val+'$' : '', true, false )
+						.draw();
+				} )
+				.on( 'click', function(e) {
+					e.stopPropagation();
+				});
+			column.data().unique().sort().each( function ( d, j ) {
+				select.append( '<option value="'+d+'">'+d+'</option>' )
+			} );
 		}
 	} );
 } );
@@ -221,13 +222,17 @@ do
 	ZFSONLINUX_REGEX="^(openzfs|illumos)+.*[ #]+$OPENZFS_ISSUE[ ,]+*.*"
 
 	# Commit exceptions reference this Linux commit for an OpenZFS issue.
-	EXCEPTION=$(grep -E "^$OPENZFS_ISSUE.+" "$ZFSONLINUX_EXCEPTIONS")
+	EXCEPTION=$(grep -E "^$OPENZFS_ISSUE\s" "$ZFSONLINUX_EXCEPTIONS")
 	if [ -n "$EXCEPTION" ]; then
 		EXCEPTION_HASH=$(echo $EXCEPTION | cut -f2 -d' ')
+		EXCEPTION_COMMENT=$(echo $EXCEPTION | cut -d' ' -f3-)
 		if [ "$EXCEPTION_HASH" == "-" ]; then
 			ZFSONLINUX_HASH="-"
 			ZFSONLINUX_STATUS=$STATUS_NONAPPLICABLE
 			ZFSONLINUX_STATUS_TEXT=$STATUS_NONAPPLICABLE_TEXT
+			if [ -n "$EXCEPTION_COMMENT" ]; then
+				OPENZFS_DESC="$OPENZFS_DESC</br><b>comment: $EXCEPTION_COMMENT</b>"
+			fi
 		elif [ -n "$EXCEPTION_HASH" ]; then
 			ZFSONLINUX_HASH="<a href='$ZFSONLINUX_GIT/$EXCEPTION_HASH'>$EXCEPTION_HASH</a>"
 			ZFSONLINUX_STATUS=$STATUS_EXCEPTION
