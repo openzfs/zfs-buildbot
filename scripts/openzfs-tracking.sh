@@ -15,10 +15,16 @@
 # cd zfs
 # git remote add openzfs https://github.com/openzfs/openzfs.git
 #
-SCRIPTPATH=`pwd -P`
+# Exceptions file format:
+# ---|---|---
+# <openzfs issue>|<commit>/!/-|<comment>
+# , where 
+# ! 		pending commit
+# - 		isn't applicable to Linux
+# <commit>	ZoL commit
+#
 ZFSONLINUX_BRANCH="zfsonlinux/master"
 ZFSONLINUX_GIT="https://github.com/zfsonlinux/zfs/commit"
-ZFSONLINUX_EXCEPTIONS=$SCRIPTPATH/"openzfs-exceptions.txt"
 ZFSONLINUX_DIR="."
 
 OPENZFS_BRANCH="openzfs/master"
@@ -45,18 +51,21 @@ STATUS_EXCEPTION_COLOR="#80ff00"
 STATUS_MISSING_COLOR="#ff9999"
 STATUS_PR_COLOR="#ffee3a"
 STATUS_NONAPPLICABLE_COLOR="#DDDDDD"
+STATUS_PENDING_COLOR="#ffa500"
 
 STATUS_APPLIED="st_appl"
 STATUS_EXCEPTION="st_exc"
 STATUS_MISSING="st_mis"
 STATUS_PR="st_pr"
 STATUS_NONAPPLICABLE="st_na"
+STATUS_PENDING="st_pa"
 
 STATUS_APPLIED_TEXT="Applied"
 STATUS_EXCEPTION_TEXT="Applied"
 STATUS_MISSING_TEXT="No existing pull request"
 STATUS_PR_TEXT="Pull request"
 STATUS_NONAPPLICABLE_TEXT="Not applicable to Linux"
+STATUS_PENDING_TEXT="Pending"
 
 usage() {
 cat << EOF
@@ -71,12 +80,11 @@ DESCRIPTION:
 OPTIONS:
 	-h		Show this message
 	-d directory	Git repo with openzfs and zfsonlinux remotes
-	-e exceptions	Exception file
+	-e exceptions	Exception file (using ZoL wiki if not specified)
 
 EXAMPLE:
 
 $0 -d ~/openzfs-tracking/zfs \\
-    -e ~/zfs-buildbot/scripts/openzfs-exceptions.txt \\
     >~/zfs-buildbot/master/public_html/openzfs-tracking.html
 
 EOF
@@ -171,6 +179,9 @@ cat << EOF
 .st_na {
 	background:$STATUS_NONAPPLICABLE_COLOR !important;
 }
+.st_pa {
+	background:$STATUS_PENDING_COLOR !important;
+}
 .td_text {
 	text-align:left;
 	min-width:60%;
@@ -200,6 +211,12 @@ EOF
 pushd $ZFSONLINUX_DIR >/dev/null
 ZFSONLINUX_PRS=$(curl -s https://api.github.com/repos/zfsonlinux/zfs/pulls)
 
+	# Get all exceptions and comments
+if [ -z ${ZFSONLINUX_EXCEPTIONS+x} ]; then
+	ZFSONLINUX_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/zfsonlinux/zfs/OpenZFS-exceptions.md | awk '/---|---|---/{y=1;next}y')
+else
+	ZFSONLINUX_EXCEPTIONS=$(cat "$ZFSONLINUX_EXCEPTIONS" | awk '/---|---|---/{y=1;next}y')
+fi
 git fetch --all >/dev/null
 git log $OPENZFS_HASH_START..$OPENZFS_HASH_END --oneline $OPENZFS_BRANCH \
     -- $OPENZFS_PATHS | while read LINE1;
@@ -221,22 +238,31 @@ do
 	    grep html_url | cut -f2- -d':' | tr -d ' "')
 	ZFSONLINUX_REGEX="^(openzfs|illumos)+.*[ #]+$OPENZFS_ISSUE[ ,]+*.*"
 
+
 	# Commit exceptions reference this Linux commit for an OpenZFS issue.
-	EXCEPTION=$(grep -E "^$OPENZFS_ISSUE\s" "$ZFSONLINUX_EXCEPTIONS")
+	EXCEPTION=$(echo "$ZFSONLINUX_EXCEPTIONS" | grep -E "^$OPENZFS_ISSUE[^0-9]")
 	if [ -n "$EXCEPTION" ]; then
-		EXCEPTION_HASH=$(echo $EXCEPTION | cut -f2 -d' ')
-		EXCEPTION_COMMENT=$(echo $EXCEPTION | cut -d' ' -f3-)
+		EXCEPTION_HASH=$(echo $EXCEPTION | cut -f2 -d'|' | tr -d ' ')
+		EXCEPTION_COMMENT=$(echo $EXCEPTION | cut -d'|' -f3-)
 		if [ "$EXCEPTION_HASH" == "-" ]; then
 			ZFSONLINUX_HASH="-"
 			ZFSONLINUX_STATUS=$STATUS_NONAPPLICABLE
 			ZFSONLINUX_STATUS_TEXT=$STATUS_NONAPPLICABLE_TEXT
-			if [ -n "$EXCEPTION_COMMENT" ]; then
-				OPENZFS_DESC="$OPENZFS_DESC</br><b>comment: $EXCEPTION_COMMENT</b>"
+		elif [ "$EXCEPTION_HASH" == "!" ]; then
+			if [ -n "$ZFSONLINUX_PR" ]; then
+				ZFSONLINUX_HASH="<a href='$ZFSONLINUX_PR'>PR-$ZFSONLINUX_ISSUE</a>"
+			else
+				ZFSONLINUX_HASH="!"
 			fi
+			ZFSONLINUX_STATUS=$STATUS_PENDING
+			ZFSONLINUX_STATUS_TEXT=$STATUS_PENDING_TEXT
 		elif [ -n "$EXCEPTION_HASH" ]; then
 			ZFSONLINUX_HASH="<a href='$ZFSONLINUX_GIT/$EXCEPTION_HASH'>$EXCEPTION_HASH</a>"
 			ZFSONLINUX_STATUS=$STATUS_EXCEPTION
 			ZFSONLINUX_STATUS_TEXT=$STATUS_EXCEPTION_TEXT
+		fi
+		if [ -n "$EXCEPTION_COMMENT" ]; then
+			OPENZFS_DESC="$OPENZFS_DESC</br><b>comment: $EXCEPTION_COMMENT</b>"
 		fi
 	elif [ -n "$ZFSONLINUX_PR" ]; then
 			ZFSONLINUX_ISSUE=$(basename $ZFSONLINUX_PR)
