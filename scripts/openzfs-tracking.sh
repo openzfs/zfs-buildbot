@@ -81,6 +81,8 @@ OPTIONS:
 	-h		Show this message
 	-d directory	Git repo with openzfs and zfsonlinux remotes
 	-e exceptions	Exception file (using ZoL wiki if not specified)
+	-c file.txt	Write OpenZFS unmerged commits' hashes to file,
+	if specified (for openzfs-merge.sh)
 
 EXAMPLE:
 
@@ -90,7 +92,7 @@ $0 -d ~/openzfs-tracking/zfs \\
 EOF
 }
 
-while getopts 'hd:e:' OPTION; do
+while getopts 'hd:c:e:' OPTION; do
 	case $OPTION in
 	h)
 		usage
@@ -98,6 +100,9 @@ while getopts 'hd:e:' OPTION; do
 		;;
 	d)
 		ZFSONLINUX_DIR=$OPTARG
+		;;
+	c)
+		HASHES_FILE=$OPTARG
 		;;
 	e)
 		ZFSONLINUX_EXCEPTIONS=$OPTARG
@@ -283,6 +288,9 @@ do
 			ZFSONLINUX_HASH=""
 			ZFSONLINUX_STATUS=$STATUS_MISSING
 			ZFSONLINUX_STATUS_TEXT=$STATUS_MISSING_TEXT
+			if [ -n "$HASHES_FILE" ]; then
+				echo $OPENZFS_HASH >> $HASHES_FILE
+			fi
 		fi
 	fi
 
