@@ -223,15 +223,21 @@ case "$BB_NAME" in
 esac
 
 # Schedule a shutdown for all distros other than CentOS 6, Ubuntu 14.04,
-# and Amazon based distros
-case "$BB_NAME" in
-    Amazon*|CentOS-6*|Ubuntu-14.04*)
-        echo "Skipping scheduled shutdown"
-        ;;
-    *)
-        echo "Scheduling shutdown"
-        sudo -E shutdown +600
-        ;;
-esac
+# and Amazon based distros. Only do this for latent slaves which will
+# set BB_SHUTDOWN="Yes" in /etc/buildslave as part of bootstrapping.
+if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
+	case "$BB_NAME" in
+	    Amazon*|CentOS-6*|Ubuntu-14.04*)
+	        echo "Skipping scheduled shutdown"
+	        ;;
+	    *)
+	        echo "Scheduling shutdown"
+	        sudo -E shutdown +600
+	        ;;
+	esac
+fi
+
+# Unload modules just in case they are still loaded from a previous test
+sudo -E $ZFS_SH -vu
 
 exit 0
