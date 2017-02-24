@@ -124,7 +124,7 @@ merge() {
 	
 	echo -e "${LGREEN} - OpenZFS issue #$OPENZFS_ISSUE $OPENZFS_COMMIT ${NORMAL}"
 	echo -e "${LGREEN} Checkout new branch ${NORMAL}"
-	git branch -D "autoport-oz$OPENZFS_ISSUE"
+	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null
 	git checkout -b "autoport-oz$OPENZFS_ISSUE"
 	
 	echo -e "${LGREEN} Cherry-pick... ${NORMAL}"
