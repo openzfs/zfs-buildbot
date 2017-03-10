@@ -155,6 +155,12 @@ runurl $BB_URL/bb-bootstrap.sh
             price_multiplier=price_multiplier, build_wait_timeout=build_wait_timeout, 
             missing_timeout=missing_timeout, **kwargs)
 
+class ZFSEC2StyleSlave(ZFSEC2Slave):
+    def __init__(self, name, **kwargs):
+        ZFSEC2Slave.__init__(self, name, mode="STYLE",
+            instance_type="m3.large", max_spot_price=0.10, placement='a',
+            spot_instance=True, **kwargs)
+
 # Create an HVM EC2 large latent build slave
 class ZFSEC2BuildSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):

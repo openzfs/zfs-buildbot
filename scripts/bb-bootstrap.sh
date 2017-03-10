@@ -360,7 +360,7 @@ set -x
 # Finally, start it.  If all goes well, at this point you should see a buildbot
 # slave joining your farm.  You can then manage the rest of the work from the
 # buildbot master.
-if test "$BB_MODE" = "BUILD"; then
+if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE"; then
     $SUDO -u buildbot $BUILDSLAVE start $BB_DIR
 else
     echo "@reboot $SUDO -u buildbot $BUILDSLAVE start $BB_DIR" | crontab

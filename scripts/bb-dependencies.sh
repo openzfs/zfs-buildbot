@@ -120,8 +120,6 @@ Ubuntu*)
     # Required development tools.
     $SUDO apt-get --yes install build-essential autoconf libtool gdb
 
-    $SUDO apt-get --yes install cppcheck pax-utils shellcheck
-
     # Required utilities.
     $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
@@ -132,7 +130,10 @@ Ubuntu*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev
 
-    $SUDO pip --quiet install flake8
+    if test "$BB_MODE" = "STYLE"; then
+        $SUDO apt-get --yes install pax-utils shellcheck cppcheck
+        $SUDO pip --quiet install flake8
+    fi
     ;;
 
 *)
