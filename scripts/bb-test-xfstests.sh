@@ -83,10 +83,11 @@ sudo -E $ZPOOL create -m legacy -O acltype=posixacl \
 #
 # Run xfstests skipping tests are currently unsupported
 # -zfs Filesystem type 'zfs'
+# -x aio      - Skip aio tests until xfstest is updated
 # -x dio      - Skip dio tests not yet implemented
 # -x sendfile - Skip sendfile tests not yet implemented
 #
-sudo -E $XFSTESTS -zfs -x dio -x sendfile -x user &
+sudo -E $XFSTESTS -zfs -x aio -x dio -x sendfile -x user &
 CHILD=$!
 wait $CHILD
 RESULT=$?
