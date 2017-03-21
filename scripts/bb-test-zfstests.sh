@@ -68,9 +68,12 @@ $ZFSTESTS $TEST_ZFSTESTS_OPTIONS \
     -d $TEST_ZFSTESTS_DIR \
     -s $TEST_ZFSTESTS_DISKSIZE \
     -r $TEST_ZFSTESTS_RUNFILE
+RESULT=$?
 
-# FAILURE: One or more test cases failed.
-grep "\[FAIL\]" log && RESULT=1
+if [ $RESULT -eq 0 ]; then
+    # FAILURE: One or more test cases failed.
+    grep "\[FAIL\]" log && RESULT=1
+fi
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
 	# Scan must be run twice to ensure all leaks are detected.
