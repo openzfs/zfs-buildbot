@@ -80,12 +80,12 @@ clean_unmerged() {
 	git cherry-pick --abort
 	git checkout master
 	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null
-	rm "$TMP_FILE"
+	rm -f "$TMP_FILE"
 }
 
 prepare_git() {
 	cd "$REPOSITORY_PATH"
-	rm "$TMP_FILE"
+	rm -f "$TMP_FILE"
 	git checkout master
 	git fetch --all
 	git log --remotes=openzfs/master --format=%B -n 1 $OPENZFS_COMMIT > "$TMP_FILE"
@@ -232,7 +232,7 @@ fi
 
 iterate_merge
 
-rm "$TMP_FILE"
+rm -f "$TMP_FILE"
 
 #show results
 echo ' '
