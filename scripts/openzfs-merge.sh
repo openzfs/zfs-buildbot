@@ -105,6 +105,7 @@ generate_desc() {
 	sed -i '/^$/d' "$TMP_FILE"
 	sed -i "1s/^$OPENZFS_ISSUE/OpenZFS $OPENZFS_ISSUE -/" "$TMP_FILE"
 	sed -i "1 a Authored by: $OPENZFS_COMMIT_AUTHOR" "$TMP_FILE"
+	sed -i -e '1a\\' "$TMP_FILE"
 	
 	echo 'Ported-by: '$USER_NAME' <'$USER_MAIL'>' >> "$TMP_FILE"
 	echo '' >> "$TMP_FILE"
