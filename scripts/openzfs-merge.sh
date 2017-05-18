@@ -103,6 +103,12 @@ generate_desc() {
 	USER_MAIL=$(git config user.email)
 	OPENZFS_COMMIT_AUTHOR=$(git log --format="%aN <%aE>" --remotes=openzfs/master -n 1 $OPENZFS_COMMIT)
 	sed -i '/^$/d' "$TMP_FILE"
+
+	# handle github keywords
+	sed -i '/^closes #\|^close #\|^closed #/Id' "$TMP_FILE"
+	sed -i '/^fixes #\|^fix #\|^fixed #/Id' "$TMP_FILE"
+	sed -i '/^resolves #\|^resolve #\|^resolved #/Id' "$TMP_FILE"
+
 	sed -i "1s/^$OPENZFS_ISSUE/OpenZFS $OPENZFS_ISSUE -/" "$TMP_FILE"
 	sed -i "1 a Authored by: $OPENZFS_COMMIT_AUTHOR" "$TMP_FILE"
 	sed -i -e '1a\\' "$TMP_FILE"
