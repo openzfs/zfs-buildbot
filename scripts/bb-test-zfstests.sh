@@ -71,8 +71,8 @@ $ZFSTESTS $TEST_ZFSTESTS_OPTIONS \
 RESULT=$?
 
 if [ $RESULT -eq 0 ]; then
-    # FAILURE: One or more test cases failed.
-    grep "\[FAIL\]" log && RESULT=1
+	grep "\[KILLED\]" log && RESULT=2  # WARNING
+	grep "\[FAIL\]" log && RESULT=1    # FAILURE
 fi
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
