@@ -75,6 +75,11 @@ if [ $RESULT -eq 0 ]; then
 	grep "\[FAIL\]" log && RESULT=1    # FAILURE
 fi
 
+if $(dmesg | grep "oom-killer"); then
+	echo "Out-of-memory (OOM) killer invocation detected"
+	[ $RESULT -eq 0 ] && RESULT=2
+fi
+
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
 	# Scan must be run twice to ensure all leaks are detected.
 	sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
