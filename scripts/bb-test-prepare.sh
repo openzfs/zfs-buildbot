@@ -22,6 +22,15 @@ SUDO="sudo -E"
 
 set -x
 
+# Attempt to set oom_score_adj for buildslave to prevent
+# it from being targeted by the oom-killer
+if test -f "$BB_DIR/twistd.pid"; then
+    pid=$(cat "$BB_DIR/twistd.pid")
+    if test -f "/proc/${pid}/oom_score_adj"; then
+        $SUDO echo -1000 > /proc/${pid}/oom_score_adj
+    fi
+fi
+
 # Create a TEST file which includes parameters which may appear in a top
 # level TEST file or the most recent git commit message.
 rm -f $TEST_FILE
