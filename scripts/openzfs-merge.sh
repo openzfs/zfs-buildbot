@@ -40,6 +40,7 @@ EXCEPTIONS_CSTYLE=$SCRIPTDIR'/uncstyled.txt'
 EXCEPTIONS_MERGED=$SCRIPTDIR'/merged.txt'
 
 LGREEN='\033[1;32m'		#  ${LGREEN}
+LRED='\033[1;31m'		#  ${LRED}
 NORMAL='\033[0m'		#  ${NORMAL} 
 COUNT_MERGED=0
 LIST_MERGED=
@@ -79,7 +80,7 @@ EOF
 clean_unmerged() {
 	git cherry-pick --abort
 	git checkout master
-	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null
+	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null 2>&1
 	rm -f "$TMP_FILE"
 }
 
@@ -88,6 +89,7 @@ prepare_git() {
 	rm -f "$TMP_FILE"
 	git checkout master
 	git fetch --all
+	git rebase zfsonlinux/master
 	git log --remotes=openzfs/master --format=%B -n 1 $OPENZFS_COMMIT > "$TMP_FILE"
 	OPENZFS_ISSUE=$(grep -oP '^[^0-9]*\K[0-9]+' -m 1 "$TMP_FILE")
 }
@@ -124,26 +126,35 @@ add_desc_to_commit() {
 	git commit --amend -F "$TMP_FILE"
 }
 
-merge() {
-	ERR=0
-	
+# perform cherry-pick of patch
+cherry-pick() {
 	prepare_git
 	
-	echo -e "${LGREEN} - OpenZFS issue #$OPENZFS_ISSUE $OPENZFS_COMMIT ${NORMAL}"
-	echo -e "${LGREEN} Checkout new branch ${NORMAL}"
-	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null
+	echo -e "${LGREEN}OpenZFS Issue #$OPENZFS_ISSUE ($OPENZFS_COMMIT)${NORMAL}"
+	echo -e "${LGREEN}Checkout new branch${NORMAL}"
+	git branch -D "autoport-oz$OPENZFS_ISSUE" > /dev/null 2>&1
 	git checkout -b "autoport-oz$OPENZFS_ISSUE"
 	
-	echo -e "${LGREEN} Cherry-pick... ${NORMAL}"
+	echo -e "${LGREEN}Performing cherry-pick of ${OPENZFS_COMMIT}${NORMAL}"
 	if ! git cherry-pick $OPENZFS_COMMIT; then
-		printf 'cherry-pick failed' >&2
+		printf 'cherry-pick failed\n' >&2
 		echo $OPENZFS_COMMIT >> "$EXCEPTIONS_GIT"
 		return 1
 	fi
+
+	return 0
+}
+
+merge() {
+	ERR=0
+
+	if ! cherry-pick ; then
+		return 1
+	fi
 	
-	echo -e "${LGREEN} Compile... ${NORMAL}"
+	echo -e "${LGREEN}compile... ${NORMAL}"
 	if ! make -s -j$(nproc); then
-		printf 'compilation failed' >&2
+		printf 'compilation failed\n' >&2
 		echo $OPENZFS_COMMIT >> "$EXCEPTIONS_COMPILE"
 		COUNT_COMPILE=$(($COUNT_COMPILE+1))
 		LIST_COMPILE="$LIST_COMPILE
@@ -151,9 +162,9 @@ merge() {
 		ERR=1
 	fi
 	
-	echo -e "${LGREEN} Cstyle... ${NORMAL}"
+	echo -e "${LGREEN}cstyle... ${NORMAL}"
 	if ! make cstyle; then
-		printf 'style check failed' >&2
+		printf 'style check failed\n' >&2
 		echo $OPENZFS_COMMIT >> "$EXCEPTIONS_CSTYLE"
 		COUNT_CSTYLE=$(($COUNT_CSTYLE+1))
 		LIST_CSTYLE="$LIST_CSTYLE
@@ -169,11 +180,13 @@ merge() {
 	if [ "$ERR" -eq "0" ]; then
 		push_to_github
 		echo $OPENZFS_COMMIT >> $EXCEPTIONS_MERGED
-		echo -e "${LGREEN} - OpenZFS issue #$OPENZFS_ISSUE $OPENZFS_COMMIT merged without warnings! ${NORMAL}"
+		echo -e "${LGREEN}$OPENZFS_COMMIT merged without warnings${NORMAL}"
 		COUNT_MERGED=$(($COUNT_MERGED+1))
 		LIST_MERGED="$LIST_MERGED
 		autoport-oz$OPENZFS_ISSUE"
 	fi
+
+	return 0
 }
 
 iterate_merge() {
@@ -181,21 +194,28 @@ iterate_merge() {
 		OPENZFS_COMMIT=$p
 		
 		#if commit wasn't tried earlier
-		EXCEPTION=$(grep -s -E "^$OPENZFS_COMMIT" "$EXCEPTIONS_GIT" "$EXCEPTIONS_COMPILE" "$EXCEPTIONS_CSTYLE" "$EXCEPTIONS_MERGED")
+		EXCEPTION=$(grep -s -E "^$OPENZFS_COMMIT" "$EXCEPTIONS_GIT" \
+		    "$EXCEPTIONS_COMPILE" "$EXCEPTIONS_CSTYLE" \
+		    "$EXCEPTIONS_MERGED")
+
 		if [ -n "$EXCEPTION" ]; then
 			continue
 		fi
 		
-		merge
-		if [ $? -eq "1" ]; then
+		if ! merge ; then
 			clean_unmerged
 		fi
 	done <$UNPORTED_COMMITS_FILE
 }
 
 prepare_manual() {
-	merge
-	echo -e "${LGREEN}-Be ready to run 'git cherry-pick --continue after fixing all merge conflicts!${NORMAL}"
+	if ! cherry-pick ; then
+		echo -e "${LRED}$OPENZFS_COMMIT has merge conflicts${NORMAL}"
+		return 1
+	fi
+
+	echo -e "${LRED}$OPENZFS_COMMIT cherry-pick was successful${NORMAL}"
+	return 0
 }
 
 while getopts 'hpd:i:c:g:s' OPTION; do
@@ -233,7 +253,10 @@ done
 
 # process the single commit if it was provided
 if [ -n "$OPENZFS_COMMIT" ]; then
-	prepare_manual
+	if ! prepare_manual ; then
+		exit 1
+	fi
+
 	exit 0
 fi
 
@@ -244,14 +267,14 @@ rm -f "$TMP_FILE"
 #show results
 echo ' '
 if [ "$COUNT_MERGED" -gt "0" ]; then
-	echo -e "${LGREEN}-$COUNT_MERGED merged commits without warnings:${NORMAL}"
+	echo -e "${LGREEN}$COUNT_MERGED successfully merged commits:${NORMAL}"
 	echo $LIST_MERGED
 fi
 if [ "$COUNT_COMPILE" -gt "0" ]; then
-	echo -e "${LGREEN}-$COUNT_COMPILE commits with compile errors:${NORMAL}"
+	echo -e "${LGREEN}$COUNT_COMPILE commits with compile errors:${NORMAL}"
 	echo $LIST_COMPILE
 fi
 if [ "$COUNT_CSTYLE" -gt "0" ]; then
-	echo -e "${LGREEN}-$COUNT_CSTYLE commits with cstyle warnings:${NORMAL}"
+	echo -e "${LGREEN}$COUNT_CSTYLE commits with cstyle warnings:${NORMAL}"
 	echo $LIST_CSTYLE
 fi
