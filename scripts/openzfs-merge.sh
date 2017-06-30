@@ -214,7 +214,11 @@ prepare_manual() {
 		return 1
 	fi
 
-	echo -e "${LRED}$OPENZFS_COMMIT cherry-pick was successful${NORMAL}"
+	generate_desc
+	add_desc_to_commit
+	push_to_github
+
+	echo -e "${LGREEN}$OPENZFS_COMMIT cherry-pick was successful${NORMAL}"
 	return 0
 }
 
