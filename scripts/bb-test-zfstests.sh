@@ -68,9 +68,9 @@ $ZFSTESTS $TEST_ZFSTESTS_OPTIONS \
     -d $TEST_ZFSTESTS_DIR \
     -s $TEST_ZFSTESTS_DISKSIZE \
     -r $TEST_ZFSTESTS_RUNFILE
-RESULT=$?
+RC=$?
 
-if [ $RESULT -eq 0 ]; then
+if [ $RC -ne 0 ]; then
 	grep "\[KILLED\]" log && RESULT=2  # WARNING
 	grep "\[FAIL\]" log && RESULT=1    # FAILURE
 fi
