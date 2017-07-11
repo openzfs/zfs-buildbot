@@ -321,6 +321,7 @@ Ubuntu*)
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+    sed -i.bak 's/updates/extra updates/' /etc/depmod.d/ubuntu.conf
     ;;
 
     # Standardize ephemeral storage so it's available under /mnt.
