@@ -10,7 +10,7 @@ if test -f "../TEST"; then
 	. ../TEST
 fi
 
-TEST_XFSTESTS_SKIP=${TEST_XFSTESTS_SKIP:-"No"}
+TEST_XFSTESTS_SKIP=${TEST_XFSTESTS_SKIP:-"Yes"}
 if echo "$TEST_XFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 	echo "Skipping disabled test"
 	exit 3
