@@ -18,7 +18,7 @@ fi
 
 set -x
 
-./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
 ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
 make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
 
