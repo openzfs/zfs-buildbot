@@ -29,17 +29,29 @@ if test "$LINUX_BUILTIN" = "yes"; then
 
     set -x
     make prepare scripts >>$CONFIG_LOG 2>&1 || exit 1
-    cd ../spl >>$CONFIG_LOG 2>&1 || exit 1
-    sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
-    ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-    ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
-    cd ../zfs >>$CONFIG_LOG 2>&1 || exit 1
-    sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
-    ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-    ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
+
+    if [ -d "../spl" ]; then
+        cd ../spl >>$CONFIG_LOG 2>&1 || exit 1
+        sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+        ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+        ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
+    fi
+
+    if [ -d "../zfs" ]; then
+        cd ../zfs >>$CONFIG_LOG 2>&1 || exit 1
+        sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+        ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+        ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
+    fi
+
     cd ../linux >>$CONFIG_LOG 2>&1 || exit 1
-    echo "CONFIG_SPL=y" >>$CONFIG_FILE
-    echo "CONFIG_ZFS=y" >>$CONFIG_FILE
+    if [ -d "../spl" ]; then
+      echo "CONFIG_SPL=y" >>$CONFIG_FILE
+    fi
+
+    if [ -d "../zfs" ]; then
+        echo "CONFIG_ZFS=y" >>$CONFIG_FILE
+    fi
 fi
 
 set -x

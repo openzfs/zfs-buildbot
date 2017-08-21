@@ -9,66 +9,109 @@ else
 fi
 
 SUDO="sudo -E"
+BUILT_PACKAGE=${BUILT_PACKAGE:-""}
 
 set -x
 
 case "$BB_NAME" in
 Amazon*)
-    $SUDO yum -y remove \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test \
-        spl spl-debuginfo spl-kmod-debuginfo
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO yum -y remove \
+            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO yum -y remove \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+            spl spl-debuginfo spl-kmod-debuginfo
+    fi
     ;;
 
 CentOS*)
-    $SUDO yum -y remove \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test \
-        spl spl-debuginfo spl-kmod-debuginfo
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO yum -y remove \
+            kmod-zfs kmod-zfs-devel \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO yum -y remove \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+            spl spl-debuginfo spl-kmod-debuginfo
+    fi
     ;;
 
 Debian*)
-    $SUDO apt-get --yes purge \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-initramfs zfs-dracut zfs-test spl
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO apt-get --yes purge \
+            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-initramfs zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO apt-get --yes purge \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) spl
+    fi
     ;;
 
 Fedora*)
-    $SUDO dnf -y remove \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test \
-        spl spl-debuginfo spl-kmod-debuginfo
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO dnf -y remove \
+            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO dnf -y remove \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+            spl spl-debuginfo spl-kmod-debuginfo
+    fi
     ;;
 
 RHEL*)
-    $SUDO yum -y remove \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test \
-        spl spl-debuginfo spl-kmod-debuginfo
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO yum -y remove \
+            kmod-zfs kmod-zfs-devel \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO yum -y remove \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+            spl spl-debuginfo spl-kmod-debuginfo
+    fi
     ;;
 
 SUSE*)
-    $SUDO zypper --non-interactive remove \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-dracut  zfs-test spl
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO zypper --non-interactive remove \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO zypper --non-interactive remove spl
+    fi
     ;;
 
 Ubuntu*)
-    $SUDO apt-get --yes purge \
-        kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
-        kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-        libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-        zfs zfs-initramfs zfs-dracut zfs-test spl
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        $SUDO apt-get --yes purge \
+            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
+            zfs zfs-initramfs zfs-dracut zfs-test
+    fi
+
+    if test "$BUILT_PACKAGE" = "spl"; then
+        $SUDO apt-get --yes purge \
+            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) spl
+    fi
     ;;
 
 *)
