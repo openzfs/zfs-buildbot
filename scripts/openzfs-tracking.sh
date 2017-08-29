@@ -41,7 +41,8 @@ OPENZFS_PATHS=" \
     usr/src/lib/libzfs_core usr/src/lib/libzpool usr/src/man/man1m/zdb.1m \
     usr/src/man/man1m/zfs.1m usr/src/man/man1m/zpool.1m \
     usr/src/man/man1m/zstreamdump.1m usr/src/common/zfs \
-    usr/src/test/zfs-tests usr/src/tools/scripts/cstyle.pl"
+    usr/src/test/zfs-tests usr/src/tools/scripts/cstyle.pl \
+    usr/src/common/nvpair usr/src/common/avl"
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
