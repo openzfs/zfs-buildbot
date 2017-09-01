@@ -28,7 +28,7 @@ Amazon*)
     $SUDO yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel
+        device-mapper-devel openssl-devel
 
     $SUDO pip --quiet install flake8
     ;;
@@ -46,7 +46,7 @@ CentOS*)
     $SUDO yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel
+        device-mapper-devel openssl-devel
     ;;
 
 Debian*)
@@ -62,7 +62,8 @@ Debian*)
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
-        xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev
+        xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
+        libssl-dev
     ;;
 
 Fedora*)
@@ -78,7 +79,7 @@ Fedora*)
     $SUDO dnf -y install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel
+        device-mapper-devel openssl-devel
     ;;
 
 RHEL*)
@@ -102,7 +103,7 @@ RHEL*)
     $SUDO yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel
+        device-mapper-devel openssl-devel
     ;;
 
 SUSE*)
@@ -117,7 +118,8 @@ SUSE*)
     # Required development libraries
     $SUDO zypper --non-interactive install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel xfsprogs-devel \
-        libattr-devel libacl-devel libudev-devel device-mapper-devel
+        libattr-devel libacl-devel libudev-devel device-mapper-devel \
+        openssl-devel
     ;;
 
 Ubuntu*)
@@ -132,7 +134,8 @@ Ubuntu*)
     # Required development libraries
     $SUDO apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
-        xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev
+        xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
+        libssl-dev
 
     if test "$BB_MODE" = "STYLE"; then
         $SUDO apt-get --yes install pax-utils shellcheck cppcheck
