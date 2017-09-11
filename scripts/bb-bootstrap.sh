@@ -365,6 +365,7 @@ if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE"; then
     $SUDO -u buildbot $BUILDSLAVE start $BB_DIR
 else
     echo "@reboot $SUDO -u buildbot $BUILDSLAVE start $BB_DIR" | crontab
+    echo "@reboot shutdown +480" | crontab
     crontab -l
     $SUDO reboot
 fi
