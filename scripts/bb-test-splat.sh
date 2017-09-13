@@ -1,13 +1,14 @@
 #!/bin/sh
 
-# Check for a local cached configuration.
 if test -f /etc/buildslave; then
     . /etc/buildslave
 fi
 
-# Custom test options will be saved in the tests directory.
-if test -f "../TEST"; then
-    . ../TEST
+if test -f ./TEST; then
+    . ./TEST
+else
+    echo "Missing $PWD/TEST configuration file"
+    exit 1
 fi
 
 TEST_SPLAT_SKIP=${TEST_SPLAT_SKIP:-"Yes"}
@@ -16,8 +17,6 @@ if echo "$TEST_SPLAT_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-SPLAT=${SPLAT:-"splat"}
-ZFS_SH=${ZFS_SH:-"zfs.sh"}
 CONSOLE_LOG="$PWD/console.log"
 
 # Cleanup the pool and restore any modified system state.  The console log
@@ -28,7 +27,7 @@ cleanup()
     sudo -E $ZFS_SH -u
     dmesg >$CONSOLE_LOG
 }
-trap cleanup EXIT SIGTERM
+trap cleanup EXIT
 
 set -x
 
