@@ -138,7 +138,7 @@ Ubuntu*)
         libssl-dev
 
     if test "$BB_MODE" = "STYLE"; then
-        $SUDO apt-get --yes install pax-utils shellcheck cppcheck
+        $SUDO apt-get --yes install pax-utils shellcheck cppcheck mandoc
         $SUDO pip --quiet install flake8
     fi
     ;;
