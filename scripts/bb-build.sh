@@ -1,11 +1,7 @@
 #!/bin/sh
 
-# Check for a local cached configuration.
 if test -f /etc/buildslave; then
 	. /etc/buildslave
-else
-	echo "Missing configuration /etc/buildslave"
-	exit 1
 fi
 
 LINUX_OPTIONS=${LINUX_OPTIONS:-""}
