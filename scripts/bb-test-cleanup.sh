@@ -5,7 +5,13 @@ if test -f /etc/buildslave; then
     . /etc/buildslave
 fi
 
-set -x
+GCOV_KERNEL="/sys/kernel/debug/gcov"
+ZFS_BUILD=$(readlink -f ../zfs)
+
+if $(sudo -E test ! -e "$GCOV_KERNEL"); then
+    echo "Kernel Gcov disabled.  Skipping test cleanup."
+    exit 3
+fi
 
 if [ -z "$CODECOV_TOKEN" -o \
      -z "$BUILDER_NAME" -o \
@@ -16,13 +22,7 @@ if [ -z "$CODECOV_TOKEN" -o \
     exit 1
 fi
 
-GCOV_KERNEL="/sys/kernel/debug/gcov"
-ZFS_BUILD=$(readlink -f ../zfs)
-
-if $(sudo -E test ! -e "$GCOV_KERNEL"); then
-    echo "Kernel Gcov disabled.  Skipping test cleanup."
-    exit 3
-fi
+set -x
 
 function upload_codecov_reports
 {
