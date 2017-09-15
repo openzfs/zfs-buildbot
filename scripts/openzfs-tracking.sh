@@ -242,7 +242,7 @@ do
 	ZFSONLINUX_PR=$(echo $ZFSONLINUX_PRS | jq -r ".[] | select(.title | \
 	    contains(\"OpenZFS $OPENZFS_ISSUE \")) | { html_url: .html_url }" | \
 	    grep html_url | cut -f2- -d':' | tr -d ' "')
-	ZFSONLINUX_REGEX="^(openzfs|illumos)+.*[ #]+$OPENZFS_ISSUE[ ,]+*.*"
+	ZFSONLINUX_REGEX="^(openzfs|illumos)+.*[ #]+$OPENZFS_ISSUE([^0-9]|$)[ ,]+*.*"
 
 
 	# Commit exceptions reference this Linux commit for an OpenZFS issue.
