@@ -1,24 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 
-# Check for a local cached configuration.
 if test -f /etc/buildslave; then
-	. /etc/buildslave
+    . /etc/buildslave
 fi
 
-# Custom test options will be saved in the tests directory.
-if test -f "../TEST"; then
-	. ../TEST
+if test -f ./TEST; then
+    . ./TEST
+else
+    echo "Missing $PWD/TEST configuration file"
+    exit 1
 fi
 
 TEST_XFSTESTS_SKIP=${TEST_XFSTESTS_SKIP:-"Yes"}
 if echo "$TEST_XFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
-	echo "Skipping disabled test"
-	exit 3
+    echo "Skipping disabled test"
+    exit 3
 fi
 
-ZPOOL=${ZPOOL:-"zpool"}
-ZFS=${ZFS:-"zfs"}
-ZFS_SH=${ZFS_SH:-"zfs.sh"}
 XFSTESTS=${XFSTESTS:-"./check"}
 CONFIG_LOG="$PWD/configure.log"
 MAKE_LOG="$PWD/make.log"
@@ -30,14 +28,14 @@ KMEMLEAK_FILE="/sys/kernel/debug/kmemleak"
 # is dumped twice to maximize the odds of preserving debug information.
 cleanup()
 {
-	dmesg >$CONSOLE_LOG
-	sudo -E $ZPOOL destroy -f $TEST_XFSTESTS_POOL &>/dev/null
-	sudo -E rm -f /etc/zfs/zpool.cache $TEST_XFSTESTS_VDEV
-	sudo -E rm -Rf $TEST_DIR $SCRATCH_MNT
-	sudo -E $ZFS_SH -u
-	dmesg >$CONSOLE_LOG
+    dmesg >$CONSOLE_LOG
+    sudo -E $ZPOOL destroy -f $TEST_XFSTESTS_POOL &>/dev/null
+    sudo -E rm -f /etc/zfs/zpool.cache $TEST_XFSTESTS_VDEV
+    sudo -E rm -Rf $TEST_DIR $SCRATCH_MNT
+    sudo -E $ZFS_SH -u
+    dmesg >$CONSOLE_LOG
 }
-trap cleanup EXIT SIGTERM
+trap cleanup EXIT
 
 set -x
 
@@ -67,9 +65,9 @@ autoconf >>$CONFIG_LOG 2>&1 || exit 1
 make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
-	echo "Kmemleak enabled.  Disabling scan thread and clearing log"
-	sudo -E sh -c "echo scan=off >$KMEMLEAK_FILE"
-	sudo -E sh -c "echo clear >$KMEMLEAK_FILE"
+    echo "Kmemleak enabled.  Disabling scan thread and clearing log"
+    sudo -E sh -c "echo scan=off >$KMEMLEAK_FILE"
+    sudo -E sh -c "echo clear >$KMEMLEAK_FILE"
 fi
 
 # Create zpool and start with a clean slate
@@ -93,22 +91,22 @@ wait $CHILD
 RESULT=$?
 
 if $(dmesg | grep "oom-killer"); then
-	echo "Out-of-memory (OOM) killer invocation detected"
-	[ $RESULT -eq 0 ] && RESULT=2
+    echo "Out-of-memory (OOM) killer invocation detected"
+    [ $RESULT -eq 0 ] && RESULT=2
 fi
 
 if $(sudo -E test -e "$KMEMLEAK_FILE"); then
-	# Scan must be run twice to ensure all leaks are detected.
-	sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
-	sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
-	sudo -E cat $KMEMLEAK_FILE >$KMEMLEAK_LOG
+    # Scan must be run twice to ensure all leaks are detected.
+    sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
+    sudo -E sh -c "echo scan >$KMEMLEAK_FILE"
+    sudo -E cat $KMEMLEAK_FILE >$KMEMLEAK_LOG
 
-	if [ -s "$KMEMLEAK_LOG" ]; then
-		echo "Kmemleak detected see $KMEMLEAK_LOG"
-		[ $RESULT -eq 0 ] && RESULT=2
-	else
-		echo "Kmemleak detected no leaks" >$KMEMLEAK_LOG
-	fi
+    if [ -s "$KMEMLEAK_LOG" ]; then
+        echo "Kmemleak detected see $KMEMLEAK_LOG"
+        [ $RESULT -eq 0 ] && RESULT=2
+    else
+        echo "Kmemleak detected no leaks" >$KMEMLEAK_LOG
+    fi
 fi
 
 exit $RESULT

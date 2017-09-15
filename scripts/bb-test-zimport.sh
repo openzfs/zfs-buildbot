@@ -1,13 +1,14 @@
 #!/bin/sh
 
-# Check for a local cached configuration.
 if test -f /etc/buildslave; then
     . /etc/buildslave
 fi
 
-# Custom test options will be saved in the tests directory.
-if test -f "../TEST"; then
-    . ../TEST
+if test -f ./TEST; then
+    . ./TEST
+else
+    echo "Missing $PWD/TEST configuration file"
+    exit 1
 fi
 
 TEST_ZIMPORT_SKIP=${TEST_ZIMPORT_SKIP:-"No"}
@@ -16,8 +17,11 @@ if echo "$TEST_ZIMPORT_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-ZFS_SH=${ZFS_SH:-"zfs.sh"}
-ZIMPORT=${ZIMPORT:-"zimport.sh"}
+if [ "$TEST_METHOD" != "packages" ]; then
+    echo "Skipping zimport.sh since packages are not installed."
+    exit 3
+fi
+
 CONSOLE_LOG="$PWD/console.log"
 
 # Cleanup the pool and restore any modified system state.  The console log
@@ -28,7 +32,7 @@ cleanup()
     sudo -E $ZFS_SH -u
     dmesg >$CONSOLE_LOG
 }
-trap cleanup EXIT SIGTERM
+trap cleanup EXIT
 
 set -x
 
@@ -43,7 +47,7 @@ sudo -E mkdir -p $TEST_ZIMPORT_DIR || exit 1
 sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/spl/master || exit 1
 sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/zfs/master || exit 1
 
-sudo -E $ZIMPORT $TEST_ZIMPORT_OPTIONS \
+sudo -E $ZIMPORT_SH $TEST_ZIMPORT_OPTIONS \
     -o "$TEST_ZIMPORT_CREATE_OPTIONS" \
     -f "$TEST_ZIMPORT_DIR" \
     -s "$TEST_ZIMPORT_VERSIONS" \

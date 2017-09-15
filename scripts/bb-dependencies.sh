@@ -9,41 +9,39 @@ else
    exit 0
 fi
 
-SUDO="sudo -E"
-
 set -x
 
 case "$BB_NAME" in
 Amazon*)
     # Required development tools.
-    $SUDO yum -y install gcc autoconf libtool gdb
+    sudo -E yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+    sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools
-    $SUDO yum -y install --enablerepo=epel cppcheck pax-utils
+    sudo -E yum -y install --enablerepo=epel cppcheck pax-utils
 
     # Required development libraries
-    $SUDO yum -y install kernel-devel-$(uname -r) \
+    sudo -E yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
 
-    $SUDO pip --quiet install flake8
+    sudo -E pip --quiet install flake8
     ;;
 
 CentOS*)
     # Required development tools.
-    $SUDO yum -y install gcc make autoconf libtool gdb
+    sudo -E yum -y install gcc make autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+    sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools
 
     # Required development libraries
-    $SUDO yum -y install kernel-devel \
+    sudo -E yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
@@ -51,16 +49,16 @@ CentOS*)
 
 Debian*)
     # Required development tools.
-    $SUDO apt-get --yes install build-essential autoconf libtool \
+    sudo -E apt-get --yes install build-essential autoconf libtool \
         libtool-bin gdb
 
     # Required utilities.
-    $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
+    sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat lsscsi parted gdebi attr dbench watchdog ksh nfs-kernel-server \
         samba rng-tools
 
     # Required development libraries
-    $SUDO apt-get --yes install linux-headers-$(uname -r) \
+    sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
@@ -68,15 +66,15 @@ Debian*)
 
 Fedora*)
     # Required development tools.
-    $SUDO dnf -y install gcc autoconf libtool gdb
+    sudo -E dnf -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO dnf -y install git rpm-build wget curl bc fio acl sysstat \
+    sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools
 
     # Required development libraries
-    $SUDO dnf -y install kernel-devel-$(uname -r) zlib-devel \
+    sudo -E dnf -y install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
@@ -92,15 +90,15 @@ RHEL*)
     fi
 
     # Required development tools.
-    $SUDO yum -y install gcc autoconf libtool gdb
+    sudo -E yum -y install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO yum -y install git rpm-build wget curl bc fio acl sysstat \
+    sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools
 
     # Required development libraries
-    $SUDO yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
+    sudo -E yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
@@ -108,15 +106,15 @@ RHEL*)
 
 SUSE*)
     # Required development tools.
-    $SUDO zypper --non-interactive install gcc autoconf libtool gdb
+    sudo -E zypper --non-interactive install gcc autoconf libtool gdb
 
     # Required utilities.
-    $SUDO zypper --non-interactive install git rpm-build wget curl bc \
+    sudo -E zypper --non-interactive install git rpm-build wget curl bc \
         fio acl sysstat mdadm lsscsi parted attr ksh nfs-kernel-server \
         samba rng-tools
 
     # Required development libraries
-    $SUDO zypper --non-interactive install kernel-devel zlib-devel \
+    sudo -E zypper --non-interactive install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel xfsprogs-devel \
         libattr-devel libacl-devel libudev-devel device-mapper-devel \
         openssl-devel
@@ -124,22 +122,22 @@ SUSE*)
 
 Ubuntu*)
     # Required development tools.
-    $SUDO apt-get --yes install build-essential autoconf libtool gdb
+    sudo -E apt-get --yes install build-essential autoconf libtool gdb
 
     # Required utilities.
-    $SUDO apt-get --yes install git alien fakeroot wget curl bc fio acl \
+    sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
         nfs-kernel-server samba rng-tools
 
     # Required development libraries
-    $SUDO apt-get --yes install linux-headers-$(uname -r) \
+    sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
 
     if test "$BB_MODE" = "STYLE"; then
-        $SUDO apt-get --yes install pax-utils shellcheck cppcheck mandoc
-        $SUDO pip --quiet install flake8
+        sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
+        sudo -E pip --quiet install flake8
     fi
     ;;
 
