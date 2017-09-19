@@ -78,6 +78,7 @@ function generate_gcov_reports
     #
     find "$ZFS_BUILD" -name "*.gcno" -type f \
             -not -path "$ZFS_BUILD/lib/*" \
+            -not -path "$ZFS_BUILD/tests/*" \
             -not -name ".*" \
             -exec dirname {} \; | sort | uniq | while read DIR; do
         pushd "$DIR" >/dev/null
