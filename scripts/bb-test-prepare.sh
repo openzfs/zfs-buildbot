@@ -219,4 +219,16 @@ case "$BB_NAME" in
         ;;
 esac
 
+# Schedule a shutdown for all distros other than CentOS 6, Ubuntu 14.04,
+# and Amazon based distros
+case "$BB_NAME" in
+    Amazon*|CentOS-6*|Ubuntu-14.04*)
+        echo "Skipping scheduled shutdown"
+        ;;
+    *)
+        echo "Scheduling shutdown"
+        sudo -E shutdown +480
+        ;;
+esac
+
 exit 0
