@@ -26,15 +26,43 @@ set -x
 
 function upload_codecov_reports
 {
+    local PR_OR_BRANCH_OPT
+
+    #
+    # When a PR number is specified, we prioritized that value, and
+    # don't specify a branch when uploading the coverage report.
+    # Otherwise, the "branches" page in the Codecov UI could incorrectly
+    # indentify pull requests as part of a branch on the main project
+    # repository, even though it hasn't landed to any branch yet.
+    #
+    # When uploading a coverage report for a commit on an actual branch
+    # of the main project repository, the PR_NUMBER should be the empty
+    # string (since it's not a PR commit). Thus, when PR_NUMBER is
+    # empty, we specify the branch only, when uploading the report; this
+    # way, the commit is properly associated with the correct branch in
+    # the Codecov UI.
+    #
+    if [[ -n "$PR_NUMBER" ]]; then
+        PR_OR_BRANCH_OPT="-P $PR_NUMBER"
+    elif [[ -n "$BASE_BRANCH" ]]; then
+        PR_OR_BRANCH_OPT="-B $BASE_BRANCH"
+    else
+        #
+        # We should have already caught this error using the environment
+        # variable checking at the start of this cript, but it doesn't
+        # hurt to double check that assumption.
+        #
+        echo "Missing PR_NUMBER or BASE_BRANCH environment variables."
+        exit 1
+    fi
+
     pushd "${ZFS_BUILD}" >/dev/null
     curl -s https://codecov.io/bash | bash -s - \
         -c -Z -X gcov -X py -X xcode \
         -n "$BUILDER_NAME" \
         -b "$BUILD_NUMBER" \
         -C "$ZFS_REVISION" \
-        -B "$BASE_BRANCH" \
-        -P "$PR_NUMBER" \
-        -F "$1"
+        $PR_OR_BRANCH_OPT
     popd >/dev/null
 }
 
@@ -97,7 +125,6 @@ function copy_kernel_gcov_data_files
     find . -name "*.gcno" -exec sh -c 'cp -vdn $0 '$ZFS_BUILD'/$0' {} \;
     popd >/dev/null
 }
-
 
 copy_kernel_gcov_data_files
 generate_gcov_reports
