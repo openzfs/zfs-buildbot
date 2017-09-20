@@ -30,10 +30,12 @@ function upload_codecov_reports
 
     #
     # When a PR number is specified, we prioritized that value, and
-    # don't specify a branch when uploading the coverage report.
-    # Otherwise, the "branches" page in the Codecov UI could incorrectly
-    # indentify pull requests as part of a branch on the main project
-    # repository, even though it hasn't landed to any branch yet.
+    # use the PR number as the branch name. If we don't specify a branch
+    # name at all, the Codecov uploader script will automatically detect
+    # a branch name to use when performing the upload (and what it
+    # auto-detects is incorrect). Codecov support suggested we use
+    # "pull/N" as the branch name for pull requests, which is what we're
+    # doing here.
     #
     # When uploading a coverage report for a commit on an actual branch
     # of the main project repository, the PR_NUMBER should be the empty
@@ -43,7 +45,7 @@ function upload_codecov_reports
     # the Codecov UI.
     #
     if [[ -n "$PR_NUMBER" ]]; then
-        PR_OR_BRANCH_OPT="-P $PR_NUMBER"
+        PR_OR_BRANCH_OPT="-B pull/$PR_NUMBER -P $PR_NUMBER"
     elif [[ -n "$BASE_BRANCH" ]]; then
         PR_OR_BRANCH_OPT="-B $BASE_BRANCH"
     else
