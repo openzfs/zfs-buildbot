@@ -22,11 +22,21 @@ if [ -z "$CODECOV_TOKEN" -o \
     exit 1
 fi
 
-set -x
+#
+# This variable is used when we upload the Codecov report, and allows
+# the Codecov UI to link back to the buildbot build.
+#
+CI_BUILD_URL="http://build.zfsonlinux.org/$BUILDER_NAME/builds/$BUILD_NUMBER"
+export CI_BUILD_URL
 
-function upload_codecov_reports
+function upload_codecov_report_with_flag
 {
     local PR_OR_BRANCH_OPT
+
+    if [[ -z "$1" ]]; then
+        echo "Can't upload Codecov report without a flag."
+        exit 1
+    fi
 
     #
     # When a PR number is specified, we prioritized that value, and
@@ -58,35 +68,14 @@ function upload_codecov_reports
         exit 1
     fi
 
-    pushd "${ZFS_BUILD}" >/dev/null
+    make code-coverage-capture
     curl -s https://codecov.io/bash | bash -s - \
         -c -Z -X gcov -X py -X xcode \
         -n "$BUILDER_NAME" \
         -b "$BUILD_NUMBER" \
         -C "$ZFS_REVISION" \
+        -F "$1" \
         $PR_OR_BRANCH_OPT
-    popd >/dev/null
-}
-
-function generate_gcov_reports
-{
-    #
-    # The userspace libraries are a little tricky to generate coverage
-    # data for them, because they often are compiled from source files
-    # that are also included in the kernel modules. For now, to simplify
-    # things, we're excluding the libraries from code coverage analysis.
-    # Unfortunately, this means that things like ztest and libzpool will
-    # not provide us any code coverage information.
-    #
-    find "$ZFS_BUILD" -name "*.gcno" -type f \
-            -not -path "$ZFS_BUILD/lib/*" \
-            -not -path "$ZFS_BUILD/tests/*" \
-            -not -name ".*" \
-            -exec dirname {} \; | sort | uniq | while read DIR; do
-        pushd "$DIR" >/dev/null
-        gcov -b *.gcno
-        popd >/dev/null
-    done
 }
 
 function copy_kernel_gcov_data_files
@@ -129,8 +118,26 @@ function copy_kernel_gcov_data_files
     popd >/dev/null
 }
 
+set -x
+cd "${ZFS_BUILD}"
+
+upload_codecov_report_with_flag "user"
+
+#
+# Now that we've uploaded the coverage report for the user execution
+# (e.g. userspace commands, libraries, etc), we need to upload the
+# report for the kernel execution. We remove all the user execution
+# ".gcda" files and replace them with the kernel equivalents. This way,
+# we can simply use the "make" target to generate the coverage report
+# for the kernel files just like we did for the userspace files.
+#
+# Note, we cannot use the "code-coverage-clean" make target here,
+# because that would remove the ".gcno" files that we need when
+# generating the kernel coverage report.
+#
+find . -name '*.gcda' -delete
 copy_kernel_gcov_data_files
-generate_gcov_reports
-upload_codecov_reports
+
+upload_codecov_report_with_flag "kernel"
 
 exit 0
