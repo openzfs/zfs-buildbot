@@ -14,7 +14,7 @@ set -x
 case "$BB_NAME" in
 Amazon*)
     # Required development tools.
-    sudo -E yum -y install gcc autoconf libtool gdb
+    sudo -E yum -y install gcc autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
@@ -33,7 +33,7 @@ Amazon*)
 
 CentOS*)
     # Required development tools.
-    sudo -E yum -y install gcc make autoconf libtool gdb
+    sudo -E yum -y install gcc make autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
@@ -50,7 +50,7 @@ CentOS*)
 Debian*)
     # Required development tools.
     sudo -E apt-get --yes install build-essential autoconf libtool \
-        libtool-bin gdb
+        libtool-bin gdb lcov
 
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
@@ -66,7 +66,7 @@ Debian*)
 
 Fedora*)
     # Required development tools.
-    sudo -E dnf -y install gcc autoconf libtool gdb
+    sudo -E dnf -y install gcc autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
@@ -90,7 +90,7 @@ RHEL*)
     fi
 
     # Required development tools.
-    sudo -E yum -y install gcc autoconf libtool gdb
+    sudo -E yum -y install gcc autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
@@ -106,7 +106,7 @@ RHEL*)
 
 SUSE*)
     # Required development tools.
-    sudo -E zypper --non-interactive install gcc autoconf libtool gdb
+    sudo -E zypper --non-interactive install gcc autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E zypper --non-interactive install git rpm-build wget curl bc \
@@ -122,7 +122,7 @@ SUSE*)
 
 Ubuntu*)
     # Required development tools.
-    sudo -E apt-get --yes install build-essential autoconf libtool gdb
+    sudo -E apt-get --yes install build-essential autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
