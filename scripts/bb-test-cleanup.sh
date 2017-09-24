@@ -22,12 +22,17 @@ if [ -z "$CODECOV_TOKEN" -o \
     exit 1
 fi
 
-#
-# This variable is used when we upload the Codecov report, and allows
-# the Codecov UI to link back to the buildbot build.
-#
-CI_BUILD_URL="http://build.zfsonlinux.org/$BUILDER_NAME/builds/$BUILD_NUMBER"
-export CI_BUILD_URL
+function urlencode
+{
+    python -c "import urllib; print(urllib.quote('$1'));"
+}
+
+function echo_build_url
+{
+    local NAME=$(urlencode "$BUILDER_NAME")
+    local NUMBER=$(urlencode "$BUILD_NUMBER")
+    echo "http://build.zfsonlinux.org/builders/$NAME/builds/$NUMBER"
+}
 
 function upload_codecov_report_with_flag
 {
@@ -117,6 +122,12 @@ function copy_kernel_gcov_data_files
     find . -name "*.gcno" -exec sh -c 'cp -vdn $0 '$ZFS_BUILD'/$0' {} \;
     popd >/dev/null
 }
+
+#
+# This variable is used when we upload the Codecov report, and allows
+# the Codecov UI to link back to the buildbot build.
+#
+export CI_BUILD_URL=$(echo_build_url)
 
 set -x
 cd "${ZFS_BUILD}"
