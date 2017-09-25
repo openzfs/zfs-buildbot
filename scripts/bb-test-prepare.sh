@@ -227,7 +227,7 @@ case "$BB_NAME" in
         ;;
     *)
         echo "Scheduling shutdown"
-        sudo -E shutdown +480
+        sudo -E shutdown +600
         ;;
 esac
 
