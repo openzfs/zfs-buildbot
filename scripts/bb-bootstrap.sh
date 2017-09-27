@@ -110,13 +110,9 @@ Amazon*)
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
-    # Set the sudo umask to 0000, this ensures that all .gcda profiling files
-    # will be modifiable by the buildbot user even when created under sudo.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser buildbot
         echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-        echo "Defaults umask = 0000" >> /etc/sudoers
-        echo "Defaults umask_override" >> /etc/sudoers
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
         sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     fi
@@ -317,11 +313,15 @@ Ubuntu*)
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
+    # Set the sudo umask to 0000, this ensures that all .gcda profiling files
+    # will be modifiable by the buildbot user even when created under sudo.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser --disabled-password --gecos "" buildbot
     fi
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    echo "Defaults umask = 0000" >> /etc/sudoers
+    echo "Defaults umask_override" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     sed -i.bak 's/updates/extra updates/' /etc/depmod.d/ubuntu.conf
