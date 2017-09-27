@@ -129,6 +129,14 @@ function copy_kernel_gcov_data_files
 #
 export CI_BUILD_URL=$(echo_build_url)
 
+#
+# In order to capture code coverage data about branches, we need to
+# explicitly enable it via this environment variable. This will enable
+# the "lcov_branch_coverage" option of lcov when we execute the
+# "code-coverage-capture" make target later in this script.
+#
+export CODE_COVERAGE_BRANCH_COVERAGE=1
+
 set -x
 cd "${ZFS_BUILD}"
 
