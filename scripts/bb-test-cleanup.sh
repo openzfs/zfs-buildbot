@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Check for a local cached configuration.
 if test -f /etc/buildslave; then
     . /etc/buildslave
+fi
+
+if test -f ./TEST; then
+    . ./TEST
+else
+    echo "Missing $PWD/TEST configuration file"
+    exit 1
 fi
 
 GCOV_KERNEL="/sys/kernel/debug/gcov"
@@ -130,12 +136,15 @@ function copy_kernel_gcov_data_files
 export CI_BUILD_URL=$(echo_build_url)
 
 #
-# In order to capture code coverage data about branches, we need to
-# explicitly enable it via this environment variable. This will enable
-# the "lcov_branch_coverage" option of lcov when we execute the
-# "code-coverage-capture" make target later in this script.
+# We explicitly disable branch coverage (unless the default is
+# overridden via the TEST_* variable) because it causes almost all
+# ASSERT and VERIFY statements to result in partial hits, which is
+# distracting when viewing the code coverage via Codecov's UI. Until we
+# can devise a way to prevent these partial hits for ASSERT and VERIFY
+# statements, we've decided to simply turn off branch coverage all
+# together.
 #
-export CODE_COVERAGE_BRANCH_COVERAGE=1
+export CODE_COVERAGE_BRANCH_COVERAGE=${TEST_CODE_COVERAGE_BRANCH_COVERAGE:-0}
 
 set -x
 cd "${ZFS_BUILD}"
