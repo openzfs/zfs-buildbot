@@ -127,7 +127,7 @@ Ubuntu*)
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
-        nfs-kernel-server samba rng-tools
+        nfs-kernel-server samba rng-tools xz-utils
 
     # Required development libraries
     sudo -E apt-get --yes install linux-headers-$(uname -r) \

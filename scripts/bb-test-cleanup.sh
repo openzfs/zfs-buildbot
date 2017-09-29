@@ -11,6 +11,7 @@ else
     exit 1
 fi
 
+WORKDIR=$(readlink -f .)
 GCOV_KERNEL="/sys/kernel/debug/gcov"
 ZFS_BUILD=$(readlink -f ../zfs)
 
@@ -79,6 +80,14 @@ function upload_codecov_report_with_flag
         exit 1
     fi
 
+    #
+    # This configures the directory name that will be used for the HTML
+    # report that will be generated. Since we'll create multiple
+    # different reports, and we want to capture and log all of them
+    # via Buildbot, we use a different directory name for each one.
+    #
+    export CODE_COVERAGE_OUTPUT_DIRECTORY="coverage-$1"
+
     make code-coverage-capture
     curl -s https://codecov.io/bash | bash -s - \
         -c -Z -X gcov -X py -X xcode \
@@ -87,6 +96,25 @@ function upload_codecov_report_with_flag
         -C "$ZFS_REVISION" \
         -F "$1" \
         $PR_OR_BRANCH_OPT
+
+    #
+    # The compressed tarball will be collected and stored on the
+    # Buildbot "master". To try and reduce the amount of storage
+    # required to store these coverage reports, we do our best to
+    # compress the tarball as much possible. We measured xz to
+    # result in a file that's roughly half the size when compared
+    # to the output when using gzip; no other algorithms were tested.
+    #
+    # Additionally, this function is run from inside the "zfs" build
+    # directory, so we must specify the full path to the output tarball
+    # such that it can be easily found and consumed by Buildbot (i.e.
+    # Buildbot will look for these files in $WORKDIR, not in the "zfs"
+    # build directory).
+    #
+    if [[ -n "$TEST_CODE_COVERAGE_HTML" ]]; then
+        tar -cf - "$CODE_COVERAGE_OUTPUT_DIRECTORY" | \
+            xz -9e "${WORKDIR}/${CODE_COVERAGE_OUTPUT_DIRECTORY}.tar.xz"
+    fi
 }
 
 function copy_kernel_gcov_data_files
