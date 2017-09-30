@@ -113,7 +113,7 @@ function upload_codecov_report_with_flag
     #
     if [[ -n "$TEST_CODE_COVERAGE_HTML" ]]; then
         tar -cf - "$CODE_COVERAGE_OUTPUT_DIRECTORY" | \
-            xz -9e "${WORKDIR}/${CODE_COVERAGE_OUTPUT_DIRECTORY}.tar.xz"
+            xz -9e > "${WORKDIR}/${CODE_COVERAGE_OUTPUT_DIRECTORY}.tar.xz"
     fi
 }
 
