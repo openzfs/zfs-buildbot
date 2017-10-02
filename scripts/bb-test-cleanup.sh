@@ -88,7 +88,7 @@ function upload_codecov_report_with_flag
     #
     export CODE_COVERAGE_OUTPUT_DIRECTORY="coverage-$1"
 
-    make code-coverage-capture
+    make V=1 code-coverage-capture
     curl -s https://codecov.io/bash | bash -s - \
         -c -Z -X gcov -X py -X xcode \
         -n "$BUILDER_NAME" \
