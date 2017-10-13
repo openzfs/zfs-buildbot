@@ -59,14 +59,14 @@ cat << EOF >> $TEST_FILE
 SPL_BUILD_DIR=$SPL_BUILD_DIR
 ZFS_BUILD_DIR=$ZFS_BUILD_DIR
 TEST_DIR=$TEST_DIR
-
 TEST_METHOD=$TEST_METHOD
 
 EOF
 
 # Add environment variables for "packages" or "in-tree" testing.
 TEST_METHOD=${TEST_METHOD:-"packages"}
-if [ "$TEST_METHOD" = "packages" ]; then
+case "$TEST_METHOD" in
+packages|kmod|pkg-kmod|dkms|dkms-kmod)
     cat << EOF >> $TEST_FILE
 SPLAT=${SPLAT:-"splat"}
 ZPOOL=${ZPOOL:-"zpool"}
@@ -77,7 +77,8 @@ ZFS_TESTS_SH=${ZFS_TESTS_SH:-"zfs-tests.sh"}
 ZIMPORT_SH=${ZIMPORT_SH:-"zimport.sh"}
 ZLOOP_SH=${ZLOOP_SH:-"zloop.sh"}
 EOF
-elif [ "$TEST_METHOD" = "in-tree" ]; then
+    ;;
+in-tree)
     cat << EOF >> $TEST_FILE
 SPLAT=${SPLAT:-"\$SPL_BUILD_DIR/bin/splat"}
 ZPOOL=${ZPOOL:-"\$ZFS_BUILD_DIR/bin/zpool"}
@@ -88,12 +89,14 @@ ZFS_TESTS_SH=${ZFS_TESTS_SH:-"\$ZFS_BUILD_DIR/scripts/zfs-tests.sh"}
 ZIMPORT_SH=${ZIMPORT_SH:-"\$ZFS_BUILD_DIR/scripts/zimport.sh"}
 ZLOOP_SH=${ZLOOP_SH:-"\$ZFS_BUILD_DIR/scripts/zloop.sh"}
 EOF
-else
+    ;;
+*)
     cat << EOF >> $TEST_FILE
 echo "Unknown TEST_METHOD: $TEST_METHOD"
 exit 1
 EOF
-fi
+    ;;
+esac
 
 . $TEST_FILE
 

@@ -15,74 +15,64 @@ set -x
 case "$BB_NAME" in
 Amazon*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E yum -y remove \
-            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+        sudo -E yum -y remove '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E yum -y remove \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
-            spl spl-debuginfo spl-kmod-debuginfo
+        sudo -E yum -y remove '(spl-dkms.*|kmod-spl.*)' \
+	    spl spl-debuginfo spl-kmod-debuginfo
     fi
     ;;
 
 CentOS*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E yum -y remove \
-            kmod-zfs kmod-zfs-devel \
+        sudo -E yum -y remove '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E yum -y remove \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+        sudo -E yum -y remove '(spl-dkms.*|kmod-spl.*)' \
             spl spl-debuginfo spl-kmod-debuginfo
     fi
     ;;
 
 Debian*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E apt-get --yes purge \
-            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+        sudo -E apt-get --yes purge '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-initramfs zfs-dracut zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E apt-get --yes purge \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) spl
+        sudo -E apt-get --yes purge '(spl-dkms.*|kmod-spl.*)' spl
     fi
     ;;
 
 Fedora*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E dnf -y remove \
-            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+        sudo -E dnf -y remove '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E dnf -y remove \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+        sudo -E dnf -y remove '(spl-dkms.*|kmod-spl.*)' \
             spl spl-debuginfo spl-kmod-debuginfo
     fi
     ;;
 
 RHEL*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E yum -y remove \
-            kmod-zfs kmod-zfs-devel \
+        sudo -E yum -y remove '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E yum -y remove \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) \
+        sudo -E yum -y remove '(spl-dkms.*|kmod-spl.*)' \
             spl spl-debuginfo spl-kmod-debuginfo
     fi
     ;;
@@ -101,15 +91,13 @@ SUSE*)
 
 Ubuntu*)
     if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E apt-get --yes purge \
-            kmod-zfs-$(uname -r) kmod-zfs-devel-$(uname -r) \
+        sudo -E apt-get --yes purge '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-initramfs zfs-dracut zfs-test
     fi
 
     if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E apt-get --yes purge \
-            kmod-spl-$(uname -r) kmod-spl-devel-$(uname -r) spl
+        sudo -E apt-get --yes purge '(spl-dkms.*|kmod-spl.*)' spl
     fi
     ;;
 
