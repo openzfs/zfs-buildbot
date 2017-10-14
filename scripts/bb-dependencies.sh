@@ -19,7 +19,7 @@ Amazon*)
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools
+        rng-tools dkms
     sudo -E yum -y install --enablerepo=epel cppcheck pax-utils
 
     # Required development libraries
@@ -38,7 +38,7 @@ CentOS*)
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools
+        rng-tools dkms
 
     # Required development libraries
     sudo -E yum -y install kernel-devel \
@@ -55,7 +55,7 @@ Debian*)
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat lsscsi parted gdebi attr dbench watchdog ksh nfs-kernel-server \
-        samba rng-tools
+        samba rng-tools dkms
 
     # Required development libraries
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
@@ -71,7 +71,7 @@ Fedora*)
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools
+        rng-tools dkms
 
     # Required development libraries
     sudo -E dnf -y install kernel-devel-$(uname -r) zlib-devel \
@@ -95,7 +95,7 @@ RHEL*)
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools
+        rng-tools dkms
 
     # Required development libraries
     sudo -E yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
@@ -111,7 +111,7 @@ SUSE*)
     # Required utilities.
     sudo -E zypper --non-interactive install git rpm-build wget curl bc \
         fio acl sysstat mdadm lsscsi parted attr ksh nfs-kernel-server \
-        samba rng-tools
+        samba rng-tools dkms
 
     # Required development libraries
     sudo -E zypper --non-interactive install kernel-devel zlib-devel \
@@ -127,7 +127,7 @@ Ubuntu*)
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
-        nfs-kernel-server samba rng-tools xz-utils
+        nfs-kernel-server samba rng-tools xz-utils dkms
 
     # Required development libraries
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
