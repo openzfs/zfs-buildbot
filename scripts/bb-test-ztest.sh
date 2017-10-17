@@ -19,15 +19,12 @@ fi
 
 CONSOLE_LOG="$PWD/console.log"
 
-# Cleanup the pool and restore any modified system state.  The console log
-# is dumped twice to maximize the odds of preserving debug information.
 cleanup()
 {
-    dmesg >$CONSOLE_LOG
     sudo -E $ZFS_SH -u
     dmesg >$CONSOLE_LOG
 }
-trap cleanup EXIT
+trap cleanup EXIT TERM
 
 set -x
 
