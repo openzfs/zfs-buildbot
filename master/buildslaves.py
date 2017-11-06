@@ -189,13 +189,6 @@ class ZFSEC2PVTestSlave(ZFSEC2Slave):
             instance_type="m1.medium", max_spot_price=0.20, placement='a',
             spot_instance=True, **kwargs)
 
-# Create an HVM EC2 latent test slave with x86 vector support (avx2, etc).
-class ZFSEC2VectorTestSlave(ZFSEC2Slave):
-    def __init__(self, name, **kwargs):
-        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="d2.xlarge", max_spot_price=0.30, placement='a',
-            spot_instance=True, **kwargs)
-
 # Create a d2.xlarge slave for performance testing because they have disks
 class ZFSEC2PerfTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
