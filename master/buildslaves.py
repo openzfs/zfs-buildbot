@@ -117,7 +117,7 @@ runurl $BB_URL/bb-bootstrap.sh
                 secret_identifier=ec2_default_secret,
                 keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
-                build_wait_timeout=30 * 60, spot_instance=False, max_spot_price=0.10,
+                build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
                 price_multiplier=None, missing_timeout=60 * 20, **kwargs):
 
         self.name = name
