@@ -26,7 +26,7 @@ Amazon*)
     sudo -E yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel
+        device-mapper-devel openssl-devel elfutils-libelf-devel
 
     sudo -E pip --quiet install flake8
     ;;
