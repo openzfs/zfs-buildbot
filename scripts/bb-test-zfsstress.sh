@@ -11,7 +11,7 @@ else
     exit 1
 fi
 
-TEST_ZFSSTRESS_SKIP=${TEST_ZFSSTRESS_SKIP:-"No"}
+TEST_ZFSSTRESS_SKIP=${TEST_ZFSSTRESS_SKIP:-"Yes"}
 if echo "$TEST_ZFSSTRESS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
     exit 3
