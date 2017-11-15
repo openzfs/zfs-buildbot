@@ -212,13 +212,7 @@ Fedora*)
 
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        yum -y update kernel
-    fi
-
-    # Use the debug kernel instead if indicated
-    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
-        yum -y install kernel-debug
-        set_boot_kernel
+        dnf -y update kernel-core kernel-devel
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
