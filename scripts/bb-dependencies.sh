@@ -45,6 +45,11 @@ CentOS*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
+
+    # Packages that are version dependent and not always available
+    if cat /etc/centos-release | grep -Fq 7.; then
+        sudo -E yum -y install libasan
+    fi
     ;;
 
 Debian*)
@@ -62,6 +67,9 @@ Debian*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
+
+    # Testing support libraries
+    sudo -E apt-get --yes install libasan
     ;;
 
 Fedora*)
@@ -78,6 +86,8 @@ Fedora*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
+
+    sudo -E yum -y install libasan
     ;;
 
 RHEL*)
@@ -102,6 +112,12 @@ RHEL*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
+
+    # Packages that are version dependent and not always available
+    if cat /etc/redhat-release | grep -Fq 7.; then
+        sudo -E yum -y install libasan
+    fi
+
     ;;
 
 SUSE*)
@@ -134,6 +150,8 @@ Ubuntu*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
+
+    sudo -e apt-get --yes install libasan1
 
     if test "$BB_MODE" = "STYLE"; then
         sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
