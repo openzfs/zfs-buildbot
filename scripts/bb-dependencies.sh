@@ -151,7 +151,7 @@ Ubuntu*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
 
-    sudo -e apt-get --yes install libasan1
+    sudo -E apt-get --yes install libasan1
 
     if test "$BB_MODE" = "STYLE"; then
         sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
