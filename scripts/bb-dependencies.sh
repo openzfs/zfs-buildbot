@@ -69,7 +69,7 @@ Debian*)
         libssl-dev
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan
+    sudo -E apt-get --yes install libasan1
     ;;
 
 Fedora*)
