@@ -75,8 +75,8 @@ $ZFS_TESTS_SH $TEST_ZFSTESTS_OPTIONS \
 RC=$?
 
 if [ $RC -ne 0 ]; then
-    grep "\[KILLED\]" log && RESULT=2  # WARNING
-    grep "\[FAIL\]" log && RESULT=1    # FAILURE
+    grep -a "\[KILLED\]" log && RESULT=2  # WARNING
+    grep -a "\[FAIL\]" log && RESULT=1    # FAILURE
 fi
 
 if $(dmesg | grep "oom-killer"); then
