@@ -102,7 +102,12 @@ case "$BB_NAME" in
 Amazon*)
     yum -y install deltarpm gcc python-pip python-devel
     easy_install --quiet buildbot-slave
-    BUILDSLAVE="/usr/local/bin/buildslave"
+
+    if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
+        BUILDSLAVE="/usr/bin/buildslave"
+    else
+        BUILDSLAVE="/usr/local/bin/buildslave"
+    fi
 
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
