@@ -132,6 +132,12 @@ Amazon*)
 
     # Enable partitions for loopback devices, they are disabled by default.
     echo "options loop max_part=15" >/etc/modprobe.d/loop.conf
+
+    # Disable /dev/sda -> /dev/xvda symlinks which conflict with scsi_debug.
+    if test -e /etc/udev/rules.d/51-ec2-hvm-devices.rules; then
+        rm -f /etc/udev/rules.d/51-ec2-hvm-devices.rules
+    fi
+
     ;;
 
 CentOS*)
