@@ -37,21 +37,17 @@ if test "$LINUX_BUILTIN" = "yes"; then
         ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
     fi
 
-    if [ -d "../zfs" ]; then
-        cd ../zfs >>$CONFIG_LOG 2>&1 || exit 1
-        sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
-        ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-        ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
-    fi
+    cd ../zfs >>$CONFIG_LOG 2>&1 || exit 1
+    sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+    ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+    ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
 
     cd ../linux >>$CONFIG_LOG 2>&1 || exit 1
     if [ -d "../spl" ]; then
       echo "CONFIG_SPL=y" >>$CONFIG_FILE
     fi
 
-    if [ -d "../zfs" ]; then
-        echo "CONFIG_ZFS=y" >>$CONFIG_FILE
-    fi
+    echo "CONFIG_ZFS=y" >>$CONFIG_FILE
 fi
 
 set -x
