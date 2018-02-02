@@ -167,7 +167,7 @@ Ubuntu*)
     fi
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan1 python3
+    sudo -E apt-get --yes install python3
     ;;
 
 *)
