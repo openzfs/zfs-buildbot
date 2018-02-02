@@ -20,7 +20,12 @@ Amazon*)
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools dkms
-    sudo -E yum -y install --enablerepo=epel cppcheck pax-utils
+
+    if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
+        sudo -E amazon-linux-extras install python3
+    else
+        sudo -E yum -y install --enablerepo=epel cppcheck pax-utils
+    fi
 
     # Required development libraries
     sudo -E yum -y install kernel-devel-$(uname -r) \
@@ -50,6 +55,9 @@ CentOS*)
     if cat /etc/centos-release | grep -Fq 7.; then
         sudo -E yum -y install libasan
     fi
+
+    # Testing support libraries
+    sudo -E yum -y install --enablerepo=epel python34
     ;;
 
 Debian*)
@@ -69,7 +77,7 @@ Debian*)
         libssl-dev
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan1
+    sudo -E apt-get --yes install libasan1 python3
     ;;
 
 Fedora*)
@@ -87,7 +95,7 @@ Fedora*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel
 
-    sudo -E yum -y install libasan
+    sudo -E dnf -y install libasan python3
     ;;
 
 RHEL*)
@@ -118,6 +126,8 @@ RHEL*)
         sudo -E yum -y install libasan
     fi
 
+    # Testing support libraries
+    sudo -E yum -y install --enablerepo=epel python34
     ;;
 
 SUSE*)
@@ -151,12 +161,13 @@ Ubuntu*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev
 
-    sudo -E apt-get --yes install libasan1
-
     if test "$BB_MODE" = "STYLE"; then
         sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
         sudo -E pip --quiet install flake8
     fi
+
+    # Testing support libraries
+    sudo -E apt-get --yes install libasan1 python3
     ;;
 
 *)
