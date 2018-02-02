@@ -14,7 +14,7 @@ set -x
 case "$BB_NAME" in
 Amazon*)
     # Required development tools.
-    sudo -E yum -y install gcc autoconf libtool gdb lcov
+    sudo -E yum -y install gcc autoconf libtool gdb lcov bison flex
 
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
