@@ -93,7 +93,7 @@ Fedora*)
     sudo -E dnf -y install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel
+        device-mapper-devel openssl-devel libtirpc-devel
 
     sudo -E dnf -y install libasan python3
     ;;
