@@ -18,17 +18,30 @@ if echo "$TEST_ZFSTESTS_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 fi
 
 CONSOLE_LOG="$PWD/console.log"
+SUMMARY_LOG="$PWD/summary.log"
+TEST_LOG="$PWD/test.log"
 KMEMLEAK_LOG="$PWD/kmemleak.log"
 KMEMLEAK_FILE="/sys/kernel/debug/kmemleak"
 RESULT=0
 
 # Cleanup the pool and restore any modified system state.  The console log
 # is dumped twice to maximize the odds of preserving debug information.
+# Generate a summary of results and place them in a different file.
 cleanup()
 {
     dmesg >$CONSOLE_LOG
     sudo -E $ZFS_SH -u
     dmesg >$CONSOLE_LOG
+
+    if [ -f "$TEST_LOG" ]; then
+        grep -A 20 "Results Summary" "$TEST_LOG" > $SUMMARY_LOG
+        echo "" >> $SUMMARY_LOG
+        grep -a "\[KILLED\]" log >> $SUMMARY_LOG
+        grep -a "\[FAIL\]" log >> $SUMMARY_LOG
+        echo "" >> $SUMMARY_LOG
+        awk '/\[FAIL\]|\[KILLED\]/{ show=1; print; next; }
+            /\[SKIP\]|\[PASS\]/{ show=0; } show' log >> $SUMMARY_LOG
+    fi
 }
 trap cleanup EXIT
 
@@ -71,7 +84,7 @@ $ZFS_TESTS_SH $TEST_ZFSTESTS_OPTIONS \
     -s $TEST_ZFSTESTS_DISKSIZE \
     -r $TEST_ZFSTESTS_RUNFILE \
     -I $TEST_ZFSTESTS_ITERS \
-    -T $TEST_ZFSTESTS_TAGS
+    -T $TEST_ZFSTESTS_TAGS > $TEST_LOG 2>&1
 RC=$?
 
 if [ $RC -ne 0 ]; then
