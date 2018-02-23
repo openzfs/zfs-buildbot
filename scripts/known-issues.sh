@@ -9,7 +9,7 @@
 ZFSONLINUX_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
 ZFSONLINUX_MTIME=30
 ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
-ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=label:%22Test%20Suite%22+type:issue+repo:zfsonlinux/zfs)
+ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=Test%20Case+type:issue+repo:zfsonlinux/zfs)
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
@@ -83,13 +83,16 @@ cat << EOF
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
 
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/plug-ins/1.10.16/sorting/enum.js"></script>
+
 <script type="text/javascript">
 \$(document).ready(function() {
+	\$.fn.dataTable.enum( [ 'high', 'medium', 'low', '' ] );
 	\$('#maintable').DataTable( {
 		"columnDefs": [
 			{ "visible": false, "targets": 3 }
 		],
-		"searching": false,
+		"searching": true,
 		"order": [[ 3, 'asc' ]],
 		"displayLength": 50,
 		"drawCallback": function ( settings ) {
@@ -229,8 +232,8 @@ do
 		ZFSONLINUX_ORIGIN="Branch: $ZFSONLINUX_ORIGIN"
 
 		# Match test case name against open issues.  For an issue
-		# to be matched it must be tagged "Test Suite" and contain
-		# the base name of the failing test case.
+		# to be matched it must contain "Test Case" in the title
+		# and the base name of the failing test case.
 		base=$(basename $ZFSONLINUX_NAME)
 		issue=$(echo "$ZFSONLINUX_ISSUES" | jq ".items[] | \
 		    select(.title | contains(\"$base\")) | \
