@@ -31,7 +31,8 @@ Amazon*)
     sudo -E yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel elfutils-libelf-devel
+        device-mapper-devel openssl-devel elfutils-libelf-devel libffi-devel \
+        python-devel python-setuptools
 
     sudo -E pip --quiet install flake8
     ;;
@@ -49,7 +50,8 @@ CentOS*)
     sudo -E yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel
+        device-mapper-devel openssl-devel libffi-devel python-devel \
+        python-setuptools
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Fq 7.; then
@@ -74,7 +76,7 @@ Debian*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev
+        libssl-dev python-dev libffi-dev python-setuptools
 
     # Testing support libraries
     sudo -E apt-get --yes install libasan1 python3
@@ -93,7 +95,8 @@ Fedora*)
     sudo -E dnf -y install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libtirpc-devel
+        device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
+        python-devel python-setuptools
 
     sudo -E dnf -y install libasan python3
     ;;
@@ -119,7 +122,8 @@ RHEL*)
     sudo -E yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel
+        device-mapper-devel openssl-devel libffi-devel python-devel \
+        python-setuptools
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Fq 7.; then
@@ -143,7 +147,7 @@ SUSE*)
     sudo -E zypper --non-interactive install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel xfsprogs-devel \
         libattr-devel libacl-devel libudev-devel device-mapper-devel \
-        openssl-devel
+        openssl-devel libffi-devel python-devel python-setuptools
     ;;
 
 Ubuntu*)
@@ -159,7 +163,7 @@ Ubuntu*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev
+        libssl-dev libffi-dev python-dev python-setuptools
 
     if test "$BB_MODE" = "STYLE"; then
         sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
