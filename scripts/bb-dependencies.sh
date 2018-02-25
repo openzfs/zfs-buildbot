@@ -32,7 +32,7 @@ Amazon*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel libffi-devel \
-        python-devel python-setuptools
+        python-devel python-setuptools python-cffi
 
     sudo -E pip --quiet install flake8
     ;;
@@ -51,7 +51,7 @@ CentOS*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel python-devel \
-        python-setuptools
+        python-setuptools python-cffi
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Fq 7.; then
@@ -76,7 +76,7 @@ Debian*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev python-dev libffi-dev python-setuptools
+        libssl-dev python-dev libffi-dev python-setuptools python-cffi
 
     # Testing support libraries
     sudo -E apt-get --yes install libasan1 python3
@@ -96,7 +96,7 @@ Fedora*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
-        python-devel python-setuptools
+        python-devel python-setuptools python-cffi
 
     sudo -E dnf -y install libasan python3
     ;;
@@ -123,7 +123,7 @@ RHEL*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel python-devel \
-        python-setuptools
+        python-setuptools python-cffi
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Fq 7.; then
@@ -147,7 +147,7 @@ SUSE*)
     sudo -E zypper --non-interactive install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel xfsprogs-devel \
         libattr-devel libacl-devel libudev-devel device-mapper-devel \
-        openssl-devel libffi-devel python-devel python-setuptools
+        openssl-devel libffi-devel python-devel python-setuptools python-cffi
     ;;
 
 Ubuntu*)
@@ -163,7 +163,7 @@ Ubuntu*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libffi-dev python-dev python-setuptools
+        libssl-dev libffi-dev python-dev python-setuptools python-cffi
 
     if test "$BB_MODE" = "STYLE"; then
         sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
