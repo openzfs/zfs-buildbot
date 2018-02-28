@@ -13,8 +13,8 @@ ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=Test%20Case+t
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
-STATUS_LOW_CUTOFF=5
-STATUS_MED_CUTOFF=20
+STATUS_LOW_CUTOFF=1
+STATUS_MED_CUTOFF=5
 
 STATUS_LOW="st_low"
 STATUS_MED="st_med"
@@ -90,20 +90,20 @@ cat << EOF
 	\$.fn.dataTable.enum( [ 'high', 'medium', 'low', '' ] );
 	\$('#maintable').DataTable( {
 		"columnDefs": [
-			{ "visible": false, "targets": 3 }
+			{ "visible": false, "targets": 6 }
 		],
 		"searching": true,
-		"order": [[ 3, 'asc' ]],
+		"order": [[ 6, 'asc' ]],
 		"displayLength": 50,
 		"drawCallback": function ( settings ) {
 			var api = this.api();
 			var rows = api.rows( {page:'current'} ).nodes();
 			var last=null;
  
-			api.column(3, {page:'current'} ).data().each( function ( group, i ) {
+			api.column(6, {page:'current'} ).data().each( function ( group, i ) {
 				if ( last !== group ) {
 					\$(rows).eq( i ).before(
-					'<tr class="group"><td colspan="5">'+group+'</td></tr>'
+					'<tr class="group"><td colspan="8">'+group+'</td></tr>'
 					);
  
 				last = group;
@@ -115,11 +115,11 @@ cat << EOF
 	// Order by the grouping
 	\$('#maintable tbody').on( 'click', 'tr.group', function () {
 		var currentOrder = table.order()[0];
-		if ( currentOrder[0] === 3 && currentOrder[1] === 'asc' ) {
-			table.order( [ 3, 'desc' ] ).draw();
+		if ( currentOrder[0] === 6 && currentOrder[1] === 'asc' ) {
+			table.order( [ 6, 'desc' ] ).draw();
 		}
 		else {
-			table.order( [ 3, 'asc' ] ).draw();
+			table.order( [ 6, 'asc' ] ).draw();
 		}
 	} );
 } );
@@ -154,9 +154,13 @@ cat << EOF
 .st_pr {
 	background:$STATUS_PR_COLOR !important;
 }
+.td_faillist {
+	text-align:left;
+	min-width:30%;
+}
 .td_text {
 	text-align:left;
-	min-width:60%;
+	min-width:40%;
 }
 tr.group,
 tr.group:hover {
@@ -178,7 +182,10 @@ issues observed during automated buildbot testing over the last
 <thead>
 <tr>
   <th>Issue</th>
-  <th>Test Failures</th>
+  <th>Rate</th>
+  <th>Pass</th>
+  <th>Fail</th>
+  <th>Failure List</th>
   <th>Test Name</th>
   <th>Origin</th>
   <th>Severity</th>
@@ -187,13 +194,64 @@ issues observed during automated buildbot testing over the last
 <tbody>
 EOF
 
+# Unfortunately there's not enough information in the buildbot logs to
+# dynamically generate the encoded version of the builder name.
+# Therefore we're forced to implement this simple lookup function.
+function build_url()
+{
+	local name=$1
+	local nr=$2
+	local url="http://build.zfsonlinux.org/builders"
+
+	case "$name" in
+	Amazon_2_x86_64_Release__TEST_)
+		encoded_name="Amazon%202%20x86_64%20Release%20%28TEST%29"
+		;;
+	CentOS_6_x86_64__TEST_)
+		encoded_name="CentOS%206%20x86_64%20%28TEST%29"
+		;;
+	CentOS_7_x86_64_Mainline__TEST_)
+		encoded_name="CentOS%207%20x86_64%20Mainline%20%28TEST%29"
+		;;
+	CentOS_7_x86_64__TEST_)
+		encoded_name="CentOS%207%20x86_64%20%28TEST%29"
+		;;
+	Fedora_27_x86_64__TEST_)
+		encoded_name="Fedora%2027%20x86_64%20%28TEST%29"
+		;;
+	Fedora_Rawhide_x86_64__TEST_)
+		encoded_name="Fedora%20Rawhide%20x86_64%20%28TEST%29"
+		;;
+	Ubuntu_16_04_x86_64__TEST_)
+		encoded_name="Ubuntu%2016.04%20x86_64%20%28TEST%29"
+		;;
+	Ubuntu_17_04_x86_64_Coverage__TEST_)
+		encoded_name="Ubuntu%2017.04%20x86_64%20Coverage%20%28TEST%29"
+		;;
+	Ubuntu_17_10_x86_64__TEST_)
+		encoded_name="Ubuntu%2017.10%20x86_64%20%28TEST%29"
+		;;
+	*)
+		encoded_named="unknown"
+		;;
+	esac
+
+	echo "<a href='$url/$encoded_name/builds/$nr'>$nr</a>"
+}
+export -f build_url
+
 check() {
-	git_log="$1-log-git_zfs-stdio"
-	test_log="$1-log-shell_8-tests.bz2"
+	local git_log="$1-log-git_zfs-stdio"
+	local test_log="$1-log-shell_8-tests.bz2"
+	local mode="$2"
 
 	# Ignore incomplete builds
 	[[ ! -e "$git_log" ]] && return 1
 	[[ ! -e "$test_log" ]] && return 1
+
+	nr=$(basename "$1" | cut -f1 -d' ')
+	name=$(basename "$(dirname "$1")")
+	test_url=$(build_url $name $nr)
 
 	# Annotate pull requests vs branch commits
 	if grep -q "refs/pull" "$git_log"; then
@@ -205,21 +263,43 @@ check() {
 	fi
 
 	# Strip and print the failed test cases
-	bzgrep -e '\[FAIL\]' "$test_log" | \
-	    awk -F"zfs-tests/" '{print $2}' | \
-	    cut -d' ' -f1 | sed "s/^/$origin	/"
+	bzgrep -e '\['"$mode"'\]' "$test_log" | \
+	    awk -F"zfs-tests/" '{print $2}' | cut -d' ' -f1 | \
+	    awk -v prefix="$test_url $origin " '{ print prefix $0; }'
 }
 export -f check
 
-find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN -regex ".*/[0-9]*" \
-    -exec bash -c 'check "$0"' {} \; | \
-    sort | uniq -c | sort -nr | while read LINE1;
-do
+# List of all tests which have passed
+ZFSONLINUX_PASSES=$(find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN \
+    -regex ".*/[0-9]*" -exec bash -c 'check "$0" "PASS"' {} \; | \
+    cut -f3- -d' ' | sort | uniq -c | sort -nr)
+
+# List of all tests which have failed
+ZFSONLINUX_FAILURES=$(find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN \
+    -regex ".*/[0-9]*" -exec bash -c 'check "$0" "FAIL"' {} \;)
+
+echo "$ZFSONLINUX_FAILURES" | cut -f3- -d' ' | sort | uniq -c | sort -nr | \
+while read LINE1; do
 	ZFSONLINUX_ISSUE=""
-	ZFSONLINUX_FAIL=$(echo $LINE1 | cut -f1 -d' ')
 	ZFSONLINUX_NAME=$(echo $LINE1 | cut -f3 -d' ')
 	ZFSONLINUX_ORIGIN=$(echo $LINE1 | cut -f2 -d' ')
+	ZFSONLINUX_FAIL=$(echo $LINE1 | cut -f1 -d' ')
 	ZFSONLINUX_STATUS=""
+
+	# Create links buildbot logs for all failed tests.
+	ZFSONLINUX_BUILDS=$(echo "$ZFSONLINUX_FAILURES" | \
+	    grep "$ZFSONLINUX_ORIGIN $ZFSONLINUX_NAME" | cut -f1-2 -d' ')
+
+	ZFSONLINUX_PASS=$(echo "$ZFSONLINUX_PASSES" | \
+	    grep "$ZFSONLINUX_ORIGIN $ZFSONLINUX_NAME" | \
+	    awk '{$1=$1;print}' | cut -f1 -d' ')
+
+	[[ "$ZFSONLINUX_FAIL" =~ $NUMBER_REGEX ]] || ZFSONLINUX_FAIL=0
+	[[ "$ZFSONLINUX_PASS" =~ $NUMBER_REGEX ]] || ZFSONLINUX_PASS=1
+
+	ZFSONLINUX_RATE=$(bc <<< "scale=2; ((100*$ZFSONLINUX_FAIL) / \
+	    ($ZFSONLINUX_PASS + $ZFSONLINUX_FAIL))" | \
+	    awk '{printf "%.2f", $0}')
 
 	# Test failure was from an open pull request or branch.
 	if [[ $ZFSONLINUX_ORIGIN =~ $NUMBER_REGEX ]]; then
@@ -242,10 +322,10 @@ do
 		number=$(echo "$issue"|grep number|cut -f2- -d':'|tr -d ' ",')
 		ZFSONLINUX_ISSUE="<a href='$url'>$number</a>"
 
-		if [[ $ZFSONLINUX_FAIL -le $STATUS_LOW_CUTOFF ]]; then
+		if [[ ${ZFSONLINUX_RATE%%.*} -le $STATUS_LOW_CUTOFF ]]; then
 			ZFSONLINUX_STATUS=$STATUS_LOW
 			ZFSONLINUX_STATUS_TEXT=$STATUS_LOW_TEXT
-		elif [[ $ZFSONLINUX_FAIL -le $STATUS_MED_CUTOFF ]]; then
+		elif [[ ${ZFSONLINUX_RATE%%.*} -le $STATUS_MED_CUTOFF ]]; then
 			ZFSONLINUX_STATUS=$STATUS_MED
 			ZFSONLINUX_STATUS_TEXT=$STATUS_MED_TEXT
 		else
@@ -257,7 +337,10 @@ do
 	cat << EOF
 <tr class='$ZFSONLINUX_STATUS'>
   <td>$ZFSONLINUX_ISSUE</td>
+  <td>$ZFSONLINUX_RATE%</td>
+  <td>$ZFSONLINUX_PASS</td>
   <td>$ZFSONLINUX_FAIL</td>
+  <td class='td_faillist'>$ZFSONLINUX_BUILDS</td>
   <td class='td_text'>$ZFSONLINUX_NAME</td>
   <td>$ZFSONLINUX_ORIGIN</td>
   <td>$ZFSONLINUX_STATUS_TEXT</td>
