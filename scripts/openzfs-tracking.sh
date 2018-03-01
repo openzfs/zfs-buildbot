@@ -118,11 +118,15 @@ cat << EOF
 <title>OpenZFS Tracking</title>
 <meta name="keyword" content="zfs, linux"/>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.3/css/fixedHeader.dataTables.min.css">
+
 <script		  src="https://code.jquery.com/jquery-1.12.4.min.js"
 			  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
 			  crossorigin="anonymous"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
 <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/fixedheader/3.1.3/js/dataTables.fixedHeader.min.js"></script>
 
 <script type="text/javascript">
 \$(document).ready(function() {
@@ -148,6 +152,10 @@ cat << EOF
 			column.data().unique().sort().each( function ( d, j ) {
 				select.append( '<option value="'+d+'">'+d+'</option>' )
 			} );
+		},
+		fixedHeader: {
+			header: true,
+			footer: true
 		}
 	} );
 } );
