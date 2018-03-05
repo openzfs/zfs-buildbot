@@ -9,7 +9,7 @@
 ZFSONLINUX_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
 ZFSONLINUX_MTIME=30
 ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
-ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=Test%20Case+type:issue+repo:zfsonlinux/zfs)
+ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:zfsonlinux/zfs+label:%22Test%20Suite%22)
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
@@ -34,7 +34,7 @@ STATUS_PR_TEXT=""
 usage() {
 cat << EOF
 USAGE:
-$0 [-h] [-d directory] [-m mtime]
+$0 [-h] [-d directory] [-e exceptions] [-m mtime]
 
 DESCRIPTION:
 	Dynamically generate HTML for the Known Issue Tracking page
@@ -44,6 +44,7 @@ DESCRIPTION:
 OPTIONS:
 	-h		Show this message
 	-d directory	Directory containing the buildbot logs
+	-e exceptions	Exception file (using ZoL wiki if not specified)
 	-m mtime	Include test logs from the last N days.
 
 EXAMPLE:
@@ -54,7 +55,7 @@ $0 -d ~/zfs-buildbot/master/*_TEST_ -m 30 \\
 EOF
 }
 
-while getopts 'hd:m:' OPTION; do
+while getopts 'hd:e:m:' OPTION; do
 	case $OPTION in
 	h)
 		usage
@@ -62,6 +63,9 @@ while getopts 'hd:m:' OPTION; do
 		;;
 	d)
 		ZFSONLINUX_DIR=$OPTARG
+		;;
+	e)
+		ZFSONLINUX_EXCEPTIONS=$OPTARG
 		;;
 	m)
 		ZFSONLINUX_MTIME=$OPTARG
@@ -93,17 +97,17 @@ cat << EOF
 	\$.fn.dataTable.enum( [ 'high', 'medium', 'low', '' ] );
 	\$('#maintable').DataTable( {
 		"columnDefs": [
-			{ "visible": false, "targets": 6 }
+			{ "visible": false, "targets": 7 }
 		],
 		"searching": true,
-		"order": [[ 6, 'asc' ]],
+		"order": [[ 7, 'asc' ]],
 		"displayLength": 50,
 		"drawCallback": function ( settings ) {
 			var api = this.api();
 			var rows = api.rows( {page:'current'} ).nodes();
 			var last=null;
  
-			api.column(6, {page:'current'} ).data().each( function ( group, i ) {
+			api.column(7, {page:'current'} ).data().each( function ( group, i ) {
 				if ( last !== group ) {
 					\$(rows).eq( i ).before(
 					'<tr class="group"><td colspan="8">'+group+'</td></tr>'
@@ -122,11 +126,11 @@ cat << EOF
 	// Order by the grouping
 	\$('#maintable tbody').on( 'click', 'tr.group', function () {
 		var currentOrder = table.order()[0];
-		if ( currentOrder[0] === 6 && currentOrder[1] === 'asc' ) {
-			table.order( [ 6, 'desc' ] ).draw();
+		if ( currentOrder[0] === 7 && currentOrder[1] === 'asc' ) {
+			table.order( [ 7, 'desc' ] ).draw();
 		}
 		else {
-			table.order( [ 6, 'asc' ] ).draw();
+			table.order( [ 7, 'asc' ] ).draw();
 		}
 	} );
 } );
@@ -194,6 +198,7 @@ issues observed during automated buildbot testing over the last
   <th>Fail</th>
   <th>Failure List</th>
   <th>Test Name</th>
+  <th>State</th>
   <th>Origin</th>
   <th>Severity</th>
 </tr>
@@ -276,6 +281,13 @@ check() {
 }
 export -f check
 
+# Get all exceptions and comments
+if [ -z ${ZFSONLINUX_EXCEPTIONS+x} ]; then
+	ZFSONLINUX_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/zfsonlinux/zfs/ZTS-exceptions.md | awk '/---|---|---/{y=1;next}y')
+else
+	ZFSONLINUX_EXCEPTIONS=$(cat "$ZFSONLINUX_EXCEPTIONS" | awk '/---|---|---/{y=1;next}y')
+fi
+
 # List of all tests which have passed
 ZFSONLINUX_PASSES=$(find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN \
     -regex ".*/[0-9]*" -exec bash -c 'check "$0" "PASS"' {} \; | \
@@ -291,6 +303,7 @@ while read LINE1; do
 	ZFSONLINUX_NAME=$(echo $LINE1 | cut -f3 -d' ')
 	ZFSONLINUX_ORIGIN=$(echo $LINE1 | cut -f2 -d' ')
 	ZFSONLINUX_FAIL=$(echo $LINE1 | cut -f1 -d' ')
+	ZFSONLINUX_STATE=""
 	ZFSONLINUX_STATUS=""
 
 	# Create links buildbot logs for all failed tests.
@@ -319,14 +332,15 @@ while read LINE1; do
 		ZFSONLINUX_ORIGIN="Branch: $ZFSONLINUX_ORIGIN"
 
 		# Match test case name against open issues.  For an issue
-		# to be matched it must contain "Test Case" in the title
-		# and the base name of the failing test case.
+		# to be matched it must be labeled "Test Suite" and contain
+		# the base name of the failing test case in the title.
 		base=$(basename $ZFSONLINUX_NAME)
 		issue=$(echo "$ZFSONLINUX_ISSUES" | jq ".items[] | \
 		    select(.title | contains(\"$base\")) | \
-		     {html_url, number }")
+		     {html_url, number, state}")
 		url=$(echo "$issue"|grep html_url|cut -f2- -d':'|tr -d ' ",')
 		number=$(echo "$issue"|grep number|cut -f2- -d':'|tr -d ' ",')
+		state=$(echo "$issue"|grep state|cut -f2- -d':'|tr -d "\" ")
 		ZFSONLINUX_ISSUE="<a href='$url'>$number</a>"
 
 		if [[ ${ZFSONLINUX_RATE%%.*} -le $STATUS_LOW_CUTOFF ]]; then
@@ -339,6 +353,34 @@ while read LINE1; do
 			ZFSONLINUX_STATUS=$STATUS_HIGH
 			ZFSONLINUX_STATUS_TEXT=$STATUS_HIGH_TEXT
 		fi
+
+		# Match ZTS base name in exceptions list.
+		EXCEPTION=$(echo "$ZFSONLINUX_EXCEPTIONS" | grep -E "^$base")
+		if [ -n "$EXCEPTION" ]; then
+			EXCEPTION_ISSUE=$(echo $EXCEPTION | cut -f2 -d'|' | tr -d ' ')
+			EXCEPTION_STATE=$(echo $EXCEPTION | cut -d'|' -f3-)
+
+			# '-' indicates the entry should be skipped,
+			# '!' print the provided comment from the exception,
+			# '<issue>' use state from references issue number.
+			if [ "$EXCEPTION_ISSUE" == "-" ]; then
+				continue;
+			elif [ "$EXCEPTION_ISSUE" == "!" ]; then
+				ZFSONLINUX_STATE="$EXCEPTION_STATE"
+			else
+				issue=$(echo "$ZFSONLINUX_ISSUES" | \
+				    jq ".items[] | \
+				    select(.number == $EXCEPTION_ISSUE) | \
+				    {html_url, number, state}")
+				url=$(echo "$issue"|grep html_url|cut -f2- -d':'|tr -d ' ",')
+				number=$(echo "$issue"|grep number|cut -f2- -d':'|tr -d ' ",')
+				state=$(echo "$issue"|grep state|cut -f2- -d':'|tr -d "\" ")
+				ZFSONLINUX_ISSUE="<a href='$url'>$number</a>"
+				ZFSONLINUX_STATE="${state}"
+			fi
+		else
+			ZFSONLINUX_STATE="${state}"
+		fi
 	fi
 
 	cat << EOF
@@ -349,6 +391,7 @@ while read LINE1; do
   <td>$ZFSONLINUX_FAIL</td>
   <td class='td_faillist'>$ZFSONLINUX_BUILDS</td>
   <td class='td_text'>$ZFSONLINUX_NAME</td>
+  <td>$ZFSONLINUX_STATE</td>
   <td>$ZFSONLINUX_ORIGIN</td>
   <td>$ZFSONLINUX_STATUS_TEXT</td>
 </tr>
