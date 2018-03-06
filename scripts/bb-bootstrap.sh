@@ -210,6 +210,13 @@ Debian*)
     ;;
 
 Fedora*)
+    # As of Fedora 29 buildbot v1.0 is provided from the repository.  This
+    # version is incompatible v0.8 on master, so use the older pip version.
+    VERSION=$(cut -f3 -d' ' /etc/fedora-release)
+    if test $VERSION -ge 29; then
+        BB_USE_PIP=1
+    fi
+
     # Relying on the pip version of the buildslave is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
