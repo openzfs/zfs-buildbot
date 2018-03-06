@@ -20,11 +20,13 @@ STATUS_LOW="st_low"
 STATUS_MED="st_med"
 STATUS_HIGH="st_high"
 STATUS_PR="st_pr"
+STATUS_RESOLVED="st_resolved"
 
 STATUS_LOW_COLOR="#ffee3a"
 STATUS_MED_COLOR="#ffa500"
 STATUS_HIGH_COLOR="#ff9999"
 STATUS_PR_COLOR="#f8f8f8"
+STATUS_RESOLVED_COLOR="#5ff567"
 
 STATUS_LOW_TEXT="low"
 STATUS_MED_TEXT="medium"
@@ -164,6 +166,9 @@ cat << EOF
 }
 .st_pr {
 	background:$STATUS_PR_COLOR !important;
+}
+.st_resolved {
+	background: $STATUS_RESOLVED_COLOR !important;
 }
 .td_faillist {
 	text-align:left;
@@ -381,6 +386,11 @@ while read LINE1; do
 		else
 			ZFSONLINUX_STATE="${state}"
 		fi
+	fi
+	
+	# add styles for resolved issues
+	if [ "$ZFSONLINUX_STATE" == "closed" ]; then
+		ZFSONLINUX_STATUS=$STATUS_RESOLVED
 	fi
 
 	cat << EOF
