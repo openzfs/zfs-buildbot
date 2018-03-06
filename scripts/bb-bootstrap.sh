@@ -156,6 +156,15 @@ CentOS*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
+
+        # User namespaces must be enabled at boot time for CentOS 7
+        if cat /etc/redhat-release | grep -Eq "7."; then
+            grubby --args="user_namespace.enable=1" \
+                --update-kernel="$(grubby --default-kernel)"
+            grubby --args="namespace.unpriv_enable=1" \
+                --update-kernel="$(grubby --default-kernel)"
+            echo "user.max_user_namespaces=3883" > /etc/sysctl.d/99-userns.conf
+        fi
     fi
 
     # Use the debug kernel instead if indicated
