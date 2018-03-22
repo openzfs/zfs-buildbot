@@ -56,6 +56,7 @@ if test ! -f /etc/buildslave; then
     echo "BB_MODE=\"$BB_MODE\""         >> /etc/buildslave
     echo "BB_ADMIN=\"$BB_ADMIN\""       >> /etc/buildslave
     echo "BB_DIR=\"$BB_DIR\""           >> /etc/buildslave
+    echo "BB_SHUTDOWN=\"Yes\""          >> /etc/buildslave
 fi
 
 
