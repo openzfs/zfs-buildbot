@@ -41,6 +41,18 @@ Amazon*)
     ;;
 
 CentOS*)
+    # Required repository packages
+    if cat /etc/centos-release | grep -Eq "6."; then
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+    elif cat /etc/centos-release | grep -Eq "7."; then
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    else
+        echo "No extra repo packages to install..."
+    fi
+
+    # To minimize EPEL leakage, disable by default...
+    sudo -E sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
+
     # Required development tools.
     sudo -E yum -y install gcc make autoconf libtool gdb lcov
 
@@ -105,13 +117,20 @@ Fedora*)
     ;;
 
 RHEL*)
+    # Required repository packages
     if cat /etc/redhat-release | grep -Eq "6."; then
         EXTRA_REPO="--enablerepo=rhui-REGION-rhel-server-releases-optional"
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
     elif cat /etc/redhat-release | grep -Eq "7."; then
         EXTRA_REPO="--enablerepo=rhui-REGION-rhel-server-optional"
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     else
         EXTRA_REPO=""
+        echo "No extra repo packages to install..."
     fi
+
+    # To minimize EPEL leakage, disable by default...
+    sudo -E sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
     # Required development tools.
     sudo -E yum -y install gcc autoconf libtool gdb lcov
