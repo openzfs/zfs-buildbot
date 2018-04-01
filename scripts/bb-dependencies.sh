@@ -9,6 +9,28 @@ else
    exit 0
 fi
 
+# borrowed from 
+# https://askubuntu.com/questions/132059/how-to-make-a-package-manager-wait-if-another-instance-of-apt-is-running
+function apt-get-install
+{
+    i=0
+    tput sc
+    while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+        case $(($i % 4)) in
+            0 ) j="-" ;;
+            1 ) j="\\" ;;
+            2 ) j="|" ;;
+            3 ) j="/" ;;
+        esac
+        tput rc
+        echo -en "\r[$j] Waiting for other software managers to finish..." 
+        sleep 0.5
+        ((i=i+1))
+    done 
+
+    sudo -E apt-get --yes install "$@"
+}
+
 set -x
 
 case "$BB_NAME" in
@@ -175,27 +197,27 @@ SUSE*)
 
 Ubuntu*)
     # Required development tools.
-    sudo -E apt-get --yes install build-essential autoconf libtool gdb lcov
+    apt-get-install build-essential autoconf libtool gdb lcov
 
     # Required utilities.
-    sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
+    apt-get-install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
         nfs-kernel-server samba rng-tools xz-utils dkms
 
     # Required development libraries
-    sudo -E apt-get --yes install linux-headers-$(uname -r) \
+    apt-get-install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev python-dev python-setuptools \
         python-cffi
 
     if test "$BB_MODE" = "STYLE"; then
-        sudo -E apt-get --yes install pax-utils shellcheck cppcheck mandoc
+        apt-get-install pax-utils shellcheck cppcheck mandoc
         sudo -E pip --quiet install flake8
     fi
 
     # Testing support libraries
-    sudo -E apt-get --yes install python3
+    apt-get-install python3
     ;;
 
 *)
