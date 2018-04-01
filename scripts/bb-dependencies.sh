@@ -73,8 +73,8 @@ CentOS*)
         sudo -E yum -y install libasan
     fi
 
-    # Testing support libraries
-    sudo -E yum -y install --enablerepo=epel python34
+    # Testing support libraries and tools
+    sudo -E yum -y install --enablerepo=epel python34 fio
     ;;
 
 Debian*)
@@ -152,8 +152,8 @@ RHEL*)
         sudo -E yum -y install libasan
     fi
 
-    # Testing support libraries
-    sudo -E yum -y install --enablerepo=epel python34
+    # Testing support libraries and tools
+    sudo -E yum -y install --enablerepo=epel python34 fio
     ;;
 
 SUSE*)
