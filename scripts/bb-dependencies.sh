@@ -9,23 +9,12 @@ else
    exit 0
 fi
 
-# borrowed from 
-# https://askubuntu.com/questions/132059/how-to-make-a-package-manager-wait-if-another-instance-of-apt-is-running
+# a function to wait for an apt-get upgrade to finish
 function apt-get-install
 {
-    i=0
-    tput sc
+    echo "Waiting for other software managers to finish..."
     while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
-        case $(($i % 4)) in
-            0 ) j="-" ;;
-            1 ) j="\\" ;;
-            2 ) j="|" ;;
-            3 ) j="/" ;;
-        esac
-        tput rc
-        echo -en "\r[$j] Waiting for other software managers to finish..." 
         sleep 0.5
-        ((i=i+1))
     done 
 
     sudo -E apt-get --yes install "$@"
