@@ -77,7 +77,7 @@ CentOS*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel python-devel \
-        libaio-devel python-setuptools python-cffi
+        libaio-devel python-setuptools python-cffi libyaml-devel
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Fq 7.; then
