@@ -110,7 +110,7 @@ Debian*)
 
 Fedora*)
     # Required development tools.
-    sudo -E dnf -y install gcc autoconf libtool gdb lcov
+    sudo -E dnf -y install gcc make autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
@@ -144,7 +144,7 @@ RHEL*)
     sudo -E sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
     # Required development tools.
-    sudo -E yum -y install gcc autoconf libtool gdb lcov
+    sudo -E yum -y install gcc make autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
@@ -169,7 +169,7 @@ RHEL*)
 
 SUSE*)
     # Required development tools.
-    sudo -E zypper --non-interactive install gcc autoconf libtool gdb lcov
+    sudo -E zypper --non-interactive install gcc make autoconf libtool gdb lcov
 
     # Required utilities.
     sudo -E zypper --non-interactive install git rpm-build wget curl bc \
