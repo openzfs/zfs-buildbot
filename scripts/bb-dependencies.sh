@@ -12,12 +12,15 @@ fi
 # a function to wait for an apt-get upgrade to finish
 function apt-get-install
 {
-    echo "Waiting for other software managers to finish..."
-    while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+    while true; do
+        sudo -E apt-get --yes install "$@"
+
+        # error code 11 indicates that a lock file couldn't be obtained
+        # keep retrying until we don't see an error code of 11
+        [[ $? -ne 11 ]] && break
+
         sleep 0.5
     done 
-
-    sudo -E apt-get --yes install "$@"
 }
 
 set -x
