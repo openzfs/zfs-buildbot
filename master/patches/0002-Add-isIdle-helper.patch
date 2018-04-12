@@ -1,7 +1,7 @@
-From c2c6fb6c7caf0b7f2b45f08950dab484afd96f42 Mon Sep 17 00:00:00 2001
+From 249b2e18a39b98bff9254436985b7283e88695b3 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Tue, 3 Nov 2015 11:04:10 -0800
-Subject: [PATCH 2/5] Add isIdle helper
+Subject: [PATCH 2/9] Add isIdle helper
 
 Checks if a buildslave is available and currently idle.  In the case
 of a latent buildslave it may be available but not substantiated.  This
@@ -14,7 +14,7 @@ Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
  1 file changed, 3 insertions(+)
 
 diff --git a/master/buildbot/process/slavebuilder.py b/master/buildbot/process/slavebuilder.py
-index 86f427d..42f050e 100644
+index 86f427d3c..42f050e5b 100644
 --- a/master/buildbot/process/slavebuilder.py
 +++ b/master/buildbot/process/slavebuilder.py
 @@ -72,6 +72,9 @@ class AbstractSlaveBuilder(pb.Referenceable):
@@ -28,5 +28,5 @@ index 86f427d..42f050e 100644
          return self.state not in (IDLE, LATENT)
  
 -- 
-2.4.3
+2.14.3
 

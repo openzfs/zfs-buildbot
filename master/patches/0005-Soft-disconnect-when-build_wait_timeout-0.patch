@@ -1,7 +1,7 @@
-From 2a339bfbc4bf62fea2b38ddb50e163c819b1bd8d Mon Sep 17 00:00:00 2001
+From 43ea0ecf8e0e666d0529ce5a32dcfd01c12f4492 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Thu, 3 Dec 2015 12:47:08 -0800
-Subject: [PATCH 5/5] Soft disconnect when 'build_wait_timeout==0'
+Subject: [PATCH 5/9] Soft disconnect when 'build_wait_timeout==0'
 
 Insubstantiating the latent build slave without cleanly disconnecting
 it can result in a ping failure if a new latent slave is immediately
@@ -19,7 +19,7 @@ Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/master/buildbot/buildslave/base.py b/master/buildbot/buildslave/base.py
-index 07c077b..c28cf50 100644
+index 07c077b35..c28cf5043 100644
 --- a/master/buildbot/buildslave/base.py
 +++ b/master/buildbot/buildslave/base.py
 @@ -966,7 +966,7 @@ class AbstractLatentBuildSlave(AbstractBuildSlave):
@@ -32,5 +32,5 @@ index 07c077b..c28cf50 100644
                  # this will cause the slave to re-substantiate immediately if
                  # there are pending build requests.
 -- 
-2.4.3
+2.14.3
 

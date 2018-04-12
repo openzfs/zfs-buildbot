@@ -1,7 +1,7 @@
-From 073da2d470c57c3c76a2caef0ee7bae8926eaf10 Mon Sep 17 00:00:00 2001
+From 708c7c2450c49024562f6d0e57ecb6efbd0505e6 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Thu, 3 Dec 2015 11:15:43 -0800
-Subject: [PATCH 4/5] Retry on EC2 'NotFound' errors
+Subject: [PATCH 4/9] Retry on EC2 'NotFound' errors
 
 Due to EC2 eventual consistency model 'NotFound' errors can returned
 even after the successful creation of a resource.  This spurious errors
@@ -16,7 +16,7 @@ Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
  2 files changed, 51 insertions(+), 10 deletions(-)
 
 diff --git a/master/buildbot/buildslave/base.py b/master/buildbot/buildslave/base.py
-index 98b5881..07c077b 100644
+index 98b58814a..07c077b35 100644
 --- a/master/buildbot/buildslave/base.py
 +++ b/master/buildbot/buildslave/base.py
 @@ -998,6 +998,7 @@ class AbstractLatentBuildSlave(AbstractBuildSlave):
@@ -28,7 +28,7 @@ index 98b5881..07c077b 100644
          yield d
          self.insubstantiating = False
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index e16b637..ae40cf1 100644
+index e16b6372b..ae40cf181 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
 @@ -49,6 +49,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
@@ -128,5 +128,5 @@ index e16b637..ae40cf1 100644
              minutes = duration // 60
              seconds = duration % 60
 -- 
-2.4.3
+2.14.3
 
