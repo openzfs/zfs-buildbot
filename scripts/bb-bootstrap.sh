@@ -142,6 +142,18 @@ Amazon*)
     ;;
 
 CentOS*)
+    # Required repository packages
+    if cat /etc/centos-release | grep -Eq "6."; then
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+    elif cat /etc/centos-release | grep -Eq "7."; then
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    else
+        echo "No extra repo packages to install..."
+    fi
+
+    # To minimize EPEL leakage, disable by default...
+    sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
+
     if cat /etc/redhat-release | grep -Eq "6."; then
         # The buildbot-slave package isn't available from a common repo.
         BUILDSLAVE_URL="http://build.zfsonlinux.org"
@@ -149,8 +161,8 @@ CentOS*)
         yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
         BUILDSLAVE="/usr/bin/buildslave"
     else
-        yum -y install gcc python-pip python-devel
-        easy_install --quiet buildbot-slave
+        yum --enablerepo=epel -y install gcc python-pip python-devel
+        pip --quiet install buildbot-slave
         BUILDSLAVE="/usr/bin/buildslave"
     fi
 
@@ -220,10 +232,10 @@ Debian*)
     ;;
 
 Fedora*)
-    # As of Fedora 29 buildbot v1.0 is provided from the repository.  This
+    # As of Fedora 28 buildbot v1.0 is provided from the repository.  This
     # version is incompatible v0.8 on master, so use the older pip version.
     VERSION=$(cut -f3 -d' ' /etc/fedora-release)
-    if test $VERSION -ge 29; then
+    if test $VERSION -ge 28; then
         BB_USE_PIP=1
     fi
 
@@ -231,7 +243,7 @@ Fedora*)
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
         dnf -y install gcc python-pip python-devel
-        easy_install --quiet buildbot-slave
+        pip --quiet install buildbot-slave
         BUILDSLAVE="/usr/bin/buildslave"
     else
         dnf -y install buildbot-slave
@@ -266,8 +278,20 @@ Gentoo*)
     ;;
 
 RHEL*)
-    yum -y install deltarpm gcc python-pip python-devel
-    easy_install --quiet buildbot-slave
+    # Required repository packages
+    if cat /etc/redhat-release | grep -Eq "6."; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+    elif cat /etc/redhat-release | grep -Eq "7."; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    else
+        echo "No extra repo packages to install..."
+    fi
+
+    # To minimize EPEL leakage, disable by default...
+    sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
+
+    yum --enablerepo=epel -y install deltarpm gcc python-pip python-devel
+    pip --quiet install buildbot-slave
     BUILDSLAVE="/usr/bin/buildslave"
 
     # Install the latest kernel to reboot on to.
@@ -301,7 +325,7 @@ SUSE*)
 
     # Zypper auto-refreshes on boot retry to avoid spurious failures.
     zypper --non-interactive install gcc python-devel python-pip
-    easy_install --quiet buildbot-slave
+    pip --quiet install buildbot-slave
     BUILDSLAVE="/usr/bin/buildslave"
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
