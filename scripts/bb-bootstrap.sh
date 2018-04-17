@@ -250,9 +250,17 @@ Fedora*)
         BUILDSLAVE="/usr/bin/buildslave"
     fi
 
-    # Install the latest kernel to reboot on to.
+    # Install the latest kernel to reboot on to.  When testing on Rawhide
+    # always install the nodebug kernel rather than the default kernel.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        dnf -y update kernel-core kernel-devel
+        if grep -q "Rawhide" /etc/fedora-release; then
+            dnf config-manager --add-repo=http://dl.fedoraproject.org/pub/alt/rawhide-kernel-nodebug/fedora-rawhide-kernel-nodebug.repo
+            dnf update
+            dnf -y --enablerepo=fedora-rawhide-kernel-nodebug \
+                update kernel-core kernel-devel
+        else
+            dnf -y update kernel-core kernel-devel
+        fi
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
