@@ -1,7 +1,7 @@
-From f25e191c22e21039b74eb244b4c900afff251f22 Mon Sep 17 00:00:00 2001
+From fb17b8cdde0df115e96e40422b4a484ec8b48601 Mon Sep 17 00:00:00 2001
 From: Neal Gompa <ngompa@datto.com>
 Date: Fri, 30 Mar 2018 17:23:54 -0400
-Subject: [PATCH 8/9] Add VPC support to EC2LatentBuildSlave
+Subject: [PATCH 08/18] Add VPC support to EC2LatentBuildSlave
 
 Partially adapted from 8b67f91b50d72979ff620413dc4169d277b519df in buildbot 0.9.x,
 originally authored by Ryan Sydnor <ryan.t.sydnor@gmail.com>.
@@ -133,11 +133,10 @@ diff --git a/master/buildbot/test/unit/test_buildslave_ec2.py b/master/buildbot/
 index f52fe7d61..b8874dd4f 100644
 --- a/master/buildbot/test/unit/test_buildslave_ec2.py
 +++ b/master/buildbot/test/unit/test_buildslave_ec2.py
-@@ -85,6 +85,52 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
-                                      )
+@@ -86,6 +86,52 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
          self.assertEqual(bs.tags, tags)
  
-+    @mock_ec2
+     @mock_ec2
 +    def test_fail_mixing_classic_and_vpc_ec2_settings(self):
 +        c = self.botoSetup()
 +        amis = c.get_all_images()
@@ -183,9 +182,10 @@ index f52fe7d61..b8874dd4f 100644
 +        self.assertEqual(len(instances[0].groups), 1)
 +        self.assertEqual(instances[0].groups[0].id, sg.id)
 +
-     @mock_ec2
++    @mock_ec2
      def test_start_instance(self):
          c = self.botoSetup()
+         amis = c.get_all_images()
 diff --git a/master/docs/manual/cfg-buildslaves.rst b/master/docs/manual/cfg-buildslaves.rst
 index d8ddd1884..99e23162d 100644
 --- a/master/docs/manual/cfg-buildslaves.rst
@@ -219,5 +219,5 @@ index d8ddd1884..99e23162d 100644
  ##############
  
 -- 
-2.14.3
+2.13.6
 

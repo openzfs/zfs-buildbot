@@ -1,7 +1,7 @@
-From f6b00469736556e5422ae98b3f1d3893e8b7f1a6 Mon Sep 17 00:00:00 2001
+From 9a6bd185a28c029f2141d2cff97a6329d6a1d6c4 Mon Sep 17 00:00:00 2001
 From: Neal Gompa <ngompa@datto.com>
 Date: Tue, 3 Apr 2018 17:39:52 -0400
-Subject: [PATCH 9/9] Add support for block devices to EC2LatentBuildSlave
+Subject: [PATCH 09/18] Add support for block devices to EC2LatentBuildSlave
 
 Partially adapted from 8b67f91b50d72979ff620413dc4169d277b519df in buildbot 0.9.x,
 originally authored by Ryan Sydnor <ryan.t.sydnor@gmail.com>.
@@ -81,11 +81,10 @@ diff --git a/master/buildbot/test/unit/test_buildslave_ec2.py b/master/buildbot/
 index b8874dd4f..09b073872 100644
 --- a/master/buildbot/test/unit/test_buildslave_ec2.py
 +++ b/master/buildbot/test/unit/test_buildslave_ec2.py
-@@ -150,6 +150,48 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
-         self.assertEqual(instances[0].id, instance_id)
+@@ -151,6 +151,48 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
          self.assertEqual(instances[0].tags, {})
  
-+    @mock_ec2
+     @mock_ec2
 +    def test_start_instance_volumes(self):
 +        c = self.botoSetup()
 +        amis = c.get_all_images()
@@ -127,9 +126,10 @@ index b8874dd4f..09b073872 100644
 +            BlockDeviceType(volume_type='gp2', size=30, delete_on_termination=False),
 +            bs.block_device_map['/dev/xvdc'])
 +
-     @mock_ec2
++    @mock_ec2
      def test_start_instance_tags(self):
          c = self.botoSetup()
+         amis = c.get_all_images()
 diff --git a/master/docs/manual/cfg-buildslaves.rst b/master/docs/manual/cfg-buildslaves.rst
 index 99e23162d..a468a73a7 100644
 --- a/master/docs/manual/cfg-buildslaves.rst
@@ -165,5 +165,5 @@ index 99e23162d..a468a73a7 100644
  ##############
  
 -- 
-2.14.3
+2.13.6
 

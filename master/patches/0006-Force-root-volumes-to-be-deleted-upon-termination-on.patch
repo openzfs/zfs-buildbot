@@ -1,16 +1,12 @@
-From 8a0ba1878216b497a9d0f31f707ae6ea3e8905d0 Mon Sep 17 00:00:00 2001
-From: Giuseppe Di Natale <dinatale2@llnl.gov>
-Date: Fri, 12 Feb 2016 08:22:00 -0800
-Subject: [PATCH 6/9] Force root volumes to be deleted upon termination on EC2
- volumes
+From 64f174c76000d42395c28e608479d60c90aa1db7 Mon Sep 17 00:00:00 2001
+From: Brian Behlendorf <behlendorf1@llnl.gov>
+Date: Thu, 25 Feb 2016 09:16:47 -0800
+Subject: [PATCH 06/18] Force root volumes to be deleted upon termination on
+ EC2 volumes.
 
-This patch introduces the ability to set all root volumes of an instance
-to be deleted upon termination.  This change does not impact additionally
-attached volumes.
-
-Spot instances will make root volumes and are similar to on demand
-instances.  They will not destroy a volume unless delete on termination
-is set.
+This patch is for buildbot. It introduces the ability to set all root
+volumes of an instance to be deleted upon termination. This change
+does not impact additionally attached volumes.
 
 Signed-off-by: Giuseppe Di Natale <dinatale2@llnl.gov>
 Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
@@ -87,5 +83,5 @@ index ae40cf181..00ead8a5d 100644
                  self.conn.create_tags(self.instance.id, self.tags)
              return self.instance.id, image.id, start_time
 -- 
-2.14.3
+2.13.6
 
