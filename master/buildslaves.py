@@ -116,9 +116,10 @@ runurl $BB_URL/bb-bootstrap.sh
                 instance_type="m3.large", identifier=ec2_default_access,
                 secret_identifier=ec2_default_secret,
                 keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
+                subnet_id=None, security_group_ids=None,
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
-                price_multiplier=None, missing_timeout=60 * 20, **kwargs):
+                missing_timeout=60 * 20, block_device_map=None, **kwargs):
 
         self.name = name
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -146,14 +147,42 @@ runurl $BB_URL/bb-bootstrap.sh
         if user_data is None:
             user_data = ZFSEC2Slave.default_user_data % (bin_path, master, name, password, mode, url)
 
+        if block_device_map is None:
+            # io1 is 50 IOPS/GB, iops _must_ be specified for io1 only
+            # Cf. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html
+            boot_device_props = { "volume_type": "gp2", "size": 24 }
+
+            # Reasonable default values for additional persistent disks, if desired
+            persist_device_props = { "volume_type": "io1",
+                                   "iops": 400,
+                                   "size": 8
+                                   }
+
+            # Some images are very picky about the boot device name or they don't boot
+            if "Amazon" in name or "Kernel.org" in name or "Debian" in name:
+                boot_device = "/dev/xvda"
+            else:
+                boot_device = "/dev/sda1"
+
+            block_device_map = { boot_device : boot_device_props,
+                                 "/dev/sdb": { "ephemeral_name": "ephemeral0" },
+                                 "/dev/sdc": { "ephemeral_name": "ephemeral1" },
+                                 "/dev/sdd": { "ephemeral_name": "ephemeral2" },
+                                 "/dev/sde": { "ephemeral_name": "ephemeral3" },
+                                 "/dev/sdf": { "ephemeral_name": "ephemeral4" },
+                                 "/dev/sdg": { "ephemeral_name": "ephemeral5" },
+                               }
+
+
         EC2LatentBuildSlave.__init__(
             self, name=name, password=password, instance_type=instance_type, 
             identifier=identifier, secret_identifier=secret_identifier, region=region,
             user_data=user_data, keypair_name=keypair_name, security_name=security_name,
+            subnet_id=subnet_id, security_group_ids=security_group_ids,
             max_builds=max_builds, spot_instance=spot_instance, tags=tags,
             max_spot_price=max_spot_price, placement=placement,
-            price_multiplier=price_multiplier, build_wait_timeout=build_wait_timeout, 
-            missing_timeout=missing_timeout, **kwargs)
+            build_wait_timeout=build_wait_timeout, missing_timeout=missing_timeout,
+            block_device_map=block_device_map, **kwargs)
 
 class ZFSEC2StyleSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
