@@ -1,7 +1,7 @@
-From 249b2e18a39b98bff9254436985b7283e88695b3 Mon Sep 17 00:00:00 2001
+From 6af327f2aa17e24cf4e2f38754b676157b24a0a5 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Tue, 3 Nov 2015 11:04:10 -0800
-Subject: [PATCH 2/9] Add isIdle helper
+Subject: [PATCH 02/18] Add isIdle helper
 
 Checks if a buildslave is available and currently idle.  In the case
 of a latent buildslave it may be available but not substantiated.  This
@@ -28,5 +28,5 @@ index 86f427d3c..42f050e5b 100644
          return self.state not in (IDLE, LATENT)
  
 -- 
-2.14.3
+2.13.6
 

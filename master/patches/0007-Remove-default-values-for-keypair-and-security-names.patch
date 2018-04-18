@@ -1,8 +1,8 @@
-From e6b22cd6433618891178ced990d646a097ef15eb Mon Sep 17 00:00:00 2001
+From 3c87a6e4d009dd8cb8f66bd1d263d5e323b2f3b2 Mon Sep 17 00:00:00 2001
 From: Neal Gompa <ngompa@datto.com>
 Date: Fri, 30 Mar 2018 17:01:14 -0400
-Subject: [PATCH 7/9] Remove default values for keypair and security names for
- EC2LatentBuildSlave
+Subject: [PATCH 07/18] Remove default values for keypair and security names
+ for EC2LatentBuildSlave
 
 This is a simpler/trivial adaptation of 68a9267d5fff06e0ff7c6ea8a82ab66fcf6a359c in buildbot 0.9.x,
 originally authored by Vladimir Rutsky <vladimir@rutsky.org>.
@@ -43,5 +43,5 @@ index 00ead8a5d..622bcc973 100644
          self.valid_ami_location_regex = valid_ami_location_regex
          self.instance_type = instance_type
 -- 
-2.14.3
+2.13.6
 
