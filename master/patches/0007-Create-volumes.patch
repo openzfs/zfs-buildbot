@@ -1,17 +1,17 @@
-From 07f6a396081626b5aebf52fd2018fd255d61d802 Mon Sep 17 00:00:00 2001
+From 4b4dbca300f6f58be60d7e398fd41ccdb2ad20de Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Mon, 7 Mar 2016 14:13:11 -0800
-Subject: [PATCH 10/18] Create volumes
+Subject: [PATCH 07/18] Create volumes
 
 ---
  master/buildbot/buildslave/ec2.py | 45 ++++++++++++++++++++++++++++++++++++---
  1 file changed, 42 insertions(+), 3 deletions(-)
 
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index bc7926547..8f83ec3d8 100644
+index 00ead8a5d..d787f194f 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
-@@ -46,6 +46,12 @@ SPOT_REQUEST_PENDING_STATES = ['pending-evaluation', 'pending-fulfillment']
+@@ -44,6 +44,12 @@ SPOT_REQUEST_PENDING_STATES = ['pending-evaluation', 'pending-fulfillment']
  FULFILLED = 'fulfilled'
  PRICE_TOO_LOW = 'price-too-low'
  
@@ -24,16 +24,16 @@ index bc7926547..8f83ec3d8 100644
  
  class EC2LatentBuildSlave(AbstractLatentBuildSlave):
  
-@@ -64,7 +70,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -61,7 +67,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                   build_wait_timeout=60 * 10, properties={}, locks=None,
                   spot_instance=False, max_spot_price=1.6, volumes=[],
                   placement=None, price_multiplier=1.2, tags={},
--                 delete_vol_term=True, block_device_map=None):
-+                 delete_vol_term=True, create_volumes=[],block_device_map=None):
+-                 delete_vol_term=True):
++                 delete_vol_term=True, create_volumes=[]):
  
          AbstractLatentBuildSlave.__init__(
              self, name, password, max_builds, notify_on_missing,
-@@ -113,6 +119,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -100,6 +106,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
          self.volumes = volumes
          self.price_multiplier = price_multiplier
          self.delete_vol_term = delete_vol_term
@@ -41,7 +41,7 @@ index bc7926547..8f83ec3d8 100644
  
          if None not in [placement, region]:
              self.placement = '%s%s' % (region, placement)
-@@ -335,8 +342,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -301,8 +308,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
          if self.delete_vol_term is False:
              return
  
@@ -52,7 +52,7 @@ index bc7926547..8f83ec3d8 100644
  
          del_on_term = []
          for devname in block_map['blockDeviceMapping']:
-@@ -347,6 +354,31 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -313,6 +320,31 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
              if not self.conn.modify_instance_attribute(self.instance.id, 'blockDeviceMapping', del_on_term):
                  log.msg("Failed to set deletion on termination")
  
@@ -84,7 +84,7 @@ index bc7926547..8f83ec3d8 100644
      def _attach_volumes(self):
          for volume_id, device_node in self.volumes:
              self.conn.attach_volume(volume_id, self.instance.id, device_node)
-@@ -354,11 +386,18 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -320,11 +352,18 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                      (volume_id, device_node))
  
      def _handle_volumes(self):
@@ -104,5 +104,5 @@ index bc7926547..8f83ec3d8 100644
          if self.elastic_ip is not None:
              self.conn.disassociate_address(self.elastic_ip.public_ip)
 -- 
-2.13.6
+2.14.3
 

@@ -1,4 +1,4 @@
-From fc2c9c94ff5badd690a9c7e13e8635fbdeea2970 Mon Sep 17 00:00:00 2001
+From 85132f84526add0248459ad78ea1136f4de2bd51 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Thu, 3 Dec 2015 12:47:08 -0800
 Subject: [PATCH 05/18] Soft disconnect when 'build_wait_timeout==0'
@@ -32,5 +32,5 @@ index 07c077b35..c28cf5043 100644
                  # this will cause the slave to re-substantiate immediately if
                  # there are pending build requests.
 -- 
-2.13.6
+2.14.3
 

@@ -1,7 +1,7 @@
-From dcc951a3db303db09309db889bf122c9e5bc856f Mon Sep 17 00:00:00 2001
+From 7ff371cb809d122b57bf1d4c108ebbe70d492862 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Tue, 19 Jul 2016 15:55:52 -0700
-Subject: [PATCH 13/18] Add debug logging
+Subject: [PATCH 12/18] Add debug logging
 
 ---
  master/buildbot/buildslave/base.py | 3 +++
@@ -41,5 +41,5 @@ index 112b5c105..ff8480c72 100644
          if len(self.config.env) > 0:
              build.setSlaveEnvironment(self.config.env)
 -- 
-2.13.6
+2.14.3
 

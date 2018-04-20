@@ -1,7 +1,7 @@
-From 8a257b411ae30a08872bbf531ac81e1170950ab9 Mon Sep 17 00:00:00 2001
+From 222b228779ad4625cc2bd104f451a968ea2f3651 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Wed, 20 Jul 2016 10:58:38 -0700
-Subject: [PATCH 16/18] Add instance id to build properties
+Subject: [PATCH 13/18] Add instance id to build properties
 
 Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
 ---
@@ -9,10 +9,10 @@ Signed-off-by: Brian Behlendorf <behlendorf1@llnl.gov>
  1 file changed, 1 insertion(+)
 
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index f1a85d383..b81c13754 100644
+index 1e8442e9e..9f24df51d 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
-@@ -506,6 +506,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -471,6 +471,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                  else:
                      raise
          if self.instance.state == RUNNING:
@@ -21,5 +21,5 @@ index f1a85d383..b81c13754 100644
              minutes = duration // 60
              seconds = duration % 60
 -- 
-2.13.6
+2.14.3
 

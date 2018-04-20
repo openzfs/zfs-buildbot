@@ -1,4 +1,4 @@
-From e6f3689acfe9cbc909fcc2b1880fbf724cdf3d0c Mon Sep 17 00:00:00 2001
+From 1ecdf1f980bd02bfda20ee127742164608fcd2a2 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Tue, 17 Apr 2018 13:14:15 -0700
 Subject: [PATCH 17/18] Allow control over environment logging
@@ -40,5 +40,5 @@ index d2be1364e..2d980f155 100644
          # TODO add a timeout?
          self.process = reactor.spawnProcess(self.LocalPP(self), argv[0], argv,
 -- 
-2.13.6
+2.14.3
 

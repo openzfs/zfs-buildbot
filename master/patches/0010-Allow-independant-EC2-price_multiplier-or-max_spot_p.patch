@@ -1,7 +1,7 @@
-From a228400903322db5be47ea3c54cb4c8152c0e3ee Mon Sep 17 00:00:00 2001
+From 8b6f056e6505554c3725f48077c3046ec2375ec3 Mon Sep 17 00:00:00 2001
 From: "Christopher J. Morrone" <morrone2@llnl.gov>
 Date: Tue, 7 Jun 2016 13:51:41 -0700
-Subject: [PATCH 15/18] Allow independant EC2 price_multiplier or
+Subject: [PATCH 10/18] Allow independant EC2 price_multiplier or
  max_spot_price usage
 
 Change the EC2LatentBuildSlave to allow the use of just one
@@ -28,25 +28,26 @@ to substantiate with the max_spot_price.
 
 Fixes #2898 problems 1 and 3.
 ---
- master/buildbot/buildslave/ec2.py      | 28 +++++++++++++++-------------
+ master/buildbot/buildslave/ec2.py      | 29 ++++++++++++++++-------------
  master/docs/manual/cfg-buildslaves.rst |  5 +++++
- 2 files changed, 20 insertions(+), 13 deletions(-)
+ 2 files changed, 21 insertions(+), 13 deletions(-)
 
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index 42803f83d..f1a85d383 100644
+index 3c77804f5..1e8442e9e 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
-@@ -108,6 +108,9 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
-         if security_name is None and not subnet_id:
-             security_name = 'latent_buildbot_slave'
-             log.msg('Using default keypair name, since none is set')
+@@ -95,6 +95,10 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+             else:
+                 # verify that regex will compile
+                 re.compile(valid_ami_location_regex)
 +        if spot_instance and price_multiplier is None and max_spot_price is None:
 +            raise ValueError('You must provide either one, or both, of '
 +                             'price_multiplier or max_spot_price')
++
          self.valid_ami_owners = valid_ami_owners
          self.valid_ami_location_regex = valid_ami_location_regex
          self.instance_type = instance_type
-@@ -450,24 +453,23 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -416,24 +420,23 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                  price_sum += price.price
                  price_count += 1
          if price_count == 0:
@@ -80,14 +81,14 @@ index 42803f83d..f1a85d383 100644
          reservations = self.conn.request_spot_instances(
 -            target_price, self.ami, key_name=self.keypair_name,
 +            bid_price, self.ami, key_name=self.keypair_name,
-             security_groups=self.classic_security_groups,
+             security_groups=[
+                 self.security_name],
              instance_type=self.instance_type,
-             user_data=self.user_data,
 diff --git a/master/docs/manual/cfg-buildslaves.rst b/master/docs/manual/cfg-buildslaves.rst
-index a468a73a7..2ead58acc 100644
+index d8ddd1884..ef70c3fb2 100644
 --- a/master/docs/manual/cfg-buildslaves.rst
 +++ b/master/docs/manual/cfg-buildslaves.rst
-@@ -416,6 +416,11 @@ Additionally, you may want to specify ``max_spot_price`` and ``price_multiplier`
+@@ -372,6 +372,11 @@ Additionally, you may want to specify ``max_spot_price`` and ``price_multiplier`
  This example would attempt to create a m1.large spot instance in the us-west-2b region costing no more than $0.09/hour.
  The spot prices for that region in the last 24 hours will be averaged and multiplied by the ``price_multiplier`` parameter, then a spot request will be sent to Amazon with the above details.
  If the spot request is rejected, an error message will be logged with the final status.
@@ -100,5 +101,5 @@ index a468a73a7..2ead58acc 100644
  .. index::
     libvirt
 -- 
-2.13.6
+2.14.3
 
