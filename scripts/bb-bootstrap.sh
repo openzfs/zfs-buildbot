@@ -224,6 +224,8 @@ Debian*)
     fi
 
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    echo "Defaults umask = 0000" >> /etc/sudoers
+    echo "Defaults umask_override" >> /etc/sudoers
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
@@ -261,6 +263,9 @@ Fedora*)
         else
             dnf -y update kernel-core kernel-devel
         fi
+
+        # Ensure crontab is installed to start the build slave post reboot.
+        dnf -y install cronie
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -350,6 +355,13 @@ Ubuntu*)
     while [ -s /var/lib/dpkg/lock ]; do sleep 1; done
     apt-get --yes update
     apt-get --yes install gcc python-pip python-dev
+
+    # As of Ubuntu 18.04 buildbot v1.0 is provided from the repository.  This
+    # version is incompatible v0.8 on master, so use the older pip version.
+    VERSION=$(lsb_release -rs | cut -f1 -d'.')
+    if test $VERSION -ge 18; then
+        BB_USE_PIP=1
+    fi
 
     # Relying on the pip version of the buildslave is more portable but
     # slower to bootstrap.  By default prefer the packaged version.

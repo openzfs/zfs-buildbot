@@ -105,10 +105,11 @@ Debian*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libaio-dev python-dev libffi-dev python-setuptools python-cffi
+        libssl-dev libaio-dev python-dev libffi-dev python-setuptools \
+        python-cffi libelf-dev
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan1 python3
+    sudo -E apt-get --yes install libasan3 python3
     ;;
 
 Fedora*)
@@ -201,7 +202,7 @@ Ubuntu*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev python-dev python-setuptools \
-        python-cffi
+        python-cffi libelf-dev
 
     if test "$BB_MODE" = "STYLE"; then
         apt-get-install pax-utils shellcheck cppcheck mandoc
