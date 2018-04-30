@@ -119,7 +119,8 @@ runurl $BB_URL/bb-bootstrap.sh
                 subnet_id=None, security_group_ids=None,
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
-                missing_timeout=60 * 20, block_device_map=None, **kwargs):
+                price_multiplier=None, missing_timeout=60 * 20,
+                block_device_map=None, **kwargs):
 
         self.name = name
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -180,9 +181,9 @@ runurl $BB_URL/bb-bootstrap.sh
             user_data=user_data, keypair_name=keypair_name, security_name=security_name,
             subnet_id=subnet_id, security_group_ids=security_group_ids,
             max_builds=max_builds, spot_instance=spot_instance, tags=tags,
-            max_spot_price=max_spot_price, placement=placement,
+            max_spot_price=max_spot_price, price_multiplier=price_multiplier,
             build_wait_timeout=build_wait_timeout, missing_timeout=missing_timeout,
-            block_device_map=block_device_map, **kwargs)
+            placement=placement, block_device_map=block_device_map, **kwargs)
 
 class ZFSEC2StyleSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):

@@ -1,7 +1,7 @@
-From 9a6bd185a28c029f2141d2cff97a6329d6a1d6c4 Mon Sep 17 00:00:00 2001
+From ae680ca8b78c6fbc3fc7ed046f831bb54a922578 Mon Sep 17 00:00:00 2001
 From: Neal Gompa <ngompa@datto.com>
 Date: Tue, 3 Apr 2018 17:39:52 -0400
-Subject: [PATCH 09/18] Add support for block devices to EC2LatentBuildSlave
+Subject: [PATCH 16/18] Add support for block devices to EC2LatentBuildSlave
 
 Partially adapted from 8b67f91b50d72979ff620413dc4169d277b519df in buildbot 0.9.x,
 originally authored by Ryan Sydnor <ryan.t.sydnor@gmail.com>.
@@ -14,7 +14,7 @@ Signed-off-by: Neal Gompa <ngompa@datto.com>
  3 files changed, 87 insertions(+), 3 deletions(-)
 
 diff --git a/master/buildbot/buildslave/ec2.py b/master/buildbot/buildslave/ec2.py
-index 154c06bd3..bc7926547 100644
+index dd111e283..bbf5d4b88 100644
 --- a/master/buildbot/buildslave/ec2.py
 +++ b/master/buildbot/buildslave/ec2.py
 @@ -29,6 +29,8 @@ import boto
@@ -26,16 +26,16 @@ index 154c06bd3..bc7926547 100644
  from twisted.internet import defer
  from twisted.internet import threads
  from twisted.python import log
-@@ -62,7 +64,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -68,7 +70,7 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                   build_wait_timeout=60 * 10, properties={}, locks=None,
                   spot_instance=False, max_spot_price=1.6, volumes=[],
                   placement=None, price_multiplier=1.2, tags={},
--                 delete_vol_term=True):
-+                 delete_vol_term=True, block_device_map=None):
+-                 delete_vol_term=True, create_volumes=[]):
++                 delete_vol_term=True, create_volumes=[], block_device_map=None):
  
          AbstractLatentBuildSlave.__init__(
              self, name, password, max_builds, notify_on_missing,
-@@ -221,6 +223,21 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -231,6 +233,21 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
          self.security_group_ids = security_group_ids
          self.classic_security_groups = [self.security_name] if self.security_name else None
          self.tags = tags
@@ -57,7 +57,7 @@ index 154c06bd3..bc7926547 100644
  
      def get_image(self):
          if self.image is not None:
-@@ -289,7 +306,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -299,7 +316,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
              key_name=self.keypair_name, security_groups=self.classic_security_groups,
              instance_type=self.instance_type, user_data=self.user_data,
              placement=self.placement, subnet_id=self.subnet_id,
@@ -67,7 +67,7 @@ index 154c06bd3..bc7926547 100644
          self.instance = reservation.instances[0]
          instance_id, image_id, start_time = self._wait_for_instance(
              reservation)
-@@ -412,7 +430,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
+@@ -457,7 +475,8 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
              user_data=self.user_data,
              placement=self.placement,
              subnet_id=self.subnet_id,
@@ -81,10 +81,11 @@ diff --git a/master/buildbot/test/unit/test_buildslave_ec2.py b/master/buildbot/
 index b8874dd4f..09b073872 100644
 --- a/master/buildbot/test/unit/test_buildslave_ec2.py
 +++ b/master/buildbot/test/unit/test_buildslave_ec2.py
-@@ -151,6 +151,48 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
+@@ -150,6 +150,48 @@ class TestEC2LatentBuildSlave(unittest.TestCase):
+         self.assertEqual(instances[0].id, instance_id)
          self.assertEqual(instances[0].tags, {})
  
-     @mock_ec2
++    @mock_ec2
 +    def test_start_instance_volumes(self):
 +        c = self.botoSetup()
 +        amis = c.get_all_images()
@@ -126,12 +127,11 @@ index b8874dd4f..09b073872 100644
 +            BlockDeviceType(volume_type='gp2', size=30, delete_on_termination=False),
 +            bs.block_device_map['/dev/xvdc'])
 +
-+    @mock_ec2
+     @mock_ec2
      def test_start_instance_tags(self):
          c = self.botoSetup()
-         amis = c.get_all_images()
 diff --git a/master/docs/manual/cfg-buildslaves.rst b/master/docs/manual/cfg-buildslaves.rst
-index 99e23162d..a468a73a7 100644
+index cfc7dbc3d..2ead58acc 100644
 --- a/master/docs/manual/cfg-buildslaves.rst
 +++ b/master/docs/manual/cfg-buildslaves.rst
 @@ -348,6 +348,29 @@ The ``missing_timeout`` and ``notify_on_missing`` specify how long to wait for a
@@ -165,5 +165,5 @@ index 99e23162d..a468a73a7 100644
  ##############
  
 -- 
-2.13.6
+2.14.3
 

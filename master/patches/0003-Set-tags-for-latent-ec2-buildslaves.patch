@@ -1,4 +1,4 @@
-From 1a9a091852b7961713d14a494dbf76a0f4167277 Mon Sep 17 00:00:00 2001
+From e6a80f20b7917dafe0e11fa43a575a2d3bb0f953 Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Thu, 3 Dec 2015 10:37:06 -0800
 Subject: [PATCH 03/18] Set tags for latent ec2 buildslaves
@@ -35,5 +35,5 @@ index 191999ea6..e16b6372b 100644
          else:
              return None, None, None
 -- 
-2.13.6
+2.14.3
 

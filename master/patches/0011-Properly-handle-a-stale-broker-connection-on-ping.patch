@@ -1,7 +1,7 @@
-From fba21596ee6726056c80147861a177816a4c4142 Mon Sep 17 00:00:00 2001
-From: Cloud User <ec2-user@ip-172-31-18-165.eu-central-1.compute.internal>
+From aa80ab9b1cf702bd6376962ff072836262e4e222 Mon Sep 17 00:00:00 2001
+From: Giuseppe Di Natale <dinatale2@llnl.gov>
 Date: Fri, 1 Jul 2016 17:00:10 +0000
-Subject: [PATCH 12/18] Properly handle a stale broker connection on ping
+Subject: [PATCH 11/18] Properly handle a stale broker connection on ping
 
 When a slave is pinged, it is possible for the underlying
 broker connection to be stale. callRemote in that case, will
@@ -97,5 +97,5 @@ index 42f050e5b..0866720a3 100644
  
      def _pong(self, res):
 -- 
-2.13.6
+2.14.3
 

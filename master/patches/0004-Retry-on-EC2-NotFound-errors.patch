@@ -1,4 +1,4 @@
-From c96091293fb3c91de0b11f4349e2d3341903fe6a Mon Sep 17 00:00:00 2001
+From a39b26825cb078c1a8402b0d8c2d96330cc0cc7e Mon Sep 17 00:00:00 2001
 From: Brian Behlendorf <behlendorf1@llnl.gov>
 Date: Thu, 3 Dec 2015 11:15:43 -0800
 Subject: [PATCH 04/18] Retry on EC2 'NotFound' errors
@@ -128,5 +128,5 @@ index e16b6372b..ae40cf181 100644
              minutes = duration // 60
              seconds = duration % 60
 -- 
-2.13.6
+2.14.3
 
