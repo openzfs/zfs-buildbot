@@ -7,6 +7,8 @@ fi
 LINUX_OPTIONS=${LINUX_OPTIONS:-""}
 CONFIG_OPTIONS=${CONFIG_OPTIONS:-""}
 MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(nproc)"}
+MAKE_TARGETS_KMOD=${MAKE_TARGETS_KMOD:-"pkg-kmod pkg-utils"}
+MAKE_TARGETS_DKMS=${MAKE_TARGETS_DKMS:-"pkg-dkms pkg-utils"}
 INSTALL_METHOD=${INSTALL_METHOD:-"none"}
 
 CONFIG_LOG="configure.log"
@@ -26,20 +28,18 @@ sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
 
 case "$INSTALL_METHOD" in
 packages|kmod|pkg-kmod|dkms|dkms-kmod)
+
+	./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+
 	case "$INSTALL_METHOD" in
 	packages|kmod|pkg-kmod)
-		./configure $CONFIG_OPTIONS $LINUX_OPTIONS \
-		    >>$CONFIG_LOG 2>&1 || exit 1
-		make pkg-kmod >>$MAKE_LOG 2>&1 || exit 1
+		make $MAKE_TARGETS_KMOD >>$MAKE_LOG 2>&1 || exit 1
 		;;
 	dkms|pkg-dkms)
-		./configure --with-config=srpm $CONFIG_OPTIONS $LINUX_OPTIONS \
-		    >>$CONFIG_LOG 2>&1 || exit 1
-		make pkg-dkms >>$MAKE_LOG 2>&1 || exit 1
+		make $MAKE_TARGETS_DKMS >>$MAKE_LOG 2>&1 || exit 1
 		;;
 	esac
 
-	make pkg-utils >>$MAKE_LOG 2>&1 || exit 1
 	sudo -E rm *.src.rpm
 
 	case "$BB_NAME" in
