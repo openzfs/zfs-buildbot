@@ -34,10 +34,7 @@ cleanup()
     dmesg >$CONSOLE_LOG
 
     if [ -f "$TEST_LOG" ]; then
-        grep -A 20 "Results Summary" "$TEST_LOG" > $SUMMARY_LOG
-        echo "" >> $SUMMARY_LOG
-        grep -a "\[KILLED\]" log >> $SUMMARY_LOG
-        grep -a "\[FAIL\]" log >> $SUMMARY_LOG
+        grep -A 1000 "Results Summary" "$TEST_LOG" > $SUMMARY_LOG
         echo "" >> $SUMMARY_LOG
         awk '/\[FAIL\]|\[KILLED\]/{ show=1; print; next; }
             /\[SKIP\]|\[PASS\]/{ show=0; } show' log >> $SUMMARY_LOG
@@ -86,11 +83,6 @@ $ZFS_TESTS_SH $TEST_ZFSTESTS_OPTIONS \
     -I $TEST_ZFSTESTS_ITERS \
     -T $TEST_ZFSTESTS_TAGS > $TEST_LOG 2>&1
 RC=$?
-
-if [ $RC -ne 0 ]; then
-    grep -a "\[KILLED\]" log && RESULT=2  # WARNING
-    grep -a "\[FAIL\]" log && RESULT=1    # FAILURE
-fi
 
 if $(dmesg | grep "oom-killer"); then
     echo "Out-of-memory (OOM) killer invocation detected"
