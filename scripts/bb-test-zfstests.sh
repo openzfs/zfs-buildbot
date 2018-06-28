@@ -82,7 +82,7 @@ $ZFS_TESTS_SH $TEST_ZFSTESTS_OPTIONS \
     -r $TEST_ZFSTESTS_RUNFILE \
     -I $TEST_ZFSTESTS_ITERS \
     -T $TEST_ZFSTESTS_TAGS > $TEST_LOG 2>&1
-RC=$?
+RESULT=$?
 
 if $(dmesg | grep "oom-killer"); then
     echo "Out-of-memory (OOM) killer invocation detected"
