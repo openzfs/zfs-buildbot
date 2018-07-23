@@ -101,6 +101,16 @@ set -x
 
 case "$BB_NAME" in
 Amazon*)
+    # Required repository packages
+    if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    else
+        echo "No extra repo packages to install..."
+    fi
+
+    # To minimize EPEL leakage, disable by default...
+    sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
+
     yum -y install deltarpm gcc python-pip python-devel
     easy_install --quiet buildbot-slave
 
@@ -120,7 +130,8 @@ Amazon*)
         adduser buildbot
         echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
         sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+        sed -i.bak '/secure_path/a\Defaults    exempt_group += buildbot' /etc/sudoers
+        sed -i.bak '/env_keep = /a\Defaults    env_keep += "PERF_FS_OPTS PERF_RUNTIME PERF_REGRESSION_WEEKLY"' /etc/sudoers
     fi
 
     if test "$BB_MODE" != "PERF"; then

@@ -107,6 +107,8 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             category = self.parse_comments(comments,
                 "style,build,test,perf,coverage,unstable")
 
+            props['branch'] = branch
+
             # Releases prior to 0.8.0 required an external spl build.
             match = re.match(r".*-0.[0-7]-release", branch)
             if not match:
@@ -114,10 +116,9 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             else:
                 props['buildspl'] = json.dumps("yes")
 
-            # Run performance testing on pushes.
-            # ZTS performance run time tuning required (disabled).
+            # Enabled performance testing on pushes by default.
             props['perfpts'] = json.dumps("yes")
-            props['perfzts'] = json.dumps("no")
+            props['perfzts'] = json.dumps("yes")
 
             change = {
                 'revision' : commit['id'],
@@ -234,9 +235,9 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             else:
                 props['buildspl'] = json.dumps("yes")
 
-            # Run performance testing on PRs.
+            # Disabled performance testing on PRs by default.
             props['perfpts'] = json.dumps("no")
-            props['perfzts'] = json.dumps("yes")
+            props['perfzts'] = json.dumps("no")
 
             change = {
                 'revision' : commit['sha'],

@@ -38,11 +38,7 @@ Amazon*)
 
     if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
         sudo -E amazon-linux-extras install python3
-    else
-        sudo -E yum -y install --enablerepo=epel cppcheck pax-utils
     fi
-
-    $SUDO yum -y install --enablerepo=epel cppcheck pax-utils
 
     # Required development libraries
     sudo -E yum -y install kernel-devel-$(uname -r) \

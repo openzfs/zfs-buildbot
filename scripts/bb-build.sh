@@ -42,6 +42,16 @@ packages|kmod|pkg-kmod|dkms|dkms-kmod)
 
 	sudo -E rm *.src.rpm
 
+	# Preserve TEST and PERF packages which may be needed to investigate
+	# test failures.  BUILD packages are discarded.
+	if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
+		if test -n "$UPLOAD_DIR"; then
+			BUILDER="$(echo $BB_NAME | cut -f1-3 -d'-')"
+			mkdir -p "$UPLOAD_DIR/$BUILDER/packages"
+			cp *.deb *.rpm $UPLOAD_DIR/$BUILDER/packages
+		fi
+	fi
+
 	case "$BB_NAME" in
 	Amazon*)
 		sudo -E yum -y localinstall *.rpm >$INSTALL_LOG 2>&1 || exit 1

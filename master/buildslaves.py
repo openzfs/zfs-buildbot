@@ -215,9 +215,9 @@ class ZFSEC2TestSlave(ZFSEC2Slave):
             instance_type="m3.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
-# Create an PV (paravirtual) EC2 latent test slave 
-class ZFSEC2PVTestSlave(ZFSEC2Slave):
+# Create a d2.xlarge slave for performance testing because they have disks
+class ZFSEC2PerfTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
-        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m1.medium", max_spot_price=0.20, placement='a',
+        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="PERF",
+            instance_type="d2.xlarge", max_spot_price=0.60, placement='a',
             spot_instance=True, **kwargs)

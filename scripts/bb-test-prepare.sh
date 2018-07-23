@@ -98,7 +98,40 @@ EOF
     ;;
 esac
 
+# Uncomment when abreviated test runs are needed.
+#cat << EOF >> $TEST_FILE
+#TEST_ZIMPORT_SKIP="yes"
+#TEST_XFSTESTS_SKIP="yes"
+#TEST_ZFSSTRESS_SKIP="yes"
+#TEST_ZTEST_SKIP="no"
+#TEST_ZFSTESTS_SKIP="no"
+#TEST_PTS_SKIP="no"
+#
+#case "$BB_MODE" in
+#TEST)
+#    TEST_ZTEST_TIMEOUT=60
+#    TEST_ZFSTESTS_TAGS="checksum"
+#    ;;
+#PERF)
+#    TEST_ZFSTESTS_PERF_RUNTIME=5
+#    TEST_ZFSTESTS_DISKSIZE=32G
+#    TEST_PTS_BENCHMARKS="zfs/unpack-linux"
+#    ;;
+#esac
+#EOF
+
 . $TEST_FILE
+
+# Preserve the results directory for future analysis.  The contents
+# of this directory will be uploaded the the build master after all
+# of the requested tests have completed.
+# <zfs-version>/<builder>/*/*.tar.xz
+mkdir -p "${UPLOAD_DIR}"
+
+if test -n "$UPLOAD_DIR"; then
+    BUILDER="$(echo $BB_NAME | cut -f1-3 -d'-')"
+    mkdir -p "$UPLOAD_DIR/$BUILDER"
+fi
 
 # Start the Linux kernel watchdog so the system will panic in the case of a
 # lockup.  This helps prevent one bad test run from stalling the builder.
@@ -206,21 +239,6 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         ;;
      esac
 fi
-
-# Other test environment prep by distro
-case "$BB_NAME" in
-    Amazon*)
-        if test "$BB_MODE" = "PERF"; then
-            for disk in $AVAILABLE_DISKS; do
-                sudo -E parted --script /dev/$disk mklabel gpt
-                sudo -E parted --script /dev/$disk mkpart logical 1MiB 64GiB
-                sudo -E dd if=/dev/zero of=/dev/${disk}1 bs=1M &
-            done
-
-            wait
-        fi
-        ;;
-esac
 
 # Schedule a shutdown for all distros other than CentOS 6, Ubuntu 14.04,
 # and Amazon based distros. Only do this for latent slaves which will

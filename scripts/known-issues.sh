@@ -259,7 +259,7 @@ export -f build_url
 
 check() {
 	local git_log="$1-log-git_zfs-stdio"
-	local test_log="$1-log-shell_8-tests.bz2"
+	local test_log="$1-log-shell_9-tests.bz2"
 	local mode="$2"
 
 	# Ignore incomplete builds

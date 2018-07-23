@@ -17,31 +17,65 @@ if echo "$TEST_ZTEST_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-CONSOLE_LOG="$PWD/console.log"
-
 cleanup()
 {
+    # Preserve the results directory for future analysis, as:
+    # <zfs-version>/<builder>/ztest/ztest-<date>.tar.xz
+    if test -n "$UPLOAD_DIR"; then
+        BUILDER="$(echo $BB_NAME | cut -f1-3 -d'-')"
+        mkdir -p "$UPLOAD_DIR/$BUILDER/ztest"
+
+        # Optionally remove the zloop-run directory, normally this contains
+        # logs and vdev from successful runs and thus is removed by default.
+        if echo "$TEST_ZTEST_KEEP_RUN_DIR" | grep -Eiq "^no$|^off$|^false$|^0$"; then
+            rm -Rf "$TEST_ZTEST_DIR/zloop-run"
+        fi
+
+        # Optionally remove the core directory, this contains logs are vdevs
+        # from failed run and is kept by default.
+        if echo "$TEST_ZTEST_KEEP_CORE_DIR"|grep -Eiq "^no$|^off$|^false$|^0$"; then
+            rm -Rf "$TEST_ZTEST_DIR/core"
+        fi
+
+        # Convenience symlinks will no longer reference the correct locations
+        # and are removed so they're not included in the archive.
+        rm -f $TEST_ZTEST_DIR/ztest.core.*
+        mv ztest.* "$TEST_ZTEST_DIR"
+
+        tar -C "$(dirname $TEST_ZTEST_DIR)" -cJ \
+            -f "$UPLOAD_DIR/$BUILDER/ztest/$(basename $TEST_ZTEST_DIR).tar.xz" \
+            "$(basename $TEST_ZTEST_DIR)"
+    fi
+
     sudo -E $ZFS_SH -u
-    dmesg >$CONSOLE_LOG
 }
 trap cleanup EXIT TERM
 
+DATE="$(date +%Y%m%dT%H%M%S)"
 set -x
 
 TEST_ZTEST_OPTIONS=${TEST_ZTEST_OPTIONS:-"-l -m3"}
 TEST_ZTEST_TIMEOUT=${TEST_ZTEST_TIMEOUT:-900}
-TEST_ZTEST_DIR=${TEST_ZTEST_DIR:-"/mnt"}
-TEST_ZTEST_CORE_DIR=${TEST_ZTEST_CORE_DIR:-"/mnt/zloop"}
+TEST_ZTEST_DIR=${TEST_ZTEST_DIR:-"/mnt/ztest-${DATE}"}
+TEST_ZTEST_KEEP_RUN_DIR="No"
+TEST_ZTEST_KEEP_CORE_DIR="Yes"
 
-sudo -E dmesg -c >/dev/null
-sudo -E $ZFS_SH || exit 1
+set +x
+
+if ! test -e /sys/module/zfs; then
+    sudo -E $ZFS_SH
+fi
+
+sudo -E mkdir -p "$TEST_ZTEST_DIR"
 sudo -E $ZLOOP_SH $TEST_ZTEST_OPTIONS \
     -t $TEST_ZTEST_TIMEOUT \
     -f $TEST_ZTEST_DIR \
-    -c $TEST_ZTEST_CORE_DIR &
+    -c $TEST_ZTEST_DIR/core &
 CHILD=$!
 wait $CHILD
 RESULT=$?
+
+sudo -E chown -R $USER "$TEST_ZTEST_DIR"
 
 if test $RESULT != 0; then
     echo "Exited ztest with error $RESULT"
