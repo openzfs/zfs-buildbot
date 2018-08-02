@@ -240,19 +240,28 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
      esac
 fi
 
-# Schedule a shutdown for all distros other than CentOS 6, Ubuntu 14.04,
-# and Amazon based distros. Only do this for latent slaves which will
-# set BB_SHUTDOWN="Yes" in /etc/buildslave as part of bootstrapping.
+# Latent slaves, which set BB_SHUTDOWN="Yes" in /etc/buildslave when
+# bootstrapping should be automatically shutdown after 8 hours.  This
+# is done to ensure if the buildmaster terminates unexpectedly any
+# running latent slaves will terminate in a reasonable amount of time.
+#
+# Due to shutdowns not working reliably in CentOS 6 and Amazon they are
+# excluded from the scheduled shutdown.  The coverage builder is allowed
+# 16 hours because the required debug kernel reduces overall performance.
 if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
-	case "$BB_NAME" in
-	    Amazon*|CentOS-6*|Ubuntu-14.04*)
-	        echo "Skipping scheduled shutdown"
-	        ;;
-	    *)
-	        echo "Scheduling shutdown"
-	        sudo -E shutdown +600
-	        ;;
-	esac
+        case "$BB_NAME" in
+            Amazon*|CentOS-6*)
+                echo "Skipping scheduled shutdown"
+                ;;
+            *coverage*)
+                echo "Scheduling shutdown"
+                sudo -E shutdown +960
+                ;;
+            *)
+                echo "Scheduling shutdown"
+                sudo -E shutdown +480
+                ;;
+        esac
 fi
 
 # Unload modules just in case they are still loaded from a previous test
