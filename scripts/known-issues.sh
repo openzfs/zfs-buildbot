@@ -227,14 +227,14 @@ function build_url()
 	CentOS_6_x86_64__TEST_)
 		encoded_name="CentOS%206%20x86_64%20%28TEST%29"
 		;;
-	CentOS_7_x86_64_Mainline__TEST_)
-		encoded_name="CentOS%207%20x86_64%20Mainline%20%28TEST%29"
-		;;
 	CentOS_7_x86_64__TEST_)
 		encoded_name="CentOS%207%20x86_64%20%28TEST%29"
 		;;
-	Fedora_27_x86_64__TEST_)
-		encoded_name="Fedora%2027%20x86_64%20%28TEST%29"
+	Debian_9_x86_64__TEST_)
+		encoded_name="Debian%209%20x86_64%20%28TEST%29"
+		;;
+	Fedora_28_x86_64__TEST_)
+		encoded_name="Fedora%2028%20x86_64%20%28TEST%29"
 		;;
 	Fedora_Rawhide_x86_64__TEST_)
 		encoded_name="Fedora%20Rawhide%20x86_64%20%28TEST%29"
@@ -245,8 +245,8 @@ function build_url()
 	Ubuntu_17_04_x86_64_Coverage__TEST_)
 		encoded_name="Ubuntu%2017.04%20x86_64%20Coverage%20%28TEST%29"
 		;;
-	Ubuntu_17_10_x86_64__TEST_)
-		encoded_name="Ubuntu%2017.10%20x86_64%20%28TEST%29"
+	Ubuntu_18_04_x86_64__TEST_)
+		encoded_name="Ubuntu%2018.04%20x86_64%20%28TEST%29"
 		;;
 	*)
 		encoded_named="unknown"
