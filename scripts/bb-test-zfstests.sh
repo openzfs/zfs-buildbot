@@ -23,6 +23,7 @@ TEST_LOG="$PWD/test.log"
 FULL_LOG="$PWD/full.log"
 KMEMLEAK_LOG="$PWD/kmemleak.log"
 KMEMLEAK_FILE="/sys/kernel/debug/kmemleak"
+DMESG_PID="0"
 RESULT=0
 
 cleanup()
@@ -57,9 +58,14 @@ cleanup()
     fi
 
     sudo -E $ZFS_SH -u
-    dmesg >$CONSOLE_LOG
+
+    if [ "$DMESG_PID" = "0" ]; then
+        dmesg >$CONSOLE_LOG
+    else
+        kill $DMESG_PID
+    fi
 }
-trap cleanup EXIT
+trap cleanup EXIT TERM
 
 set -x
 
@@ -130,6 +136,13 @@ fi
 
 sudo -E chmod 777 $TEST_ZFSTESTS_DIR
 sudo -E dmesg -c >/dev/null
+
+if $(dmesg -h | grep -qe '-w'); then
+    dmesg -w >$CONSOLE_LOG &
+    DMESG_PID=$!
+else
+    touch $CONSOLE_LOG
+fi
 
 ln -s /var/tmp/test_results/current/log $FULL_LOG
 
