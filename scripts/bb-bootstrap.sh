@@ -242,6 +242,11 @@ Debian*)
 
     # Standardize ephemeral storage so it's available under /mnt.
     sed -i.bak 's/nobootwait/nofail/' /etc/fstab
+
+    # Allow normal users to read dmesg, restricted by default.
+    mkdir -p /etc/sysctl.d/
+    echo "kernel.dmesg_restrict = 0" >> /etc/sysctl.d/10-local.conf
+    sysctl kernel.dmesg_restrict=0
     ;;
 
 Fedora*)
