@@ -37,17 +37,17 @@ Amazon*)
         php-xml php-sqlite3
 
     if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
-        sudo -E amazon-linux-extras install python3
+        sudo -E yum -y install \
+            python3 python3-devel python3-setuptools python3-cffi
     fi
 
     # Required development libraries
     sudo -E yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel elfutils-libelf-devel libffi-devel \
-        libaio-devel python-devel python-setuptools python-cffi
-
-    sudo -E pip --quiet install flake8
+        device-mapper-devel openssl-devel elfutils-libelf-devel \
+        libffi-devel libaio-devel \
+        python-devel python-setuptools python-cffi
     ;;
 
 CentOS*)
@@ -84,7 +84,8 @@ CentOS*)
     fi
 
     # Testing support libraries and tools
-    sudo -E yum -y install --enablerepo=epel python34 fio
+    sudo -E yum -y install --enablerepo=epel fio \
+        python34 python34-devel python34-setuptools python34-cffi
     ;;
 
 Debian*)
@@ -101,11 +102,12 @@ Debian*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libaio-dev python-dev libffi-dev python-setuptools \
-        python-cffi libelf-dev
+        libssl-dev libaio-dev libffi-dev libelf-dev \
+        python-dev python-setuptools python-cffi \
+        python3 python3-dev python3-setuptools python3-cffi
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan3 python3
+    sudo -E apt-get --yes install libasan3
     ;;
 
 Fedora*)
@@ -122,9 +124,11 @@ Fedora*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
-        libaio-devel python-devel python-setuptools python-cffi
+        libaio-devel python-devel python-setuptools python-cffi \
+        python3 python3-devel python3-setuptools python3-cffi
 
-    sudo -E dnf -y install libasan python3
+    # Testing support libraries
+    sudo -E dnf -y install libasan
     ;;
 
 RHEL*)
@@ -164,7 +168,8 @@ RHEL*)
     fi
 
     # Testing support libraries and tools
-    sudo -E yum -y install --enablerepo=epel python34 fio
+    sudo -E yum -y install --enablerepo=epel fio \
+        python34 python34-devel python34-setuptools python34-cffi
     ;;
 
 SUSE*)
@@ -197,8 +202,9 @@ Ubuntu*)
     apt-get-install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libffi-dev libaio-dev python-dev python-setuptools \
-        python-cffi libelf-dev
+        libssl-dev libffi-dev libaio-dev libelf-dev \
+        python-dev python-setuptools python-cffi \
+        python3 python3-dev python3-setuptools python3-cffi
 
     if test "$BB_MODE" = "STYLE"; then
         apt-get-install pax-utils shellcheck cppcheck mandoc
