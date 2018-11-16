@@ -139,7 +139,7 @@ TEST_PREPARE_WATCHDOG=${TEST_PREPARE_WATCHDOG:-"Yes"}
 if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     case "$BB_NAME" in
     Amazon*)
-        sudo -E /etc/init.d/watchdog start
+        sudo -E systemctl start watchdog
         ;;
 
     CentOS*)
@@ -187,9 +187,8 @@ TEST_PREPARE_SHARES=${TEST_PREPARE_SHARES:-"Yes"}
 if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     case "$BB_NAME" in
     Amazon*)
-        sudo -E /etc/init.d/rpcbind start
-        sudo -E /etc/init.d/nfs start
-        sudo -E /etc/init.d/smb start
+        sudo -E systemctl start nfs-server
+        sudo -E systemctl start smb
         ;;
 
     CentOS*)
