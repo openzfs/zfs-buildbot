@@ -233,8 +233,8 @@ function build_url()
 	Debian_9_x86_64__TEST_)
 		encoded_name="Debian%209%20x86_64%20%28TEST%29"
 		;;
-	Fedora_28_x86_64__TEST_)
-		encoded_name="Fedora%2028%20x86_64%20%28TEST%29"
+	Fedora_29_x86_64__TEST_)
+		encoded_name="Fedora%2029%20x86_64%20%28TEST%29"
 		;;
 	Fedora_Rawhide_x86_64__TEST_)
 		encoded_name="Fedora%20Rawhide%20x86_64%20%28TEST%29"

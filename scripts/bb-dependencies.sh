@@ -111,6 +111,9 @@ Debian*)
     ;;
 
 Fedora*)
+    # Always test with the latest packages on Fedora.
+    sudo -E dnf -y upgrade
+
     # Required development tools.
     sudo -E dnf -y install gcc make autoconf libtool gdb lcov
 
