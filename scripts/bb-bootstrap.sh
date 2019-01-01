@@ -297,6 +297,17 @@ Fedora*)
     # This is the default.
     ;;
 
+FreeBSD*)
+
+    # Zypper auto-refreshes on boot retry to avoid spurious failures.
+    pip --quiet install buildbot-slave
+    BUILDSLAVE="/usr/local/bin/buildslave"
+
+    # User buildbot needs to be added to sudoers
+    echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /usr/local/etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+    ;;
+
 Gentoo*)
     emerge-webrsync
     emerge app-admin/sudo dev-util/buildbot-slave
@@ -422,7 +433,10 @@ set +x
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR
-    chown buildbot.buildbot $BB_DIR
+    case "$BB_NAME" in
+      FreeBSD*) chown buildbot:buildbot $BB_DIR ;;
+      *) chown buildbot.buildbot $BB_DIR ;;
+    esac
     sudo -E -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
 
