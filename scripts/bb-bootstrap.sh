@@ -305,7 +305,7 @@ FreeBSD*)
 
     # User buildbot needs to be added to sudoers
     echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /usr/local/etc/sudoers
-    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
+    sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /usr/local/etc/sudoers
     ;;
 
 Gentoo*)
