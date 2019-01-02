@@ -451,9 +451,15 @@ echo >> $BB_DIR/info/host
 $CURL "${METAROOT}/meta-data/instance-id" >> $BB_DIR/info/host
 echo >> $BB_DIR/info/host
 uname -a >> $BB_DIR/info/host
-grep MemTotal /proc/meminfo >> $BB_DIR/info/host
-grep 'model name' /proc/cpuinfo >> $BB_DIR/info/host
-grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
+case "$BB_NAME" in
+FreeBSD*) dmesg | grep "real memory" >> $BB_DIR/info/host
+	  dmesg | grep "CPU:" >> $BB_DIR/info/host
+	  ;;
+       *) grep MemTotal /proc/meminfo >> $BB_DIR/info/host
+          grep 'model name' /proc/cpuinfo >> $BB_DIR/info/host
+          grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
+	  ;;
+esac
 
 set -x
 
