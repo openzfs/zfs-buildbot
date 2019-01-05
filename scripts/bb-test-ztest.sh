@@ -62,8 +62,16 @@ TEST_ZTEST_KEEP_CORE_DIR="Yes"
 
 set +x
 
-if ! test -e /sys/module/zfs; then
-    sudo -E $ZFS_SH
+UNAME=$(uname -s)
+
+if [ "$UNAME" = "FreeBSD" ] ; then
+	if ! kldstat -q -n /boot/modules/zfs.ko; then
+	    sudo -E $ZFS_SH
+	fi
+else
+	if ! test -e /sys/module/zfs; then
+	    sudo -E $ZFS_SH
+	fi
 fi
 
 sudo -E mkdir -p "$TEST_ZTEST_DIR"

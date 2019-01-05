@@ -158,6 +158,9 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E systemctl start watchdog
         ;;
 
+    FreeBSD*)
+	;;
+
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
             sudo -E /etc/init.d/watchdog start
@@ -212,6 +215,9 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E systemctl start smb
         ;;
 
+    FreeBSD*)
+	sudo -E service nfsd start
+	;;
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
             sudo -E /etc/init.d/rpcbind start
@@ -264,6 +270,7 @@ if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 fi
 
 # Unload modules just in case they are still loaded from a previous test
+echo "sudo -E $ZFS_SH -vu"
 sudo -E $ZFS_SH -vu
 
 exit 0
