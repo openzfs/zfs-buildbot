@@ -64,6 +64,14 @@ Fedora*)
     fi
     ;;
 
+FreeBSD*)
+    if test "$BUILT_PACKAGE" = "zfs"; then
+        sudo -E rm -f /boot/modules/zfs.ko /usr/local/sbin/zpool \
+		/usr/local/sbin/zfs /usr/local/sbin/zdb /usr/local/sbin/zhack \
+		/usr/local/sbin/ztest /usr/local/sbin/zinject /usr/local/sbin/zstreamdump \
+		/usr/local/sbin/fsck.zfs
+    fi
+    ;;
 RHEL*)
     if test "$BUILT_PACKAGE" = "zfs"; then
         sudo -E yum -y remove '(zfs-dkms.*|kmod-zfs.*)' \
