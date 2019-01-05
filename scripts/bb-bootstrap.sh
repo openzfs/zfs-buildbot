@@ -299,6 +299,17 @@ Fedora*)
 
 FreeBSD*)
 
+    # NOTE: For time being, images should be pre-loaded with these packages
+    # Until we get a proper FreeBSD release with necessary bits to test
+    # ZoL
+    export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
+    if ! which -s pip ; then
+	    pkg install -y devel/py-pip || exit 1
+    fi
+    if ! which -s sudo ; then
+	    pkg install -y security/sudo || exit 1
+    fi
+
     # Zypper auto-refreshes on boot retry to avoid spurious failures.
     pip --quiet install buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"

@@ -218,6 +218,32 @@ Ubuntu*)
     apt-get-install python3
     ;;
 
+FreeBSD*)
+    # NOTE: For time being, images should be pre-loaded with these packages
+    # Until we get a proper FreeBSD release with necessary bits to test
+    # ZoL
+    export PATH="${PATH}:/usr/local/bin:/usr/local/sbin"
+
+    # Required development tools.
+    if ! which -s aclocal ; then
+	    pkg install -y devel/automake || exit 1
+    fi
+    if ! which -s autoreconf ; then
+	    pkg install -y devel/autoconf || exit 1
+    fi
+    if ! which -s gmake ; then
+	    pkg install -y devel/gmake || exit 1
+    fi
+    if ! which -s libtool ; then
+	    pkg install -y devel/libtool || exit 1
+    fi
+
+    # Required utilities.
+    if ! which -s git ; then
+	    pkg install -y devel/git || exit 1
+    fi
+    ;;
+
 *)
     echo "$BB_NAME unknown platform"
     ;;

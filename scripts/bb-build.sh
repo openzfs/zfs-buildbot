@@ -4,9 +4,21 @@ if test -f /etc/buildslave; then
 	. /etc/buildslave
 fi
 
+if test ! "$BB_NAME"; then
+    BB_NAME=$(hostname)
+fi
+
 LINUX_OPTIONS=${LINUX_OPTIONS:-""}
+BSD_OPTIONS="${BSD_OPTIONS:-"--prefix=/usr/local --with-config=user"}"
 CONFIG_OPTIONS=${CONFIG_OPTIONS:-""}
-MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(nproc)"}
+case "$BB_NAME" in
+   FreeBSD*)
+	     MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(sysctl -n kern.smp.cpus)"}
+	     ;;
+	  *)
+	     MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(nproc)"}
+	     ;;
+esac
 MAKE_TARGETS_KMOD=${MAKE_TARGETS_KMOD:-"pkg-kmod pkg-utils"}
 MAKE_TARGETS_DKMS=${MAKE_TARGETS_DKMS:-"pkg-dkms pkg-utils"}
 INSTALL_METHOD=${INSTALL_METHOD:-"none"}
@@ -14,6 +26,27 @@ INSTALL_METHOD=${INSTALL_METHOD:-"none"}
 CONFIG_LOG="configure.log"
 MAKE_LOG="make.log"
 INSTALL_LOG="install.log"
+
+build_freebsd() {
+
+	# Get the GIT revision for the kernel module build
+	GITREV=$(git log --pretty=format:'%h' -n 1)
+	echo "#define	ZFS_META_GITREV \"$GITREV\"" > include/zfs_gitrev.h
+
+	# Build the kernel module first
+	(cd module && make -f Makefile.bsd ) >>$MAKE_LOG 2>&1 || exit 1
+
+	# Install the kernel module
+	install module/zfs.ko /boot/modules/zfs.ko >>$INSTALL_LOG 2>&1
+
+	# Build the userland tools
+	./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+	./configure $BSD_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+	gmake $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+
+	# Install the userland tools
+	gmake install $MAKE_OPTIONS >>$INSTALL_LOG 2>&1 || exit 1
+}
 
 # Expect a custom Linux build in the ../linux/ directory.
 if [ "$LINUX_CUSTOM" = "yes" ]; then
@@ -92,8 +125,15 @@ in-tree)
 	sudo -E scripts/zfs-helpers.sh -iv >>$INSTALL_LOG 2>&1
 	;;
 none)
-	./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-	make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+	case "$BB_NAME" in
+	FreeBSD*)
+		  build_freebsd || exit 1
+		  ;;
+	       *)
+		  ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+		  make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+		  ;;
+	esac
 	;;
 *)
 	echo "Unknown INSTALL_METHOD: $INSTALL_METHOD"
