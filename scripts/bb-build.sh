@@ -34,7 +34,7 @@ build_freebsd() {
 	echo "#define	ZFS_META_GITREV \"$GITREV\"" > include/zfs_gitrev.h
 
 	# Build the kernel module first
-	(cd module && make -f Makefile.bsd ) >>$MAKE_LOG 2>&1 || exit 1
+	(cd module && make $MAKE_OPTIONS -f Makefile.bsd ) >>$MAKE_LOG 2>&1 || exit 1
 
 	# Install the kernel module
 	install module/zfs.ko /boot/modules/zfs.ko >>$INSTALL_LOG 2>&1
