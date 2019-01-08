@@ -92,9 +92,19 @@ PERF_FS_OPTS=${TEST_ZFSTESTS_PERF_FS_OPTS:-"$DEFAULT_ZFSTESTS_PERF_FS_OPTS"}
 
 set +x
 
-if ! test -e /sys/module/zfs; then
-    sudo -E $ZFS_SH
-fi
+case "$BB_NAME" in
+  FreeBSD)
+	   if ! kldstat -q -n /boot/modules/zfs.ko; then
+	     sudo -E $ZFS_SH
+	   fi
+	   ;;
+	*)
+	   if ! test -e /sys/module/zfs; then
+	     sudo -E $ZFS_SH
+	   fi
+	   ;;
+esac
+
 
 # Performance profiling disabled by default due to size of profiling data.
 if echo "$TEST_ZFSTESTS_PROFILE" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
@@ -117,10 +127,19 @@ if [ -n "$TEST_ZFSTESTS_DISKS" ]; then
         DISKS=""
         for disk in $TEST_ZFSTESTS_DISKS; do
             set -x
-            sudo -E parted --script /dev/$disk mklabel gpt
-            sudo -E parted --script /dev/$disk mkpart logical 1MiB $TEST_ZFSTESTS_DISKSIZE
+	    case "$BB_NAME" in
+		FreeBSD)
+			sudo -E gpart create -s gpt /dev/$disk
+			sudo -E gpart add -t freebsd-zfs -s $TEST_ZFSTESTS_DISKSIZE /dev/$disk
+			DISKS="$DISKS ${disk}p1"
+			;;
+		*)
+			sudo -E parted --script /dev/$disk mklabel gpt
+			sudo -E parted --script /dev/$disk mkpart logical 1MiB $TEST_ZFSTESTS_DISKSIZE
+			DISKS="$DISKS ${disk}1"
+			;;
+	    esac
             set +x
-            DISKS="$DISKS ${disk}1"
         done
     else
         DISKS="$TEST_ZFSTESTS_DISKS"
@@ -137,12 +156,19 @@ fi
 sudo -E chmod 777 $TEST_ZFSTESTS_DIR
 sudo -E dmesg -c >/dev/null
 
-if $(dmesg -h | grep -qe '-w'); then
-    dmesg -w >$CONSOLE_LOG &
-    DMESG_PID=$!
-else
-    touch $CONSOLE_LOG
-fi
+case "$BB_NAME" in
+    FreeBSD)
+	     ln -fs /var/log/messages $CONSOLE_LOG
+	     ;;
+	  *)
+	     if $(dmesg -h | grep -qe '-w'); then
+	        dmesg -w >$CONSOLE_LOG &
+	        DMESG_PID=$!
+	     else
+	        touch $CONSOLE_LOG
+	     fi
+	     ;;
+esac
 
 ln -s /var/tmp/test_results/current/log $FULL_LOG
 
