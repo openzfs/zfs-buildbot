@@ -242,6 +242,9 @@ FreeBSD*)
     if ! which -s git ; then
 	    pkg install -y devel/git || exit 1
     fi
+    if ! which -s shuf ; then
+	    pkg install -y sysutils/shuf || exit 1
+    fi
     ;;
 
 *)
