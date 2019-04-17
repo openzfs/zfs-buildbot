@@ -449,7 +449,7 @@ set -x
 if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE"; then
     sudo -E -u buildbot $BUILDSLAVE start $BB_DIR
 else
-    echo "@reboot sudo -E -u buildbot $BUILDSLAVE start $BB_DIR" | crontab
+    echo "@reboot sudo -E -u buildbot $BUILDSLAVE start $BB_DIR" | crontab -
     crontab -l
     sudo -E reboot
 fi

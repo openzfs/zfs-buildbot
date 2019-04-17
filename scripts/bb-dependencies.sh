@@ -123,7 +123,7 @@ Fedora*)
         rng-tools dkms
 
     # Required development libraries
-    sudo -E dnf -y install kernel-devel-$(uname -r) zlib-devel \
+    sudo -E dnf -y install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
