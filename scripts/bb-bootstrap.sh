@@ -284,6 +284,13 @@ Fedora*)
         dnf -y install cronie
     fi
 
+    # Use the debug kernel instead if indicated
+    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
+        dnf -y install kernel-debug kernel-debug-devel
+    else
+        dnf -y remove kernel-debug kernel-debug-devel
+    fi
+
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
         adduser buildbot
