@@ -85,7 +85,7 @@ CentOS*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python34 python34-devel python34-setuptools python34-cffi
+        python36 python36-devel python36-setuptools python36-cffi
     ;;
 
 Debian*)
@@ -172,7 +172,7 @@ RHEL*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python34 python34-devel python34-setuptools python34-cffi
+        python36 python36-devel python36-setuptools python36-cffi
     ;;
 
 SUSE*)
