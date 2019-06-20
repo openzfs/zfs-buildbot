@@ -105,7 +105,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
 
             # Extract if the commit message has property overrides
             category = self.parse_comments(comments,
-                "style,build,test,perf,coverage,unstable")
+                "style,build,test,perf,coverage")
 
             props['branch'] = branch
 
