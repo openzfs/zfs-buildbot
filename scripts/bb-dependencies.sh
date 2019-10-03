@@ -89,6 +89,8 @@ CentOS*)
     ;;
 
 Debian*)
+    export DEBIAN_FRONTEND=noninteractive
+
     # Required development tools.
     sudo -E apt-get --yes install build-essential autoconf libtool \
         libtool-bin gdb lcov
@@ -107,7 +109,7 @@ Debian*)
         python3 python3-dev python3-setuptools python3-cffi
 
     # Testing support libraries
-    sudo -E apt-get --yes install libasan3
+    sudo -E apt-get --yes install libasan4
     ;;
 
 Fedora*)

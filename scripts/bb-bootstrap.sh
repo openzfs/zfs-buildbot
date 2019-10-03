@@ -213,6 +213,13 @@ CentOS*)
 Debian*)
     apt-get --yes update
 
+    # As of Debian 10 buildbot v1.0 is provided from the repository.  This
+    # version is incompatible v0.8 on master, so use the older pip version.
+    VERSION=$(cut -f1 -d'.' /etc/debian_version)
+    if test $VERSION -ge 10; then
+        BB_USE_PIP=1
+    fi
+
     # Relying on the pip version of the buildslave is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then

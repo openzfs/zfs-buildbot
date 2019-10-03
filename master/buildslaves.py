@@ -161,10 +161,8 @@ runurl $BB_URL/bb-bootstrap.sh
 
             # The boot device name must exactly match the name in the
             # distribution provided AMI otherwise it will fail to boot.
-            if "Amazon" in name or "Kernel.org" in name:
+            if "Amazon" in name or "Kernel.org" in name or "Debian" in name:
                 boot_device = "/dev/xvda"
-            elif "Debian" in name:
-                boot_device = "xvda"
             else:
                 boot_device = "/dev/sda1"
 
