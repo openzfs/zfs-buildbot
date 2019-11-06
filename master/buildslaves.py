@@ -71,41 +71,57 @@ class ZFSBuilderConfig(util.BuilderConfig):
 ### BUILD SLAVE CLASSES
 # Create large EC2 latent build slave
 class ZFSEC2Slave(EC2LatentBuildSlave):
-    default_user_data = user_data = """#!/bin/bash                                                                                   
-set -x
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+    default_user_data = user_data = """#!/bin/sh -x
+# Make /dev/console the serial console instead of the video console
+# so we get our output in the text system log at boot.
+case "$(uname)" in
+FreeBSD)
+    # On FreeBSD the first enabled console becomes /dev/console
+    # ttyv0,ttyu0,gdb -> ttyu0,ttyv0,gdb
+    conscontrol delete ttyu0
+    conscontrol add ttyu0
+    ;;
+*)
+    ;;
+esac
 
-export PATH=%s:$PATH
+# Duplicate all output to a log file, syslog, and the console.
+{
+    export PATH=%s:$PATH
 
-# Ensure wget is available for runurl
-if ! hash wget 2>/dev/null; then
-    if hash apt-get 2>/dev/null; then
-        apt-get --quiet --yes install wget
-    elif hash dnf 2>/dev/null; then
-        echo "keepcache=true"     >>/etc/dnf/dnf.conf
-        echo "deltarpm=true"      >>/etc/dnf/dnf.conf
-        echo "fastestmirror=true" >>/etc/dnf/dnf.conf
-        dnf clean all
-        dnf --quiet -y install wget
-    elif hash yum 2>/dev/null; then
-        yum --quiet -y install wget
-    else
-        echo "Unknown package managed cannot install wget"
+    # Ensure wget is available for runurl
+    if ! hash wget 2>/dev/null; then
+        if hash apt-get 2>/dev/null; then
+            apt-get --quiet --yes install wget
+        elif hash dnf 2>/dev/null; then
+            echo "keepcache=true"     >>/etc/dnf/dnf.conf
+            echo "deltarpm=true"      >>/etc/dnf/dnf.conf
+            echo "fastestmirror=true" >>/etc/dnf/dnf.conf
+            dnf clean all
+            dnf --quiet -y install wget
+        elif hash pkg 2>/dev/null; then
+            echo IGNORE_OSVERSION=yes >>/usr/local/etc/pkg.conf
+            pkg install --quiet -y wget
+        elif hash yum 2>/dev/null; then
+            yum --quiet -y install wget
+        else
+            echo "Unknown package manager, cannot install wget"
+        fi
     fi
-fi
 
-# Run the bootstrap script
-export BB_MASTER='%s'
-export BB_NAME='%s'
-export BB_PASSWORD='%s'
-export BB_MODE='%s'
-export BB_URL='%s'
+    # Run the bootstrap script
+    export BB_MASTER='%s'
+    export BB_NAME='%s'
+    export BB_PASSWORD='%s'
+    export BB_MODE='%s'
+    export BB_URL='%s'
 
-# Get the runurl utility.
-wget -qO/usr/bin/runurl $BB_URL/runurl
-chmod 755 /usr/bin/runurl
+    # Get the runurl utility.
+    wget -qO/usr/bin/runurl $BB_URL/runurl
+    chmod 755 /usr/bin/runurl
 
-runurl $BB_URL/bb-bootstrap.sh
+    runurl $BB_URL/bb-bootstrap.sh
+} 2>&1 | tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console
 """
 
     @staticmethod
@@ -120,7 +136,7 @@ runurl $BB_URL/bb-bootstrap.sh
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
                 price_multiplier=None, missing_timeout=60 * 40,
-                block_device_map=None, **kwargs):
+                block_device_map=None, get_image=None, **kwargs):
 
         self.name = name
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -175,6 +191,13 @@ runurl $BB_URL/bb-bootstrap.sh
                                  "/dev/sdg": { "ephemeral_name": "ephemeral5" },
                                }
 
+        # get_image can be used to determine an AMI when the slave starts.
+        if callable(get_image):
+            # Trick EC2LatentBuildSlave input validation by providing a "valid" regex.
+            # This won't actually be used because we override get_image().
+            kwargs['valid_ami_location_regex'] = ''
+            # If we just set `self.get_image = get_image` then self doesn't get passed.
+            self.get_image = lambda: get_image(self)
 
         EC2LatentBuildSlave.__init__(
             self, name=name, password=password, instance_type=instance_type, 

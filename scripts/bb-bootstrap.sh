@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright 2011 Henrik Ingo <henrik.ingo@openlife.cc>
 # License = GPLv2 or later
@@ -79,7 +79,7 @@ testbin () {
 }
 
 set_boot_kernel () {
-	if [[ -f /boot/grub2/grub.cfg ]]; then
+	if [ -f /boot/grub2/grub.cfg ]; then
 		entry=$(awk -F "'" '
 			/^menuentry.*x86_64.debug/ {
 				print $2; exit
@@ -87,7 +87,7 @@ set_boot_kernel () {
 		sed --in-place "s/^saved_entry=.*/saved_entry=${entry}/" /boot/grub2/grubenv
 	fi
 
-	if [[ -f /boot/grub/grub.conf ]]; then
+	if [ -f /boot/grub/grub.conf ]; then
 		entry=$(awk '
 			BEGIN {entry=0};
 			/^title.*debug/ {print entry; exit};
@@ -311,6 +311,20 @@ Fedora*)
     # This is the default.
     ;;
 
+FreeBSD*)
+    pkg install -y \
+        curl \
+        git-lite \
+        py27-pip \
+        sudo
+    pip-2.7 --quiet install buildbot-slave
+    BUILDSLAVE="/usr/local/bin/buildslave"
+
+    pw useradd buildbot
+    echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
+        >/usr/local/etc/sudoers.d/buildbot
+    ;;
+
 RHEL*)
     # Required repository packages
     if cat /etc/redhat-release | grep -Eq "6."; then
@@ -406,7 +420,7 @@ set +x
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR
-    chown buildbot.buildbot $BB_DIR
+    chown buildbot:buildbot $BB_DIR
     sudo -E -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
 
@@ -430,7 +444,7 @@ set -x
 # Finally, start it.  If all goes well, at this point you should see a buildbot
 # slave joining your farm.  You can then manage the rest of the work from the
 # buildbot master.
-if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE"; then
+if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE" -o "$(uname)" = "FreeBSD"; then
     sudo -E -u buildbot $BUILDSLAVE start $BB_DIR
 else
     echo "@reboot sudo -E -u buildbot $BUILDSLAVE start $BB_DIR" | crontab -

@@ -4,9 +4,24 @@ if test -f /etc/buildslave; then
 	. /etc/buildslave
 fi
 
+case "$BB_NAME" in
+FreeBSD*)
+	MAKE=gmake
+	NCPU=$(sysctl -n hw.ncpu)
+	;;
+Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
+	MAKE=make
+	NCPU=$(nproc)
+	;;
+*)
+	echo "Unknown BB_NAME: $BB_NAME"
+	exit 1
+	;;
+esac
+
 LINUX_OPTIONS=${LINUX_OPTIONS:-""}
 CONFIG_OPTIONS=${CONFIG_OPTIONS:-""}
-MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(nproc)"}
+MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$NCPU"}
 MAKE_TARGETS_KMOD=${MAKE_TARGETS_KMOD:-"pkg-kmod pkg-utils"}
 MAKE_TARGETS_DKMS=${MAKE_TARGETS_DKMS:-"pkg-dkms pkg-utils"}
 INSTALL_METHOD=${INSTALL_METHOD:-"none"}
@@ -33,10 +48,10 @@ packages|kmod|pkg-kmod|dkms|dkms-kmod)
 
 	case "$INSTALL_METHOD" in
 	packages|kmod|pkg-kmod)
-		make $MAKE_TARGETS_KMOD >>$MAKE_LOG 2>&1 || exit 1
+		$MAKE $MAKE_TARGETS_KMOD >>$MAKE_LOG 2>&1 || exit 1
 		;;
 	dkms|pkg-dkms)
-		make $MAKE_TARGETS_DKMS >>$MAKE_LOG 2>&1 || exit 1
+		$MAKE $MAKE_TARGETS_DKMS >>$MAKE_LOG 2>&1 || exit 1
 		;;
 	esac
 
@@ -83,13 +98,18 @@ packages|kmod|pkg-kmod|dkms|dkms-kmod)
 	;;
 in-tree)
 	./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-	make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+	$MAKE $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
 	./scripts/zfs-tests.sh -cv >>$INSTALL_LOG 2>&1
 	sudo -E scripts/zfs-helpers.sh -iv >>$INSTALL_LOG 2>&1
 	;;
+system)
+	./configure $CONFIG_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+	$MAKE $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+	sudo -E $MAKE install >>$INSTALL_LOG 2>&1 || exit 1
+	;;
 none)
 	./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-	make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+	$MAKE $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
 	;;
 *)
 	echo "Unknown INSTALL_METHOD: $INSTALL_METHOD"

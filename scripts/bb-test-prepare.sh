@@ -10,8 +10,16 @@ if echo "$TEST_PREPARE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-SPL_BUILD_DIR=$(readlink -f ../spl)
-ZFS_BUILD_DIR=$(readlink -f ../zfs)
+case "$BB_NAME" in
+FreeBSD*)
+    READLINK="readlink"
+    ;;
+Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
+    READLINK="readlink -f"
+    ;;
+esac
+SPL_BUILD_DIR=$($READLINK ../spl)
+ZFS_BUILD_DIR=$($READLINK ../zfs)
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
 
@@ -66,7 +74,7 @@ EOF
 # Add environment variables for "packages" or "in-tree" testing.
 TEST_METHOD=${TEST_METHOD:-"packages"}
 case "$TEST_METHOD" in
-packages|kmod|pkg-kmod|dkms|dkms-kmod)
+packages|kmod|pkg-kmod|dkms|dkms-kmod|system)
     cat << EOF >> $TEST_FILE
 SPLAT=${SPLAT:-"splat"}
 ZPOOL=${ZPOOL:-"zpool"}
@@ -158,6 +166,10 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E systemctl start watchdog
         ;;
 
+    FreeBSD*)
+        sudo -E service watchdogd onestart
+        ;;
+
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
             sudo -E /etc/init.d/watchdog start
@@ -208,6 +220,13 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E systemctl start smb
         ;;
 
+    FreeBSD*)
+        sudo -E touch /etc/exports
+        sudo -E service nfsd onestart
+        echo '[global]' | sudo -E tee /usr/local/etc/smb4.conf >/dev/null
+        sudo -E service samba_server onestart
+        ;;
+
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
             sudo -E /etc/init.d/rpcbind start
@@ -247,6 +266,8 @@ if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
                 echo "Scheduling shutdown"
                 sudo -E shutdown +960
                 ;;
+            FreeBSD*)
+		;;
             *)
                 echo "Scheduling shutdown"
                 sudo -E shutdown +480
@@ -255,6 +276,8 @@ if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 fi
 
 # Unload modules just in case they are still loaded from a previous test
-sudo -E $ZFS_SH -vu
+if [ -x $ZFS_SH ]; then
+    sudo -E $ZFS_SH -vu
+fi
 
 exit 0

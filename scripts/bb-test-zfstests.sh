@@ -137,7 +137,7 @@ fi
 sudo -E chmod 777 $TEST_ZFSTESTS_DIR
 sudo -E dmesg -c >/dev/null
 
-if $(dmesg -h | grep -qe '-w'); then
+if $(dmesg -h 2>/dev/null | grep -qe '-w'); then
     dmesg -w >$CONSOLE_LOG &
     DMESG_PID=$!
 else

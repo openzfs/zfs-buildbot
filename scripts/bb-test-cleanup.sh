@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if test -f /etc/buildslave; then
     . /etc/buildslave
@@ -11,9 +11,17 @@ else
     exit 1
 fi
 
-WORKDIR=$(readlink -f .)
+case "$BB_NAME" in
+FreeBSD*)
+    READLINK="readlink"
+    ;;
+Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
+    READLINK="readlink -f"
+    ;;
+esac
+WORKDIR=$($READLINK .)
 GCOV_KERNEL="/sys/kernel/debug/gcov"
-ZFS_BUILD=$(readlink -f ../zfs)
+ZFS_BUILD=$($READLINK ../zfs)
 
 if $(sudo -E test ! -e "$GCOV_KERNEL"); then
     echo "Kernel Gcov disabled.  Skipping test cleanup."
@@ -29,23 +37,23 @@ if [ -z "$CODECOV_TOKEN" -o \
     exit 1
 fi
 
-function urlencode
+urlencode ()
 {
     python -c "import urllib; print(urllib.quote('$1'));"
 }
 
-function echo_build_url
+echo_build_url ()
 {
     local NAME=$(urlencode "$BUILDER_NAME")
     local NUMBER=$(urlencode "$BUILD_NUMBER")
     echo "http://build.zfsonlinux.org/builders/$NAME/builds/$NUMBER"
 }
 
-function upload_codecov_report_with_flag
+upload_codecov_report_with_flag ()
 {
     local PR_OR_BRANCH_OPT
 
-    if [[ -z "$1" ]]; then
+    if [ -z "$1" ]; then
         echo "Can't upload Codecov report without a flag."
         exit 1
     fi
@@ -66,9 +74,9 @@ function upload_codecov_report_with_flag
     # way, the commit is properly associated with the correct branch in
     # the Codecov UI.
     #
-    if [[ -n "$PR_NUMBER" ]]; then
+    if [ -n "$PR_NUMBER" ]; then
         PR_OR_BRANCH_OPT="-B pull/$PR_NUMBER -P $PR_NUMBER"
-    elif [[ -n "$BASE_BRANCH" ]]; then
+    elif [ -n "$BASE_BRANCH" ]; then
         PR_OR_BRANCH_OPT="-B $BASE_BRANCH"
     else
         #
@@ -111,13 +119,13 @@ function upload_codecov_report_with_flag
     # Buildbot will look for these files in $WORKDIR, not in the "zfs"
     # build directory).
     #
-    if [[ -n "$TEST_CODE_COVERAGE_HTML" ]]; then
+    if [ -n "$TEST_CODE_COVERAGE_HTML" ]; then
         tar -cf - "$CODE_COVERAGE_OUTPUT_DIRECTORY" | \
             xz -9e > "${WORKDIR}/${CODE_COVERAGE_OUTPUT_DIRECTORY}.tar.xz"
     fi
 }
 
-function copy_kernel_gcov_data_files
+copy_kernel_gcov_data_files ()
 {
     # Allow access to gcov files as a non-root user
     sudo chmod -R a+rx /sys/kernel/debug/gcov
@@ -151,10 +159,11 @@ function copy_kernel_gcov_data_files
     #    the build directory. These symlinks will then point to the
     #    original files with the ".tmp_" prefix.
     #
-    pushd "$GCOV_KERNEL$ZFS_BUILD" >/dev/null
+    dirname="$PWD"
+    cd "$GCOV_KERNEL$ZFS_BUILD" >/dev/null
     find . -name "*.gcda" -exec sh -c 'cp -v $0 '$ZFS_BUILD'/$0' {} \;
     find . -name "*.gcno" -exec sh -c 'cp -vdn $0 '$ZFS_BUILD'/$0' {} \;
-    popd >/dev/null
+    cd "$dirname"
 }
 
 #

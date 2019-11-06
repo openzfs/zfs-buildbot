@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Check for a local cached configuration.
 if test -f /etc/buildslave; then
@@ -10,14 +10,13 @@ else
 fi
 
 # a function to wait for an apt-get upgrade to finish
-function apt-get-install
-{
+apt_get_install () {
     while true; do
         sudo -E apt-get --yes install "$@"
 
         # error code 11 indicates that a lock file couldn't be obtained
         # keep retrying until we don't see an error code of 11
-        [[ $? -ne 11 ]] && break
+        [ $? -ne 11 ] && break
 
         sleep 0.5
     done 
@@ -137,6 +136,41 @@ Fedora*)
     sudo -E dnf -y install libasan
     ;;
 
+FreeBSD*)
+    # Always test with the latest packages on FreeBSD.
+    sudo -E pkg upgrade -y --no-repo-update
+
+    # Kernel source
+    (
+        ABI=$(uname -p)
+        VERSION=$(freebsd-version -r)
+        cd /tmp
+        fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz
+        sudo tar xpf src.txz -C /
+        rm src.txz
+    )
+
+    # Required development tools
+    sudo -E pkg install -y --no-repo-update \
+        autoconf \
+        automake \
+        autotools \
+        bash \
+        gmake \
+        libtool
+
+    # Testing support utilities
+    sudo -E pkg install -y --no-repo-update \
+        base64 \
+        fio \
+        hs-ShellCheck \
+        ksh93 \
+        py36-flake8 \
+        samba410
+
+    sudo ln -sf /usr/local/bin/python3 /usr/local/bin/python
+    ;;
+
 RHEL*)
     # Required repository packages
     if cat /etc/redhat-release | grep -Eq "6."; then
@@ -180,15 +214,15 @@ RHEL*)
 
 Ubuntu*)
     # Required development tools.
-    apt-get-install build-essential autoconf libtool gdb lcov
+    apt_get_install build-essential autoconf libtool gdb lcov
 
     # Required utilities.
-    apt-get-install git alien fakeroot wget curl bc fio acl \
+    apt_get_install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
         nfs-kernel-server samba rng-tools xz-utils dkms
 
     # Required development libraries
-    apt-get-install linux-headers-$(uname -r) \
+    apt_get_install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
@@ -196,12 +230,12 @@ Ubuntu*)
         python3 python3-dev python3-setuptools python3-cffi libncurses-dev
 
     if test "$BB_MODE" = "STYLE"; then
-        apt-get-install pax-utils shellcheck cppcheck mandoc
+        apt_get_install pax-utils shellcheck cppcheck mandoc
         sudo -E pip --quiet install flake8
     fi
 
     # Testing support libraries
-    apt-get-install python3
+    apt_get_install python3
     ;;
 
 *)
