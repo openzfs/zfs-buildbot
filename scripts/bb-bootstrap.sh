@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright 2011 Henrik Ingo <henrik.ingo@openlife.cc>
 # License = GPLv2 or later
@@ -79,7 +79,7 @@ testbin () {
 }
 
 set_boot_kernel () {
-	if [[ -f /boot/grub2/grub.cfg ]]; then
+	if [ -f /boot/grub2/grub.cfg ]; then
 		entry=$(awk -F "'" '
 			/^menuentry.*x86_64.debug/ {
 				print $2; exit
@@ -87,7 +87,7 @@ set_boot_kernel () {
 		sed --in-place "s/^saved_entry=.*/saved_entry=${entry}/" /boot/grub2/grubenv
 	fi
 
-	if [[ -f /boot/grub/grub.conf ]]; then
+	if [ -f /boot/grub/grub.conf ]; then
 		entry=$(awk '
 			BEGIN {entry=0};
 			/^title.*debug/ {print entry; exit};
@@ -309,6 +309,27 @@ Fedora*)
 
     # Standardize ephemeral storage so it's available under /mnt.
     # This is the default.
+    ;;
+
+FreeBSD*)
+    ASSUME_ALWAYS_YES=yes pkg bootstrap -f
+    pkg install -y \
+        curl \
+        git-lite \
+        python3 \
+        py36-pip
+        sudo \
+        wget
+    # pip can be flaky, installing from git works for now
+    #pip --quiet install buildbot-slave
+    git clone --branch v0.9.15 https://github.com/buildbot/buildbot
+    cd buildbot/worker
+    python3 setup.py install
+    BUILDSLAVE="/usr/local/bin/buildslave"
+
+    pw useradd -n buildbot -d "$BB_DIR" -m
+    echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
+        >/usr/local/etc/sudoers.d/buildbot
     ;;
 
 RHEL*)

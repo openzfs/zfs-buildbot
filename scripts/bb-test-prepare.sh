@@ -10,8 +10,16 @@ if echo "$TEST_PREPARE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-SPL_BUILD_DIR=$(readlink -f ../spl)
-ZFS_BUILD_DIR=$(readlink -f ../zfs)
+case "$BB_NAME" in
+FreeBSD*)
+    READLINK="readlink"
+    ;;
+*)
+    READLINK="readlink -f"
+    ;;
+esac
+SPL_BUILD_DIR=$($READLINK ../spl)
+ZFS_BUILD_DIR=$($READLINK ../zfs)
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
 
@@ -158,6 +166,10 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E systemctl start watchdog
         ;;
 
+    FreeBSD*)
+        sudo -E service watchdogd onestart
+        ;;
+
     RHEL*)
         if cat /etc/redhat-release | grep -Eq "6."; then
             sudo -E /etc/init.d/watchdog start
@@ -206,6 +218,13 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     Fedora*)
         sudo -E systemctl start nfs-server
         sudo -E systemctl start smb
+        ;;
+
+    FreeBSD*)
+        sudo -E touch /etc/exports
+        sudo -E service nfsd onestart
+        echo '[global]' | sudo -E tee /usr/local/etc/smb4.conf >/dev/null
+        sudo -E service samba_server onestart
         ;;
 
     RHEL*)

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Check for a local cached configuration.
 if test -f /etc/buildslave; then
@@ -17,7 +17,7 @@ function apt-get-install
 
         # error code 11 indicates that a lock file couldn't be obtained
         # keep retrying until we don't see an error code of 11
-        [[ $? -ne 11 ]] && break
+        [ $? -ne 11 ] && break
 
         sleep 0.5
     done 
@@ -135,6 +135,32 @@ Fedora*)
 
     # Testing support libraries
     sudo -E dnf -y install libasan
+    ;;
+
+FreeBSD*)
+    # Always test with the latest packages on FreeBSD.
+    sudo -E pkg upgrade -y
+
+    # Required development tools
+    sudo -E pkg install -y \
+        autoconf \
+        automake \
+        autotools \
+        bash \
+        gmake \
+        libtool
+
+    # Testing support utilities
+    sudo -E pkg install -y \
+        base64 \
+        fio \
+        hs-ShellCheck \
+        ksh93 \
+        py36-flake8 \
+        samba410 \
+        shuf
+
+    ln -sf /usr/local/bin/python3 /usr/local/bin/python
     ;;
 
 RHEL*)

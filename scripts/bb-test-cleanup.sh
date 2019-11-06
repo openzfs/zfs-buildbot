@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if test -f /etc/buildslave; then
     . /etc/buildslave
@@ -11,9 +11,17 @@ else
     exit 1
 fi
 
-WORKDIR=$(readlink -f .)
+case "$BB_NAME" in
+FreeBSD*)
+    READLINK="readlink"
+    ;;
+*)
+    READLINK="readlink -f"
+    ;;
+esac
+WORKDIR=$($READLINK .)
 GCOV_KERNEL="/sys/kernel/debug/gcov"
-ZFS_BUILD=$(readlink -f ../zfs)
+ZFS_BUILD=$($READLINK ../zfs)
 
 if $(sudo -E test ! -e "$GCOV_KERNEL"); then
     echo "Kernel Gcov disabled.  Skipping test cleanup."
