@@ -9,9 +9,13 @@ FreeBSD*)
 	MAKE=gmake
 	NCPU=$(sysctl -n hw.ncpu)
 	;;
-*)
+Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
 	MAKE=make
 	NCPU=$(nproc)
+	;;
+*)
+	echo "Unknown BB_NAME: $BB_NAME"
+	exit 1
 	;;
 esac
 

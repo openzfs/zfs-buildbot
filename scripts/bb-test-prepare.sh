@@ -14,7 +14,7 @@ case "$BB_NAME" in
 FreeBSD*)
     READLINK="readlink"
     ;;
-*)
+Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
     READLINK="readlink -f"
     ;;
 esac

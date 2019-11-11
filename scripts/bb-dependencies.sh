@@ -10,7 +10,7 @@ else
 fi
 
 # a function to wait for an apt-get upgrade to finish
-function apt-get-install
+apt-get-install
 {
     while true; do
         sudo -E apt-get --yes install "$@"
