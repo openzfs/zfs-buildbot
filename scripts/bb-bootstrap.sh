@@ -312,14 +312,12 @@ Fedora*)
     ;;
 
 FreeBSD*)
-    ASSUME_ALWAYS_YES=yes pkg bootstrap -f
     pkg install -y \
         curl \
         git-lite \
         python3 \
         py36-pip
-        sudo \
-        wget
+        sudo
     # pip can be flaky, installing from git works for now
     #pip --quiet install buildbot-slave
     git clone --branch v0.9.15 https://github.com/buildbot/buildbot

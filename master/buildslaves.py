@@ -71,9 +71,11 @@ class ZFSBuilderConfig(util.BuilderConfig):
 ### BUILD SLAVE CLASSES
 # Create large EC2 latent build slave
 class ZFSEC2Slave(EC2LatentBuildSlave):
-    default_user_data = user_data = """#!/bin/bash                                                                                   
+    default_user_data = user_data = """#!/bin/sh
+
 set -x
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+exec > /var/log/user-data.log 2>&1
+tail -f /var/log/user-data.log | logger -t user-data -s 2>/dev/console >/dev/null &
 
 export PATH=%s:$PATH
 
@@ -87,6 +89,9 @@ if ! hash wget 2>/dev/null; then
         echo "fastestmirror=true" >>/etc/dnf/dnf.conf
         dnf clean all
         dnf --quiet -y install wget
+    elif hash pkg-static 2>/dev/null; then
+        ASSUME_ALWAYS_YES=yes pkg-static bootstrap -f
+        pkg install -y wget
     elif hash yum 2>/dev/null; then
         yum --quiet -y install wget
     else
