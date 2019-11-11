@@ -98,6 +98,11 @@ in-tree)
 	./scripts/zfs-tests.sh -cv >>$INSTALL_LOG 2>&1
 	sudo -E scripts/zfs-helpers.sh -iv >>$INSTALL_LOG 2>&1
 	;;
+system)
+	./configure $CONFIG_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
+	$MAKE $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
+	sudo -E $MAKE install >>$INSTALL_LOG 2>&1 || exit 1
+	;;
 none)
 	./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
 	$MAKE $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
