@@ -320,7 +320,7 @@ FreeBSD*)
     pip-2.7 --quiet install buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"
 
-    pw useradd -n buildbot -d "$BB_DIR" -m
+    pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
         >/usr/local/etc/sudoers.d/buildbot
     ;;
@@ -420,7 +420,7 @@ set +x
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR
-    chown buildbot.buildbot $BB_DIR
+    chown buildbot:buildbot $BB_DIR
     sudo -E -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
 
