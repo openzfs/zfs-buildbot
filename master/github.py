@@ -59,7 +59,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             all_pattern = '.*all.*'
             m = re.search(all_pattern, category, re.I | re.M)
             if m is not None:
-                category = "style,build,test,perf,coverage,unstable"
+                category = "style,build,test,perf,coverage"
 
         return category
 
