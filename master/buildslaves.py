@@ -71,46 +71,43 @@ class ZFSBuilderConfig(util.BuilderConfig):
 ### BUILD SLAVE CLASSES
 # Create large EC2 latent build slave
 class ZFSEC2Slave(EC2LatentBuildSlave):
-    default_user_data = user_data = """#!/bin/sh
+    default_user_data = user_data = """#!/bin/sh -x
+{
+    export PATH=%s:$PATH
 
-set -x
-exec > /var/log/user-data.log 2>&1
-tail -f /var/log/user-data.log | logger -t user-data -s 2>/dev/console >/dev/null &
-
-export PATH=%s:$PATH
-
-# Ensure wget is available for runurl
-if ! hash wget 2>/dev/null; then
-    if hash apt-get 2>/dev/null; then
-        apt-get --quiet --yes install wget
-    elif hash dnf 2>/dev/null; then
-        echo "keepcache=true"     >>/etc/dnf/dnf.conf
-        echo "deltarpm=true"      >>/etc/dnf/dnf.conf
-        echo "fastestmirror=true" >>/etc/dnf/dnf.conf
-        dnf clean all
-        dnf --quiet -y install wget
-    elif hash pkg-static 2>/dev/null; then
-        ASSUME_ALWAYS_YES=yes pkg-static bootstrap -f
-        pkg install -y wget
-    elif hash yum 2>/dev/null; then
-        yum --quiet -y install wget
-    else
-        echo "Unknown package managed cannot install wget"
+    # Ensure wget is available for runurl
+    if ! hash wget 2>/dev/null; then
+        if hash apt-get 2>/dev/null; then
+            apt-get --quiet --yes install wget
+        elif hash dnf 2>/dev/null; then
+            echo "keepcache=true"     >>/etc/dnf/dnf.conf
+            echo "deltarpm=true"      >>/etc/dnf/dnf.conf
+            echo "fastestmirror=true" >>/etc/dnf/dnf.conf
+            dnf clean all
+            dnf --quiet -y install wget
+        elif hash pkg 2>/dev/null; then
+            echo IGNORE_OSVERSION=yes >>/usr/local/etc/pkg.conf
+            pkg install --quiet -y wget
+        elif hash yum 2>/dev/null; then
+            yum --quiet -y install wget
+        else
+            echo "Unknown package manager, cannot install wget"
+        fi
     fi
-fi
 
-# Run the bootstrap script
-export BB_MASTER='%s'
-export BB_NAME='%s'
-export BB_PASSWORD='%s'
-export BB_MODE='%s'
-export BB_URL='%s'
+    # Run the bootstrap script
+    export BB_MASTER='%s'
+    export BB_NAME='%s'
+    export BB_PASSWORD='%s'
+    export BB_MODE='%s'
+    export BB_URL='%s'
 
-# Get the runurl utility.
-wget -qO/usr/bin/runurl $BB_URL/runurl
-chmod 755 /usr/bin/runurl
+    # Get the runurl utility.
+    wget -qO/usr/bin/runurl $BB_URL/runurl
+    chmod 755 /usr/bin/runurl
 
-runurl $BB_URL/bb-bootstrap.sh
+    runurl $BB_URL/bb-bootstrap.sh
+} 2>&1 | tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console
 """
 
     @staticmethod
