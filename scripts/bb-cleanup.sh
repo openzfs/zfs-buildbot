@@ -77,18 +77,6 @@ RHEL*)
     fi
     ;;
 
-SUSE*)
-    if test "$BUILT_PACKAGE" = "zfs"; then
-        sudo -E zypper --non-interactive remove \
-            libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
-            zfs zfs-dracut zfs-test
-    fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E zypper --non-interactive remove spl
-    fi
-    ;;
-
 Ubuntu*)
     if test "$BUILT_PACKAGE" = "zfs"; then
         sudo -E apt-get --yes purge '(zfs-dkms.*|kmod-zfs.*)' \

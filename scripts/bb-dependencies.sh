@@ -178,23 +178,6 @@ RHEL*)
         python36 python36-devel python36-setuptools python36-cffi
     ;;
 
-SUSE*)
-    # Required development tools.
-    sudo -E zypper --non-interactive install gcc make autoconf libtool gdb lcov
-
-    # Required utilities.
-    sudo -E zypper --non-interactive install git rpm-build wget curl bc \
-        fio acl sysstat mdadm lsscsi parted attr ksh nfs-kernel-server \
-        samba rng-tools dkms
-
-    # Required development libraries
-    sudo -E zypper --non-interactive install kernel-devel zlib-devel \
-        libuuid-devel libblkid-devel libselinux-devel xfsprogs-devel \
-        libattr-devel libacl-devel libudev-devel device-mapper-devel \
-        openssl-devel libffi-devel libaio-devel python-devel \
-        python-setuptools python-cffi ncurses-devel
-    ;;
-
 Ubuntu*)
     # Required development tools.
     apt-get-install build-essential autoconf libtool gdb lcov

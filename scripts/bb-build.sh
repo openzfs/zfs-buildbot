@@ -68,10 +68,6 @@ packages|kmod|pkg-kmod|dkms|dkms-kmod)
 	RHEL*)
 		sudo -E yum -y localinstall *.rpm >$INSTALL_LOG 2>&1 || exit 1
 		;;
-	SUSE*)
-		sudo -E zypper --non-interactive install *.rpm \
-		    >$INSTALL_LOG 2>&1 || exit 1
-		;;
 	Ubuntu-14.04*)
 		for file in *.deb; do
 			sudo -E gdebi -n $file >$INSTALL_LOG 2>&1 || exit 1

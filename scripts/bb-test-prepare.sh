@@ -166,10 +166,6 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         fi
         ;;
 
-    SUSE*)
-        sudo -E systemctl start watchdog
-        ;;
-
     Ubuntu*)
         sudo -E apt-get install watchdog
         sudo -E service watchdog start
@@ -221,11 +217,6 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
             sudo -E systemctl start nfs-server
             sudo -E systemctl start smb
         fi
-        ;;
-
-    SUSE*)
-        sudo -E systemctl start nfsserver
-        sudo -E systemctl start smb
         ;;
 
     Ubuntu*)

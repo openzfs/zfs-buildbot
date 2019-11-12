@@ -311,15 +311,6 @@ Fedora*)
     # This is the default.
     ;;
 
-Gentoo*)
-    emerge-webrsync
-    emerge app-admin/sudo dev-util/buildbot-slave
-    BUILDSLAVE="/usr/bin/buildslave"
-
-    # User buildbot needs to be added to sudoers and requiretty disabled.
-    echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-    ;;
-
 RHEL*)
     # Required repository packages
     if cat /etc/redhat-release | grep -Eq "6."; then
@@ -358,27 +349,6 @@ RHEL*)
 
     # Standardize ephemeral storage so it's available under /mnt.
     # This is the default.
-    ;;
-
-SUSE*)
-    # SLES appears to not always register their repos properly.
-    echo "solver.allowVendorChange = true" >>/etc/zypp/zypp.conf
-    while ! zypper --non-interactive up; do sleep 10; done
-    while ! /usr/sbin/registercloudguest --force-new; do sleep 10; done
-
-    # Zypper auto-refreshes on boot retry to avoid spurious failures.
-    zypper --non-interactive install gcc python-devel python-pip
-    pip --quiet install buildbot-slave
-    BUILDSLAVE="/usr/bin/buildslave"
-
-    # User buildbot needs to be added to sudoers and requiretty disabled.
-    if ! id -u buildbot >/dev/null 2>&1; then
-        groupadd buildbot
-        useradd -g buildbot buildbot
-        echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-        sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
-    fi
     ;;
 
 Ubuntu*)
