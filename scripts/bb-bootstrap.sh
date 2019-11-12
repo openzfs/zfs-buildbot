@@ -318,11 +318,7 @@ FreeBSD*)
         python3 \
         py36-pip \
         sudo
-    # pip can be flaky, installing from git works for now
-    #pip --quiet install buildbot-slave
-    git clone --branch v0.9.15 https://github.com/buildbot/buildbot
-    cd buildbot/worker
-    python3 setup.py install
+    pip --quiet install buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"
 
     pw useradd -n buildbot -d "$BB_DIR" -m
