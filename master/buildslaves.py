@@ -72,6 +72,20 @@ class ZFSBuilderConfig(util.BuilderConfig):
 # Create large EC2 latent build slave
 class ZFSEC2Slave(EC2LatentBuildSlave):
     default_user_data = user_data = """#!/bin/sh -x
+# Make /dev/console the serial console instead of the video console
+# so we get our output in the text system log at boot.
+case "$(uname)" in
+FreeBSD)
+    # On FreeBSD the first enabled console becomes /dev/console
+    # ttyv0,ttyu0,gdb -> ttyu0,ttyv0,gdb
+    conscontrol delete ttyu0
+    conscontrol add ttyu0
+    ;;
+*)
+    ;;
+esac
+
+# Duplicate all output to a log file, syslog, and the console.
 {
     export PATH=%s:$PATH
 
