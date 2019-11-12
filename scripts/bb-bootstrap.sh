@@ -315,10 +315,9 @@ FreeBSD*)
     pkg install -y \
         curl \
         git-lite \
-        python3 \
-        py36-pip \
+        py27-pip \
         sudo
-    pip --quiet install buildbot-slave
+    pip-2.7 --quiet install buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"
 
     pw useradd -n buildbot -d "$BB_DIR" -m
