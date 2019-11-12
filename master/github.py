@@ -104,8 +104,14 @@ class CustomGitHubEventHandler(GitHubEventHandler):
                     props[prop_name] = json.dumps(m.group(1).lower())
 
             # Extract if the commit message has property overrides
-            category = self.parse_comments(comments,
-                "style,build,test,perf,coverage")
+            # For 0.8 and earlier releases include the legacy builders.
+            match = re.match(r".*-0.[0-8]-release", branch)
+            if match:
+                category = self.parse_comments(comments,
+                    "style,build,test,perf,coverage,legacy")
+            else:
+                category = self.parse_comments(comments,
+                    "style,build,test,perf,coverage")
 
             props['branch'] = branch
 
@@ -153,6 +159,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         commits_num = payload['pull_request']['commits']
         commits_url = payload['pull_request']['commits_url']
         created_at = dateparse(payload['pull_request']['created_at'])
+        branch = payload['pull_request']['base']['ref']
         commits_cur = 0
 
         log.msg('Processing GitHub PR #%d' % number, logLevel=logging.DEBUG)
@@ -205,7 +212,12 @@ class CustomGitHubEventHandler(GitHubEventHandler):
 
             # Annotate the head commit to allow special handling.
             if commit['sha'] == payload['pull_request']['head']['sha']:
-                category = "style,build,test,coverage"
+                # For 0.8 and earlier releases include the legacy builders.
+                match = re.match(r".*-0.[0-8]-release", branch)
+                if match:
+                    category = "style,build,test,coverage,legacy"
+                else:
+                    category = "style,build,test,coverage"
             else:
                 category = "style,build"
 
@@ -224,7 +236,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             comments = comments + "Pull-request: #%d part %d/%d\n" % (
                 number, commits_cur, commits_num)
 
-            branch = payload['pull_request']['base']['ref']
             props['branch'] = json.dumps(branch)
             props['pr_number'] = json.dumps(number)
 
