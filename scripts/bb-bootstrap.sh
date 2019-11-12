@@ -316,7 +316,7 @@ FreeBSD*)
         curl \
         git-lite \
         python3 \
-        py36-pip
+        py36-pip \
         sudo
     # pip can be flaky, installing from git works for now
     #pip --quiet install buildbot-slave
