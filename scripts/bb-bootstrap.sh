@@ -278,8 +278,14 @@ Fedora*)
     # Relying on the pip version of the buildslave is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
-        dnf -y install gcc python-pip python-devel
-        pip --quiet install buildbot-slave
+        dnf -y install gcc python2 python2-devel python2-pip
+        if which pip2 > /dev/null ; then
+            pip2 install buildbot-slave
+        elif which pip > /dev/null ; then
+            pip install buildbot-slave
+        else
+            pip3 install buildbot-slave
+        fi
         BUILDSLAVE="/usr/bin/buildslave"
     else
         dnf -y install buildbot-slave
@@ -320,6 +326,13 @@ Fedora*)
 
     # Standardize ephemeral storage so it's available under /mnt.
     standardize_storage /dev/null
+
+    # Set python2 as the default so buildbot works
+    #
+    alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+    alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+    alternatives --set python /usr/bin/python2.7
+    python --version
     ;;
 
 FreeBSD*)
