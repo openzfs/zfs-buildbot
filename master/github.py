@@ -12,6 +12,19 @@ from buildbot.status.web.hooks.github import GitHubEventHandler
 from dateutil.parser import parse as dateparse
 from twisted.python import log
 
+builders_common="arch,style,coverage,"
+builders_linux="amazon2,centos7,debian10,fedora30,ubuntu16,ubuntu18,builtin,"
+builders_freebsd="freebsd12,freebsd13,"
+
+builders_push_master=builders_common+builders_linux
+builders_push_release=builders_common+builders_linux+"centos6"
+
+builders_pr_master=builders_common+builders_linux
+builders_pr_release=builders_common+builders_linux+"centos6"
+
+# Default builders for non-top PR commits
+builders_pr_minimum="arch,style"
+
 def query_url(url, token=None):
     log.msg("Making request to '%s'" % url)
     request = urllib2.Request(url)
@@ -54,12 +67,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             m = re.search(none_pattern, category, re.I | re.M)
             if m is not None:
                 category = ""
-
-            # If Requires-builders contains 'all', then run all builders.
-            all_pattern = '.*all.*'
-            m = re.search(all_pattern, category, re.I | re.M)
-            if m is not None:
-                category = "style,build,test,perf,coverage"
 
         return category
 
@@ -107,11 +114,9 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             # For 0.8 and earlier releases include the legacy builders.
             match = re.match(r".*-0.[0-8]-release", branch)
             if match:
-                category = self.parse_comments(comments,
-                    "style,build,test,perf,coverage,legacy")
+                category = self.parse_comments(comments, builders_push_release)
             else:
-                category = self.parse_comments(comments,
-                    "style,build,test,perf,coverage")
+                category = self.parse_comments(comments, builders_push_master)
 
             props['branch'] = branch
 
@@ -215,11 +220,11 @@ class CustomGitHubEventHandler(GitHubEventHandler):
                 # For 0.8 and earlier releases include the legacy builders.
                 match = re.match(r".*-0.[0-8]-release", branch)
                 if match:
-                    category = "style,build,test,coverage,legacy"
+                    category = builders_pr_release
                 else:
-                    category = "style,build,test,coverage"
+                    category = builders_pr_master
             else:
-                category = "style,build"
+                category = builders_pr_minimum
 
             # Extract if the commit message has property overrides
             category = self.parse_comments(comments, category)
