@@ -10,8 +10,7 @@ else
 fi
 
 # a function to wait for an apt-get upgrade to finish
-apt-get-install
-{
+apt-get-install () {
     while true; do
         sudo -E apt-get --yes install "$@"
 
@@ -157,10 +156,9 @@ FreeBSD*)
         hs-ShellCheck \
         ksh93 \
         py36-flake8 \
-        samba410 \
-        shuf
+        samba410
 
-    ln -sf /usr/local/bin/python3 /usr/local/bin/python
+    sudo ln -sf /usr/local/bin/python3 /usr/local/bin/python
     ;;
 
 RHEL*)
