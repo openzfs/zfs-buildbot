@@ -139,7 +139,7 @@ esac
                 block_device_map=None, get_image=None, **kwargs):
 
         self.name = name
-        bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        bin_path = "/usr/local/share/zfs:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
         tags = kwargs.get('tags')
         if not tags or tags is None:
