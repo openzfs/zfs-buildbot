@@ -312,6 +312,15 @@ Fedora*)
     ;;
 
 FreeBSD*)
+    (
+        ABI=$(uname -p)
+        VERSION=$(freebsd-version -r)
+        cd /tmp
+        fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz
+        tar xpf src.txz -C /
+        rm src.txz
+    )
+
     pkg install -y \
         curl \
         git-lite \
