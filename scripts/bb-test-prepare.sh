@@ -275,6 +275,9 @@ if echo "$BB_SHUTDOWN" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         esac
 fi
 
+# Log mounted filesystems and available free space.
+df -h
+
 # Unload modules just in case they are still loaded from a previous test
 if [ -x $ZFS_SH ]; then
     sudo -E $ZFS_SH -vu

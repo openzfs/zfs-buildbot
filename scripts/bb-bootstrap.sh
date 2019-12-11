@@ -97,6 +97,25 @@ set_boot_kernel () {
 	fi
 }
 
+# Standardize unused instance storage under /mnt.  Either the first unused
+# NVMe device found, or any ephemeral storage specified in the block mapping.
+# Passing /dev/null for inst_dev will result in the default AMI behavior.
+standardize_storage () {
+    inst_dev="$1"
+    nvme_dev="$(ls -1 /dev/disk/by-id/*NVMe_Instance_Storage* | head -1)"
+
+    if test -b $nvme_dev; then
+        echo "$nvme_dev /mnt ext4 defaults,noatime" >>/etc/fstab
+        mkfs.ext4 $nvme_dev
+    elif test -b $inst_dev; then
+        sed -i.bak '/ephemeral/d' /etc/fstab
+        echo "$inst_dev /mnt ext4 defaults,noatime" >>/etc/fstab
+        if ! blkid $inst_dev >/dev/null 2>&1; then
+            mkfs.ext4 $inst_dev
+        fi
+    fi
+}
+
 set -x
 
 case "$BB_NAME" in
@@ -134,22 +153,12 @@ Amazon*)
         sed -i.bak '/env_keep = /a\Defaults    env_keep += "PERF_FS_OPTS PERF_RUNTIME PERF_REGRESSION_WEEKLY"' /etc/sudoers
     fi
 
-    if test "$BB_MODE" != "PERF"; then
-        # Standardize ephemeral storage so it's available under /mnt.
-        sed -i.bak 's/\/media\/ephemeral0/\/mnt/' /etc/fstab
-        if ! blkid /dev/xvdb >/dev/null 2>&1; then
-            mkfs.ext4 /dev/xvdb
-        fi
-    fi
-
     # Enable partitions for loopback devices, they are disabled by default.
     echo "options loop max_part=15" >/etc/modprobe.d/loop.conf
 
-    # Disable /dev/sda -> /dev/xvda symlinks which conflict with scsi_debug.
-    if test -e /etc/udev/rules.d/51-ec2-hvm-devices.rules; then
-        rm -f /etc/udev/rules.d/51-ec2-hvm-devices.rules
+    if test "$BB_MODE" != "PERF"; then
+        standardize_storage /dev/xvdb
     fi
-
     ;;
 
 CentOS*)
@@ -207,7 +216,7 @@ CentOS*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
-    # This is the default.
+    standardize_storage /dev/null
     ;;
 
 Debian*)
@@ -248,6 +257,8 @@ Debian*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
+    standardize_storage /dev/null
+
     sed -i.bak 's/nobootwait/nofail/' /etc/fstab
 
     # Allow normal users to read dmesg, restricted by default.
@@ -308,7 +319,7 @@ Fedora*)
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
 
     # Standardize ephemeral storage so it's available under /mnt.
-    # This is the default.
+    standardize_storage /dev/null
     ;;
 
 FreeBSD*)
@@ -362,7 +373,7 @@ RHEL*)
     fi
 
     # Standardize ephemeral storage so it's available under /mnt.
-    # This is the default.
+    standardize_storage /dev/null
     ;;
 
 Ubuntu*)
@@ -405,10 +416,10 @@ Ubuntu*)
     sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
     sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
     sed -i.bak 's/updates/extra updates/' /etc/depmod.d/ubuntu.conf
-    ;;
 
     # Standardize ephemeral storage so it's available under /mnt.
-    # This is the default.
+    standardize_storage /dev/null
+    ;;
 
 *)
     echo "Unknown distribution, cannot bootstrap $BB_NAME"

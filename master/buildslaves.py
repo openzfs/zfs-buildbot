@@ -129,7 +129,7 @@ esac
         return ''.join(random.choice(chars) for _ in range(size))
 
     def __init__(self, name, password=None, master='', url='', mode="BUILD",
-                instance_type="m3.large", identifier=ec2_default_access,
+                instance_type="c5d.large", identifier=ec2_default_access,
                 secret_identifier=ec2_default_secret,
                 keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
                 subnet_id=None, security_group_ids=None,
@@ -212,25 +212,33 @@ esac
 class ZFSEC2StyleSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="STYLE",
-            instance_type="m3.large", max_spot_price=0.10, placement='a',
+            instance_type="c5d.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 large latent build slave
 class ZFSEC2BuildSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
+            instance_type="c5d.large", max_spot_price=0.10, placement='a',
+            spot_instance=True, **kwargs)
+
+# Create an HVM EC2 latent test slave
+class ZFSEC2TestSlave(ZFSEC2Slave):
+    def __init__(self, name, **kwargs):
+        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
+            instance_type="m5d.large", max_spot_price=0.10, placement='a',
+            spot_instance=True, **kwargs)
+
+# Create an HVM EC2 latent test slave
+# AMI does not support an Elastic Network Adapter (ENA)
+class ZFSEC2ENATestSlave(ZFSEC2Slave):
+    def __init__(self, name, **kwargs):
+        ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
             instance_type="m3.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
-# Create a PV (paravirtual) EC2 latent build slave
-class ZFSEC2PVSlave(ZFSEC2Slave):
-    def __init__(self, name, **kwargs):
-        ZFSEC2Slave.__init__(self, name, mode="BUILD",
-            instance_type="m1.medium", max_spot_price=0.20, placement='a',
-            spot_instance=True, **kwargs)
-
-# Create an HVM EC2 latent test slave 
-class ZFSEC2TestSlave(ZFSEC2Slave):
+# Create an HVM EC2 latent test slave
+class ZFSEC2CoverageSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
             instance_type="m3.large", max_spot_price=0.10, placement='a',
