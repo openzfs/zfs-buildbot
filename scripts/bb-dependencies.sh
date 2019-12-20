@@ -46,7 +46,7 @@ Amazon*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel \
         libffi-devel libaio-devel libmount-devel \
-        python-devel python-setuptools python-cffi ncurses-devel
+        python-devel python-setuptools python-cffi
     ;;
 
 CentOS*)
@@ -75,7 +75,7 @@ CentOS*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel python-devel \
-        libaio-devel python-setuptools python-cffi libyaml-devel ncurses-devel
+        libaio-devel python-setuptools python-cffi libyaml-devel
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Eq "7."; then
@@ -105,7 +105,7 @@ Debian*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
         python-dev python-setuptools python-cffi \
-        python3 python3-dev python3-setuptools python3-cffi libncurses-dev
+        python3 python3-dev python3-setuptools python3-cffi
 
     # Testing support libraries
     sudo -E apt-get --yes install libasan4
@@ -129,8 +129,7 @@ Fedora*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
         libaio-devel libmount-devel python-devel python-setuptools \
-        python-cffi python3 python3-devel python3-setuptools python3-cffi \
-        ncurses-devel
+        python-cffi python3 python3-devel python3-setuptools python3-cffi
 
     # Testing support libraries
     sudo -E dnf -y install libasan
@@ -200,7 +199,7 @@ RHEL*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel libaio-devel \
-        python-devel python-setuptools python-cffi ncurses-devel
+        python-devel python-setuptools python-cffi
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Eq "7."; then
@@ -227,7 +226,7 @@ Ubuntu*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
         python-dev python-setuptools python-cffi \
-        python3 python3-dev python3-setuptools python3-cffi libncurses-dev
+        python3 python3-dev python3-setuptools python3-cffi
 
     if test "$BB_MODE" = "STYLE"; then
         apt_get_install pax-utils shellcheck cppcheck mandoc
