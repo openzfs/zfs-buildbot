@@ -14,8 +14,9 @@ Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
 	NCPU=$(nproc)
 	;;
 *)
-	echo "Unknown BB_NAME: $BB_NAME"
-	exit 1
+	echo "Unknown BB_NAME, assuming Linux"
+	MAKE=make
+	NCPU=$(nproc)
 	;;
 esac
 
