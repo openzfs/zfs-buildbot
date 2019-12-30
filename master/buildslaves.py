@@ -241,7 +241,7 @@ class ZFSEC2ENATestSlave(ZFSEC2Slave):
 class ZFSEC2CoverageSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m3.large", max_spot_price=0.10, placement='a',
+            instance_type="m3.xlarge", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create a d2.xlarge slave for performance testing because they have disks
