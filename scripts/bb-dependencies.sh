@@ -165,7 +165,9 @@ FreeBSD*)
         hs-ShellCheck \
         ksh93 \
         py36-flake8 \
-        samba410
+        samba410 \
+        gdb \
+        lcov
 
     sudo ln -sf /usr/local/bin/python3 /usr/local/bin/python
     ;;
