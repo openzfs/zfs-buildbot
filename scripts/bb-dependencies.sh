@@ -137,7 +137,7 @@ Fedora*)
 
 FreeBSD*)
     # Always test with the latest packages on FreeBSD.
-    sudo -E pkg upgrade -y --no-repo-update
+    sudo -E pkg upgrade -y
 
     # Kernel source
     (
