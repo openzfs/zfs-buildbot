@@ -136,6 +136,11 @@ Fedora*)
     ;;
 
 FreeBSD*)
+    # XXX: Wait for the pkg db to be unlocked.
+    while sudo ps axww | fgrep pkg | fgrep -v fgrep; do
+        sleep 1
+    done
+
     # Always test with the latest packages on FreeBSD.
     sudo -E pkg upgrade -y
 
@@ -162,16 +167,13 @@ FreeBSD*)
     sudo -E pkg install -y --no-repo-update \
         base64 \
         fio \
-        hs-ShellCheck \
         ksh93 \
-        py36-flake8 \
+        python \
         python2 \
         python3 \
         samba410 \
         gdb \
         lcov
-
-    sudo ln -sf /usr/local/bin/python3 /usr/local/bin/python
     ;;
 
 RHEL*)

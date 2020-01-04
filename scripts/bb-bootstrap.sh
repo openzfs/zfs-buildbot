@@ -331,6 +331,7 @@ FreeBSD*)
     pip-2.7 --quiet install buildbot-slave
     BUILDSLAVE="/usr/local/bin/buildslave"
 
+    sed -i '' -e '/periodic/d' /etc/crontab
     pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
         >/usr/local/etc/sudoers.d/buildbot

@@ -93,7 +93,7 @@ PERF_FS_OPTS=${TEST_ZFSTESTS_PERF_FS_OPTS:-"$DEFAULT_ZFSTESTS_PERF_FS_OPTS"}
 set +x
 
 if ! test -e /sys/module/zfs; then
-    sudo -E $ZFS_SH
+    sudo -E $ZFS_SH || echo "zfs.sh exited $?"
 fi
 
 # Performance profiling disabled by default due to size of profiling data.
@@ -147,6 +147,8 @@ fi
 ln -s /var/tmp/test_results/current/log $FULL_LOG
 
 set -x
+env
+which $ZFS_TESTS_SH
 $ZFS_TESTS_SH $TEST_ZFSTESTS_OPTIONS \
     ${TEST_ZFSTESTS_RUNFILE:+-r $TEST_ZFSTESTS_RUNFILE} \
     -d $TEST_ZFSTESTS_DIR \
