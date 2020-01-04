@@ -165,6 +165,8 @@ FreeBSD*)
         hs-ShellCheck \
         ksh93 \
         py36-flake8 \
+        python2 \
+        python3 \
         samba410 \
         gdb \
         lcov
