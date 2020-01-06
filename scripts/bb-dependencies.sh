@@ -169,12 +169,11 @@ FreeBSD*)
         base64 \
         fio \
         ksh93 \
+        python \
         python3 \
         samba410 \
         gdb \
         lcov
-
-    sudo ln -sf /usr/local/bin/python3 /usr/local/bin/python
     ;;
 
 RHEL*)
