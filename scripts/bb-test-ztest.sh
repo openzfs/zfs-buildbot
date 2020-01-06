@@ -6,6 +6,9 @@ fi
 
 if test -f ./TEST; then
     . ./TEST
+    set -x
+    cat ./TEST
+    set +x
 else
     echo "Missing $PWD/TEST configuration file"
     exit 1
