@@ -10,16 +10,8 @@ if echo "$TEST_PREPARE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-case "$BB_NAME" in
-FreeBSD*)
-    READLINK="readlink"
-    ;;
-Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
-    READLINK="readlink -f"
-    ;;
-esac
-SPL_BUILD_DIR=$($READLINK ../spl)
-ZFS_BUILD_DIR=$($READLINK ../zfs)
+SPL_BUILD_DIR=$(readlink -f ../spl)
+ZFS_BUILD_DIR=$(readlink -f ../zfs)
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
 

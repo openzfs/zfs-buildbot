@@ -11,17 +11,9 @@ else
     exit 1
 fi
 
-case "$BB_NAME" in
-FreeBSD*)
-    READLINK="readlink"
-    ;;
-Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
-    READLINK="readlink -f"
-    ;;
-esac
-WORKDIR=$($READLINK .)
+WORKDIR=$(readlink -f .)
 GCOV_KERNEL="/sys/kernel/debug/gcov"
-ZFS_BUILD=$($READLINK ../zfs)
+ZFS_BUILD=$(readlink -f ../zfs)
 
 if $(sudo -E test ! -e "$GCOV_KERNEL"); then
     echo "Kernel Gcov disabled.  Skipping test cleanup."
