@@ -136,6 +136,12 @@ Fedora*)
     ;;
 
 FreeBSD*)
+    pkg_pid=$(pgrep pkg 2>/dev/null)
+    if [ -n "${pkg_pid}" ]; then
+        echo "Waiting for other pkg install to finish..."
+        pwait ${pkg_pid}
+    fi
+
     # Always test with the latest packages on FreeBSD.
     sudo -E pkg upgrade -y --no-repo-update
 
