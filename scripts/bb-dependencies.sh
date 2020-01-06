@@ -136,13 +136,14 @@ Fedora*)
     ;;
 
 FreeBSD*)
-    # XXX: Wait for the pkg db to be unlocked.
-    while sudo ps axww | fgrep pkg | fgrep -v fgrep; do
-        sleep 1
-    done
+    pkg_pid=$(pgrep pkg 2>/dev/null)
+    if [ -n "${pkg_pid}" ]; then
+        echo "Waiting for other pkg install to finish..."
+        pwait ${pkg_pid}
+    fi
 
     # Always test with the latest packages on FreeBSD.
-    sudo -E pkg upgrade -y
+    sudo -E pkg upgrade -y --no-repo-update
 
     # Kernel source
     (
