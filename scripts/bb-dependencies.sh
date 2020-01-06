@@ -168,10 +168,7 @@ FreeBSD*)
     sudo -E pkg install -y --no-repo-update \
         base64 \
         fio \
-        hs-ShellCheck \
         ksh93 \
-        py36-flake8 \
-        python2 \
         python3 \
         samba410 \
         gdb \
