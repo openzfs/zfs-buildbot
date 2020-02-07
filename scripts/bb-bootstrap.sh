@@ -334,6 +334,9 @@ FreeBSD*)
     pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
         >/usr/local/etc/sudoers.d/buildbot
+
+    echo "fdescfs /dev/fd fdescfs rw 0 0" >> /etc/fstab
+    mount -a -t fdescfs
     ;;
 
 RHEL*)
