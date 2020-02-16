@@ -45,7 +45,7 @@ Amazon*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel \
-        libffi-devel libaio-devel libmount-devel \
+        libffi-devel libaio-devel libmount-devel pam-devel \
         python-devel python-setuptools python-cffi
     ;;
 
@@ -74,8 +74,9 @@ CentOS*)
     sudo -E yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libffi-devel python-devel \
-        libaio-devel python-setuptools python-cffi libyaml-devel
+        device-mapper-devel openssl-devel libffi-devel pam-devel \
+        python-devel libaio-devel python-setuptools python-cffi \
+        libyaml-devel
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Eq "7."; then
@@ -104,7 +105,7 @@ Debian*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
-        python-dev python-setuptools python-cffi \
+        libpam0g-dev python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi
 
     # Testing support libraries
@@ -128,7 +129,7 @@ Fedora*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
-        libaio-devel libmount-devel python-devel python-setuptools \
+        libaio-devel libmount-devel pam-devel python-devel python-setuptools \
         python-cffi python3 python3-devel python3-setuptools python3-cffi
 
     # Testing support libraries
@@ -205,7 +206,7 @@ RHEL*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel libaio-devel \
-        python-devel python-setuptools python-cffi
+        pam-devel python-devel python-setuptools python-cffi
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Eq "7."; then
@@ -231,7 +232,7 @@ Ubuntu*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
-        python-dev python-setuptools python-cffi \
+        libpam0g-dev python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi
 
     if test "$BB_MODE" = "STYLE"; then
