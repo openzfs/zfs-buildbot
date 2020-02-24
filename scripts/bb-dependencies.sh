@@ -175,6 +175,11 @@ FreeBSD*)
         samba410 \
         gdb \
         lcov
+
+    # Python support libraries
+    sudo -E pkg install -y --no-repo-update \
+        py37-cffi \
+        py37-sysctl
     ;;
 
 RHEL*)
