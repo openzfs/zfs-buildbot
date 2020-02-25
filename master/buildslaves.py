@@ -156,7 +156,7 @@ esac
             master = "build.zfsonlinux.org:9989"
 
         if url in (None, ''):
-            url = "https://raw.githubusercontent.com/zfsonlinux/zfs-buildbot/master/scripts/" 
+            url = "https://raw.githubusercontent.com/openzfs/zfs-buildbot/master/scripts/"
 
         if password is None:
             password = ZFSEC2Slave.pass_generator()

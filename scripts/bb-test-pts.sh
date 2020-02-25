@@ -49,7 +49,7 @@ TEST_PTS_POOL=${TEST_PTS_POOL:-"perf"}
 TEST_PTS_POOL_OPTIONS=${TEST_PTS_POOL_OPTIONS:-""}
 TEST_PTS_FS=${TEST_PTS_FS:-"fs"}
 TEST_PTS_FS_OPTIONS=${TEST_PTS_FS_OPTIONS:-""}
-TEST_PTS_TEST_PROFILE_URL=${TEST_PTS_TEST_PROFILE_URL:-"https://raw.githubusercontent.com/zfsonlinux/zfs-buildbot/master/scripts/"}
+TEST_PTS_TEST_PROFILE_URL=${TEST_PTS_TEST_PROFILE_URL:-"https://raw.githubusercontent.com/openzfs/zfs-buildbot/master/scripts/"}
 TEST_PTS_TEST_PROFILE_VER=${TEST_PTS_TEST_PROFILE_VER:-"pts-test-profiles.tar.gz"}
 
 # Test cases to run.

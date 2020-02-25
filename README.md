@@ -1,74 +1,72 @@
-# The ZFS on Linux Buildbot Configuration
+# The OpenZFS Buildbot Configuration
 
-Welcome, this is the buildbot infrastructure used by the ZFS on Linux project
-at http://build.zfsonlinux.org.  It's used to automate the process of testing
-new [pull requests](https://github.com/zfsonlinux/zfs/pulls).  If you would
-like to contribute to improving our testing infrastructure please open a pull
-request against this Github repository.
+Welcome, this is the buildbot CI infrastructure used by the
+[OpenZFS project](https://github.com/openzfs/zfs).  It's used to automate
+the process of testing [pull requests](https://github.com/openzfs/zfs/pulls).
+If you would like to contribute to improving our testing infrastructure
+please open a pull request against this GitHub repository.
 
 ## Build and Test Strategy
 
 ### Pull Requests
 
-The ZFS on Linux project relies on Github pull requests to track proposed
+The OpenZFS project relies on GitHub pull requests to track proposed
 changes.  Your pull request will be automatically tested by the buildbot and
 updated to reflect the results of the testing.  As you fix the code and push
-revisions to your branch at Github those changes will queued for testing.
+revisions to your branch at GitHub those changes will queued for testing.
 There is no need to close a pull request and open a new one.  However, it is
 strongly recommended that when refreshing a pull request you rebase it against
 the latest code to avoid merge conflicts.
 
 Once a pull request passes all the automated regression testing it will be
-reviewed for inclusion by at least one core ZFS on Linux developer.  Normally
-they will provide review feedback on the change and may ask you to modify your
+reviewed for inclusion by at least two OpenZFS developers.  Normally they
+will provide review feedback on the change and may ask you to modify your
 pull request.  Please provide a timely responses for reviewers (within weeks,
 not months) otherwise your submission could be postponed or even rejected.
 
-When all the builders report green and the reviewers have added their
-signed-off-by the pull request can be merged.  After being merged buildbot
-tests the change again to ensure nothing was overlooked.  This is done to
-ensure the buildbot always stays green.
+When all of the required builders report as passed, and the reviewers have
+added their signed-off-by the pull request can be merged.  After being merged
+the buildbot tests the change again to ensure nothing was overlooked.  This is
+done to ensure the buildbot always stays green.
 
 In the unlikely event that this final round of testing reveals an issue the
 merge may be reverted and the pull request reopened.  Please continue
-iterating with the ZFS on Linux developers in the pull request until the issue
+iterating with the OpenZFS developers in a new pull request until the issue
 is resolved the changes can be merged.
 
-By default all ZFS patches are built against the master SPL branch.  However,
-on occasion a corresponding SPL patch is required to build a ZFS patch.  In
-this case add `Requires-spl: refs/pull/PR/head` to the top commit comment in
-your ZFS pull request, where `PR` is an open SPL pull request number.  This
-will instruct the buildbot to use that SPL pull request rather than the
-default master branch.
+By default, the top most commit in your PR will be functionally tested on
+a subset of required builders.  Furthermore, the top five commits in your
+PR be compile tested.
 
-By default, all commits in your ZFS pull request are compiled by the BUILD
-builders.  Additionally, the top commit of your ZFS pull request is tested by
-TEST builders. However, there is the option to override which types of builder
-should be used on a per commit basis. In this case, you can add
-`Requires-builders: <none|all|style|build|arch|distro|test|perf|coverage|unstable>`
-to your commit message. A comma separated list of options can be
-provided. Supported options are:
+Individual builders may be requested on a per-commit basis by including
+the `Requires-builders:` directive in the commit message.  When requesting
+specific builders they should be enumerated as a comma separated list.
 
-* `all`: This commit should be built by all available builders
+* Supported Builders (Platforms / Distributions):
 
-* `none`: This commit should not be built by any builders
+  * __amazon2__: Amazon Linux 2 (x86_64)
+  * __centos6__: CentOS 6 (x86_64)
+  * __centos7__: CentOS 7 (x86_64)
+  * __debian10__: Debian 10 (x86_64)
+  * __fedora30__: Fedora 30 (x86_64)
+  * __ubuntu16__: Ubuntu 16.04 LTS (x86_64)
+  * __ubuntu18__: Ubuntu 18.04 LTS (x86_64)
+  * __freebsd12__: FreeBSD 12 (x86_64)
+  * __freebsd13__: FreeBSD 13 (x86_64)
 
-* `style`: This commit should be built by STYLE builders
+* Additional Builders:
 
-* `build`: This commit should be built by all BUILD builders
+  * __arch__: Build for all supported architectures.
+  * __builtin__: Build OpenZFS in to the latest (unreleased) Linux kernel.
+  * __coverage__: Perform a code coverage analysis (ztest, ZTS).
+  * __none__: Disable testing on all builders.
+  * __perf__: Perform baseline performance testing.
+  * __style__: Perform all required style checks.
 
-* `arch`: This commit should be built by BUILD builders tagged as 'Architectures'
+* Examples:
 
-* `distro`: This commit should be built by BUILD builders tagged as 'Distributions'
-
-* `test`: This commit should be built and tested by the TEST builders (excluding
-Coverage TEST builders)
-
-* `perf`: This commit should be built and tested by the PERF builders
-
-* `coverage`: This commit should be built and test by the Coverage TEST builders
-
-* `unstable`: This commit should be built and test by the Unstable TEST builders
+  * `Requires-builders: arch,style,amazon2,coverage`
+  * `Requires-builders: none`
 
 ### Builder Types
 
@@ -85,9 +83,9 @@ available builders.  There are four primary types of builders:
   request is built and reported on individually.  This helps guarantee that
   developers never accidentally break the build.
 
-  To maximize coverage builders have been created for most major Linux
-  distributions.  This allows us to catch distribution specific issues and to
-  verify the build on a wide range of commonly deployed kernels.
+  To maximize coverage the are builders for major Linux distributions and
+  FreeBSD.  This allows us to catch distribution specific issues and to
+  verify the build on a wide range of kernels.
 
   Additional builders are maintained to test alternate architectures.  If
   you're interested in setting up a builder for your distribution or
@@ -123,7 +121,7 @@ testing has completed the instance is immediately terminated.
 
 ### Build Steps and the `runurl` Utility
 
-The ZFS on Linux project's buildbot makes extensive use of the `runurl`
+The OpenZFS project's buildbot makes extensive use of the `runurl`
 utility.  This small script takes as its sole argument the URL of a script to
 execute.  This allows us to configure a build step which references a trusted
 URL with the desired script.  This means the logic for a particular build step
@@ -218,7 +216,7 @@ follows:
 ### Credentials
 
 The `master/passwords.py` file contains the credentials required for the
-buildbot to interact with ec2 and Github.  It stores static passwords for
+buildbot to interact with ec2 and GitHub.  It stores static passwords for
 non-ec2 build slaves, the web interface and `buildbot try`.  See the
 `master/passwords.py.sample` file for a complete description.
 
@@ -228,7 +226,7 @@ The process for adding a new builder varies slightly depending on the type
 (BUILD or TEST) and if it's a standard or latent builder.  In all cases the
 process begins by adding the new builder and slave to the `master.cfg` file.
 One important thing to be aware of is that each builder can potentially have
-multiple build slaves.  However, the ZFS on Linux project configures each
+multiple build slaves.  However, the OpenZFS project configures each
 builder to have exactly one build slave.
 
 The first step is to determine what kind of slave your setting up.  Both
@@ -260,7 +258,7 @@ array in the BUILDSLAVES section of the `master.cfg`.  Use the functions
 
 * mkBuildSlave(name) - Used to create a normal dedicated build slave with
   the given `name`.  Build slaves of this type must be manually configured to
-  connect to the build master at `build.zfsonlinux.org:9989` using a prearranged
+  connect to the build master at `build.openzfs.org:9989` using a prearranged
   password.  This password is stored along with the slave name in the
   `master/passwords.py` file.  The build slave must be available 24/7 to run
   jobs and have all required ZFS build dependencies installed.  This kind of
@@ -314,8 +312,8 @@ order to avoid killing running builds.
 
 ### Running a Private Master
 
-The official ZFS on Linux buildbot can be accessed by everyone at
-http://build.zfsonlinux.org/ and it is integrated with the project's Github
+The official OpenZFS buildbot can be accessed by everyone at
+http://build.openzfs.org/ and it is integrated with the project's GitHub
 pull requests.  Developers are encouraged to use this infrastructure when
 working on a change.  However, this code can be used as a basis for building
 a private build and test environment.  This may be useful when working on

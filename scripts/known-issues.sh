@@ -9,7 +9,7 @@
 ZFSONLINUX_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
 ZFSONLINUX_MTIME=30
 ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
-ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:zfsonlinux/zfs+label:%22Test%20Suite%22)
+ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:openzfs/zfs+label:%22Test%20Suite%22)
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
@@ -81,7 +81,7 @@ cat << EOF
 <html>
 <head>
 <title>Known Issue Tracking</title>
-<meta name="keyword" content="zfs, linux"/>
+<meta name="keyword" content="zfs, openzfs, linux, freebsd"/>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
@@ -191,7 +191,7 @@ tr.group:hover {
 <p>This page is updated regularly and contains a list of all ZFS Test Suite
 issues observed during automated buildbot testing over the last
 <b>$ZFSONLINUX_MTIME days</b>.</p>
-<p>Refer to the <a href="https://github.com/zfsonlinux/zfs/labels/Test%20Suite">Test Suite</a> label in the issue tracker for a complete list of known issues.</p>
+<p>Refer to the <a href="https://github.com/openzfs/zfs/labels/Test%20Suite">Test Suite</a> label in the issue tracker for a complete list of known issues.</p>
 </div>
 <div id='maindiv'>
 <table id="maintable" class="display">
@@ -282,7 +282,7 @@ export -f check
 
 # Get all exceptions and comments
 if [ -z ${ZFSONLINUX_EXCEPTIONS+x} ]; then
-	ZFSONLINUX_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/zfsonlinux/zfs/ZTS-exceptions.md | awk '/---|---|---/{y=1;next}y')
+	ZFSONLINUX_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/openzfs/zfs/ZTS-exceptions.md | awk '/---|---|---/{y=1;next}y')
 else
 	ZFSONLINUX_EXCEPTIONS=$(cat "$ZFSONLINUX_EXCEPTIONS" | awk '/---|---|---/{y=1;next}y')
 fi
@@ -322,7 +322,7 @@ while read LINE1; do
 
 	# Test failure was from an open pull request or branch.
 	if [[ $ZFSONLINUX_ORIGIN =~ $NUMBER_REGEX ]]; then
-		pr="https://github.com/zfsonlinux/zfs/pull/$ZFSONLINUX_ORIGIN"
+		pr="https://github.com/openzfs/zfs/pull/$ZFSONLINUX_ORIGIN"
 		ZFSONLINUX_ISSUE="<a href='$pr'>PR-$ZFSONLINUX_ORIGIN</a>"
 		ZFSONLINUX_STATUS=$STATUS_PR
 		ZFSONLINUX_STATUS_TEXT=$STATUS_PR_TEXT
@@ -406,7 +406,7 @@ done
 cat << EOF
 </tbody>
 </table>
-<div id="f_date">Last Update: $DATE by <a href="https://github.com/zfsonlinux/zfs-buildbot/blob/master/scripts/known-issues.sh">known-issues.sh</a></div>
+<div id="f_date">Last Update: $DATE by <a href="https://github.com/openzfs/zfs-buildbot/blob/master/scripts/known-issues.sh">known-issues.sh</a></div>
 </div>
 </body>
 </html>
