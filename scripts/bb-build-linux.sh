@@ -19,6 +19,7 @@ CONFIG_CRYPTO_DEFLATE=y
 CONFIG_ZLIB_DEFLATE=y
 CONFIG_KALLSYMS=y
 CONFIG_EFI_PARTITION=y
+CONFIG_MODULES=n
 EOF
 
 # Expect a spl and zfs directory to apply source from.
