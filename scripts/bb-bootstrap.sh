@@ -349,7 +349,15 @@ FreeBSD*)
         >/usr/local/etc/sudoers.d/buildbot
 
     echo "fdescfs /dev/fd fdescfs rw 0 0" >> /etc/fstab
-    mount -a -t fdescfs
+    mount /dev/fd
+
+    if [ -c /dev/nvd1 ]; then
+        gpart create -s gpt nvd1
+        gpart add -t freebsd-ufs nvd1
+        newfs nvd1p1
+        echo "/dev/nvd1p1 /mnt ufs rw,noatime" >> /etc/fstab
+        mount /mnt
+    fi
     ;;
 
 RHEL*)
