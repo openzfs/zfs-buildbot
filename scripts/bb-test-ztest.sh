@@ -31,18 +31,18 @@ cleanup()
             rm -Rf "$TEST_ZTEST_DIR/zloop-run"
         fi
 
-        # Optionally remove the core directory, this contains logs are vdevs
+        # Optionally remove the core directory, this contains logs and vdevs
         # from failed run and is kept by default.
         if echo "$TEST_ZTEST_KEEP_CORE_DIR"|grep -Eiq "^no$|^off$|^false$|^0$"; then
-            rm -Rf "$TEST_ZTEST_DIR/core"
+            sudo -E rm -Rf "$TEST_ZTEST_DIR/core"
         fi
 
         # Convenience symlinks will no longer reference the correct locations
         # and are removed so they're not included in the archive.
         rm -f $TEST_ZTEST_DIR/ztest.core.*
-        mv ztest.* "$TEST_ZTEST_DIR"
+        sudo -E mv ztest.* "$TEST_ZTEST_DIR"
 
-        tar -C "$(dirname $TEST_ZTEST_DIR)" -cJ \
+        sudo -E tar -C "$(dirname $TEST_ZTEST_DIR)" -cJ \
             -f "$UPLOAD_DIR/$BUILDER/ztest/$(basename $TEST_ZTEST_DIR).tar.xz" \
             "$(basename $TEST_ZTEST_DIR)"
     fi
