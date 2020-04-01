@@ -92,9 +92,21 @@ PERF_FS_OPTS=${TEST_ZFSTESTS_PERF_FS_OPTS:-"$DEFAULT_ZFSTESTS_PERF_FS_OPTS"}
 
 set +x
 
-if ! test -e /sys/module/zfs; then
-    sudo -E $ZFS_SH
-fi
+case $(uname) in
+FreeBSD)
+	if ! kldstat -qn openzfs; then
+		sudo -E $ZFS_SH
+	fi
+	;;
+Linux)
+	if ! test -e /sys/module/zfs; then
+	    sudo -E $ZFS_SH
+	fi
+	;;
+*)
+	sudo -E $ZFS_SH
+	;;
+esac
 
 # Performance profiling disabled by default due to size of profiling data.
 if echo "$TEST_ZFSTESTS_PROFILE" | grep -Eiq "^yes$|^on$|^true$|^1$"; then

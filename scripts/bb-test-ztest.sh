@@ -62,9 +62,22 @@ TEST_ZTEST_KEEP_CORE_DIR="Yes"
 
 set +x
 
-if ! test -e /sys/module/zfs; then
-    sudo -E $ZFS_SH
-fi
+case $(uname) in
+FreeBSD)
+	if ! kldstat -qn openzfs; then
+		sudo -E $ZFS_SH
+	fi
+	sudo -E sysctl kern.threads.max_threads_per_proc=5000 >/dev/null
+	;;
+Linux)
+	if ! test -e /sys/module/zfs; then
+	    sudo -E $ZFS_SH
+	fi
+	;;
+*)
+	sudo -E $ZFS_SH
+	;;
+esac
 
 sudo -E mkdir -p "$TEST_ZTEST_DIR"
 sudo -E $ZLOOP_SH $TEST_ZTEST_OPTIONS \
