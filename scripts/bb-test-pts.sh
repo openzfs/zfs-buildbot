@@ -134,9 +134,21 @@ $PTS user-config-set PromptForTestDescription="FALSE" >>$CONFIG_LOG 2>&1
 $PTS user-config-set PromptSaveName="FALSE" >>$CONFIG_LOG 2>&1
 $PTS user-config-set Configured="TRUE" >>$CONFIG_LOG 2>&1
 
-if ! test -e /sys/module/zfs; then
+case $(uname) in
+FreeBSD)
+	if ! kldstat -qn openzfs; then
+		sudo -E $ZFS_SH
+	fi
+	;;
+Linux)
+	if ! test -e /sys/module/zfs; then
+		sudo -E $ZFS_SH
+	fi
+	;;
+*)
 	sudo -E $ZFS_SH
-fi
+	;;
+esac
 
 # If not given, read the zfs version and trim the hash to 7 characters.
 # This ensures that once merged all the test results will be in the same
