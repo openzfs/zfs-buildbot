@@ -351,11 +351,18 @@ FreeBSD*)
     echo "fdescfs /dev/fd fdescfs rw 0 0" >> /etc/fstab
     mount /dev/fd
 
-    if [ -c /dev/nvd1 ]; then
-        gpart create -s gpt nvd1
-        gpart add -t freebsd-ufs nvd1
-        newfs nvd1p1
-        echo "/dev/nvd1p1 /mnt ufs rw,noatime" >> /etc/fstab
+    if [ -c /dev/nda1 ]; then
+        nvme=nda1
+    elif [ -c /dev/nvd1 ]; then
+        nvme=nvd1
+    else
+        nvme=""
+    fi
+    if [ -n "$nvme" ]; then
+        gpart create -s gpt ${nvme}
+        gpart add -t freebsd-ufs ${nvme}
+        newfs ${nvme}p1
+        echo "/dev/${nvme}p1 /mnt ufs rw,noatime" >> /etc/fstab
         mount /mnt
     fi
     ;;
