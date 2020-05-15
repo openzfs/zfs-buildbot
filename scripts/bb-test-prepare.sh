@@ -214,6 +214,7 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 
     FreeBSD*)
         sudo -E touch /etc/exports
+        sudo -E sysrc mountd_flags="/etc/zfs/exports"
         sudo -E service nfsd onestart
         echo '[global]' | sudo -E tee /usr/local/etc/smb4.conf >/dev/null
         sudo -E service samba_server onestart
