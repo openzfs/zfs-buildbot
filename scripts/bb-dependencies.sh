@@ -45,7 +45,7 @@ Amazon*)
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel \
-        libffi-devel libaio-devel libmount-devel pam-devel pamtester \
+        libffi-devel libaio-devel libmount-devel pam-devel \
         python-devel python-setuptools python-cffi
     ;;
 
@@ -74,7 +74,7 @@ CentOS*)
     sudo -E yum -y install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libffi-devel pam-devel pamtester \
+        device-mapper-devel openssl-devel libffi-devel pam-devel \
         python-devel libaio-devel python-setuptools python-cffi \
         libyaml-devel
 
@@ -85,7 +85,7 @@ CentOS*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi
+        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Debian*)
