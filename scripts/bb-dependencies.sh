@@ -85,7 +85,7 @@ CentOS*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi
+        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Debian*)
@@ -105,7 +105,7 @@ Debian*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
-        libpam0g-dev python-dev python-setuptools python-cffi \
+        libpam0g-dev pamtester python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi
 
     # Testing support libraries
@@ -129,7 +129,7 @@ Fedora*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
-        libaio-devel libmount-devel pam-devel python-devel python-setuptools \
+        libaio-devel libmount-devel pam-devel pamtester python-devel python-setuptools \
         python-cffi python3 python3-devel python3-setuptools python3-cffi
 
     # Testing support libraries
@@ -174,6 +174,7 @@ FreeBSD*)
         python3 \
         samba410 \
         gdb \
+        pamtester \
         lcov
 
     # Python support libraries
@@ -220,7 +221,7 @@ RHEL*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi
+        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Ubuntu*)
@@ -237,7 +238,7 @@ Ubuntu*)
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
-        libpam0g-dev python-dev python-setuptools python-cffi \
+        libpam0g-dev pamtester python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi
 
     if test "$BB_MODE" = "STYLE"; then
