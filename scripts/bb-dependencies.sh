@@ -212,7 +212,7 @@ RHEL*)
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libffi-devel libaio-devel \
-        pam-devel pamtester python-devel python-setuptools python-cffi
+        pam-devel python-devel python-setuptools python-cffi
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Eq "7."; then
@@ -221,7 +221,7 @@ RHEL*)
 
     # Testing support libraries and tools
     sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi
+        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Ubuntu*)
