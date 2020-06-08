@@ -90,11 +90,6 @@ sudo -E chown -R $USER "$TEST_ZTEST_DIR"
 
 if test $RESULT != 0; then
     echo "Exited ztest with error $RESULT"
-    if [ $(uname) = "FreeBSD" ]; then
-	    echo "Ignoring error on FreeBSD"
-	    echo "(remove when ztest stops misbehaving)"
-	    exit 0
-    fi
     exit 1
 fi
 
