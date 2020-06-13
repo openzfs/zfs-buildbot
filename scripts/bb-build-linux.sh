@@ -1,58 +1,46 @@
 #!/bin/sh
+#
+# Example usage:
+#
+# export LINUX_DIR="$HOME/src/linux"
+# export ZFS_DIR="$HOME/src/zfs"
+# ./bb-build-linux.sh
+#
 
-# Check for a local cached configuration.
-if test -f /etc/buildslave; then
-    . /etc/buildslave
-fi
+LINUX_DIR=${LINUX_DIR:-$(readlink -f .)}
+ZFS_DIR=${ZFS_DIR:-$(readlink -f ../zfs)}
+MAKE_LOG="$LINUX_DIR/make.log"
 
-CONFIG_LOG="configure.log"
-CONFIG_FILE=".config"
-MAKE_LOG="make.log"
-MAKE_OPTIONS=${MAKE_OPTIONS:-"-j$(nproc)"}
+set -x
+cd $LINUX_DIR
 
-# Customize the kernel for a minimal ZFS build.
+# Configure the kernel for a default build.
 sed -i '/EXTRAVERSION = / s/$/.zfs/' Makefile
-make mrproper >>$CONFIG_LOG 2>&1 || exit 1
-make defconfig >>$CONFIG_LOG 2>&1 || exit 1
-cat >>$CONFIG_FILE <<EOF
+make mrproper >>$MAKE_LOG 2>&1 || exit 1
+make defconfig >>$MAKE_LOG 2>&1 || exit 1
+
+# Enable ZFS and additional dependencies.
+cat >>.config <<EOF
 CONFIG_CRYPTO_DEFLATE=y
 CONFIG_ZLIB_DEFLATE=y
 CONFIG_KALLSYMS=y
 CONFIG_EFI_PARTITION=y
+CONFIG_ZFS=y
 EOF
 
-# Expect a spl and zfs directory to apply source from.
-if test "$LINUX_BUILTIN" = "yes"; then
-    LINUX_DIR=$(readlink -f ../linux)
-    LINUX_OPTIONS="--with-linux=$LINUX_DIR --with-linux-obj=$LINUX_DIR"
-    CONFIG_OPTIONS="--enable-linux-builtin"
+# Prepare the kernel source.
+make prepare >>$MAKE_LOG 2>&1 || exit 1
 
-    set -x
-    make prepare scripts >>$CONFIG_LOG 2>&1 || exit 1
+# Configure ZFS and add it to the kernel tree.
+cd $ZFS_DIR
+sh ./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
+./configure --enable-linux-builtin --with-linux=$LINUX_DIR \
+    --with-linux-obj=$LINUX_DIR >>$MAKE_LOG 2>&1 || exit 1
+./copy-builtin $LINUX_DIR >>$MAKE_LOG 2>&1 || exit 1
 
-    if [ -d "../spl" ]; then
-        cd ../spl >>$CONFIG_LOG 2>&1 || exit 1
-        sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
-        ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-        ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
-    fi
-
-    cd ../zfs >>$CONFIG_LOG 2>&1 || exit 1
-    sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
-    ./configure $CONFIG_OPTIONS $LINUX_OPTIONS >>$CONFIG_LOG 2>&1 || exit 1
-    ./copy-builtin $LINUX_DIR >>$CONFIG_LOG 2>&1 || exit 1
-
-    cd ../linux >>$CONFIG_LOG 2>&1 || exit 1
-    if [ -d "../spl" ]; then
-      echo "CONFIG_SPL=y" >>$CONFIG_FILE
-    fi
-
-    echo "CONFIG_ZFS=y" >>$CONFIG_FILE
-fi
-
-set -x
-
-make $MAKE_OPTIONS >>$MAKE_LOG 2>&1 || exit 1
-make $MAKE_OPTIONS modules >>$MAKE_LOG 2>&1 || exit 1
+# Build the kernel.
+cd $LINUX_DIR
+make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
+make -j$(nproc) modules >>$MAKE_LOG 2>&1 || exit 1
 
 exit 0
