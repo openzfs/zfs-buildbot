@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if test -f /etc/buildslave; then
-    . /etc/buildslave
+if test -f /etc/buildworker; then
+    . /etc/buildworker
 fi
 
 TEST_PREPARE_SKIP=${TEST_PREPARE_SKIP:-"No"}
@@ -15,7 +15,7 @@ ZFS_BUILD_DIR=$(readlink -f ../zfs)
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
 
-# Attempt to set oom_score_adj for buildslave to prevent
+# Attempt to set oom_score_adj for buildworker to prevent
 # it from being targeted by the oom-killer
 if test -f "$BB_DIR/twistd.pid"; then
     pid=$(cat "$BB_DIR/twistd.pid")
@@ -230,10 +230,10 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
      esac
 fi
 
-# Latent slaves, which set BB_SHUTDOWN="Yes" in /etc/buildslave when
+# Latent workers, which set BB_SHUTDOWN="Yes" in /etc/buildworker when
 # bootstrapping should be automatically shutdown after 8 hours.  This
 # is done to ensure if the buildmaster terminates unexpectedly any
-# running latent slaves will terminate in a reasonable amount of time.
+# running latent workers will terminate in a reasonable amount of time.
 #
 # Due to shutdowns not working reliably in CentOS 6 and Amazon they are
 # excluded from the scheduled shutdown.  The coverage builder is allowed
