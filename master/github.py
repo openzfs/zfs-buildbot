@@ -2,13 +2,13 @@
 # ex: set syntax=python:
 
 import logging
-import urllib2
 import json
 import string
 import re
+import urllib3
 
 from password import *
-from buildbot.status.web.hooks.github import GitHubEventHandler
+from buildbot.www.hooks.github import GitHubEventHandler
 from dateutil.parser import parse as dateparse
 from twisted.python import log
 
@@ -26,13 +26,27 @@ builders_pr_release=builders_common+builders_linux+builders_freebsd
 builders_pr_minimum="arch"
 
 def query_url(url, token=None):
-    log.msg("Making request to '%s'" % url)
-    request = urllib2.Request(url)
-    if token:
-        request.add_header("Authorization", "token %s" % token)
-    response = urllib2.urlopen(request)
+    http = urllib3.PoolManager()
 
-    return json.loads(response.read())
+    # Note that github requires a user-agent.  Failing to specify one will
+    # result in:
+    #
+    # "Please make sure your request has a User-Agent header
+    # (http://developer.github.com/v3/#user-agent-required)
+    #
+    # urllib3 *just* added setting user-agent to their development branch
+    # https://github.com/urllib3/urllib3/pull/1750
+    # so we can probably get rid of our user-agent once the new urllib3 is
+    # released.
+    myheaders={"User-Agent": "python-urllib3"}
+
+    if token:
+        myheaders.update({"Authorization": "token %s" % token})
+
+    response = http.request("GET", url, headers=myheaders)
+
+    data = json.loads(response.data.decode('utf-8'))
+    return data
 
 #
 # Custom class to determine how to handle incoming Github changes.
@@ -120,7 +134,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
 
         return change
 
-    def handle_push(self, payload):
+    def handle_push(self, payload, event):
         changes = []
         refname = payload['ref']
 
@@ -232,7 +246,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
 
         return change
 
-    def handle_pull_request(self, payload):
+    def handle_pull_request(self, payload, event):
         changes = []
         pr_number = payload['number']
         commits_nr = payload['pull_request']['commits']
