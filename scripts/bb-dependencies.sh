@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Check for a local cached configuration.
-if test -f /etc/buildslave; then
-    . /etc/buildslave
+if test -f /etc/buildworker; then
+    . /etc/buildworker
 else
-   echo "Missing configuration /etc/buildslave.  Assuming dependencies are"
-   echo "already satisfied and this is a persistent buildslave."
+   echo "Missing configuration /etc/buildworker.  Assuming dependencies are"
+   echo "already satisfied and this is a persistent buildworker."
    exit 0
 fi
 

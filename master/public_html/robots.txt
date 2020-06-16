@@ -2,7 +2,7 @@ User-agent: *
 Disallow: /waterfall
 Disallow: /builders
 Disallow: /changes
-Disallow: /buildslaves
+Disallow: /buildworkers
 Disallow: /schedulers
 Disallow: /one_line_per_build
 Disallow: /grid

@@ -1,0 +1,77 @@
+commit ab63bb5616978502b92aac057026e86e24e6c29e
+Author: Tony Hutter <hutter2@llnl.gov>
+Date:   Mon Jul 13 15:24:53 2020 -0700
+
+    ec2: Wait for describe_spot_instance_requests()
+
+    I frequently see this error when starting up buildbot:
+
+        An error occurred (InvalidSpotInstanceRequestID.NotFound) when
+        calling the DescribeSpotInstanceRequests operation: The spot
+        instance request ID 'sir-abcd1234' does not exist
+
+    After the error, I'll see "zombie" instances running with no tags in
+    AWS.  This is caused by EC2LatentWorker._wait_for_request()
+    calling describe_spot_instance_requests() before the request is ready.
+    I noticed it can sometimes take a second or so for the request to show
+    up.
+
+    This patch waits for describe_spot_instance_requests() to return
+    successfully.
+
+diff --git a/master/buildbot/worker/ec2.py b/master/buildbot/worker/ec2.py
+index d8f3d8cf6..b7478f5d6 100644
+--- a/master/buildbot/worker/ec2.py
++++ b/master/buildbot/worker/ec2.py
+@@ -495,7 +495,7 @@ class EC2LatentWorker(AbstractLatentWorker):
+                 )
+             )
+         )
+-        request, success = self._wait_for_request(
++        request, success = self._thd_wait_for_request(
+             reservations['SpotInstanceRequests'][0])
+         if not success:
+             raise LatentWorkerFailedToSubstantiate()
+@@ -539,24 +539,32 @@ class EC2LatentWorker(AbstractLatentWorker):
+         else:
+             self.failed_to_start(self.instance.id, self.instance.state['Name'])
+
+-    def _wait_for_request(self, reservation):
++    def _thd_wait_for_request(self, reservation):
+         duration = 0
+         interval = self._poll_resolution
+-        requests = self.ec2.meta.client.describe_spot_instance_requests(
+-            SpotInstanceRequestIds=[reservation['SpotInstanceRequestId']])
+-        request = requests['SpotInstanceRequests'][0]
+-        request_status = request['Status']['Code']
+-        while request_status in SPOT_REQUEST_PENDING_STATES:
++        while True:
++            # Sometimes it can take a second or so for the spot request to be
++            # ready.  If it isn't ready, you will get a "Spot instance reques
++            # ID 'sir-abcd1234' does not exist" exception.
++            try:
++                requests = self.ec2.meta.client.describe_spot_instance_requests(
++                    SpotInstanceRequestIds=[reservation['SpotInstanceRequestId']])
++            except self.ec2.meta.errors.InvalidSpotInstanceRequestID.NotFound:
++                requests = None
++
++            if requests is not None:
++                request = requests['SpotInstanceRequests'][0]
++                request_status = request['Status']['Code']
++                if request_status not in SPOT_REQUEST_PENDING_STATES:
++                    break
++
+             time.sleep(interval)
+             duration += interval
+             if duration % 60 == 0:
+                 log.msg('{} {} has waited {} minutes for spot request {}'.format(
+                         self.__class__.__name__, self.workername, duration // 60,
+                         request['SpotInstanceRequestId']))
+-            requests = self.ec2.meta.client.describe_spot_instance_requests(
+-                SpotInstanceRequestIds=[reservation['SpotInstanceRequestId']])
+-            request = requests['SpotInstanceRequests'][0]
+-            request_status = request['Status']['Code']
++
+         if request_status == FULFILLED:
+             minutes = duration // 60
+             seconds = duration % 60
