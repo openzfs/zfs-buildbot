@@ -227,14 +227,14 @@ function build_url()
 	CentOS_7_x86_64__TEST_)
 		encoded_name="CentOS%207%20x86_64%20%28TEST%29"
 		;;
+	CentOS_8_x86_64__TEST_)
+		encoded_name="CentOS%208%20x86_64%20%28TEST%29"
+		;;
 	Debian_10_x86_64__TEST_)
 		encoded_name="Debian%2010%20x86_64%20%28TEST%29"
 		;;
 	Fedora_32_x86_64__TEST_)
 		encoded_name="Fedora%2032%20x86_64%20%28TEST%29"
-		;;
-	Ubuntu_16_04_x86_64__TEST_)
-		encoded_name="Ubuntu%2016.04%20x86_64%20%28TEST%29"
 		;;
 	Ubuntu_18_04_x86_64_Coverage__TEST_)
 		encoded_name="Ubuntu%2017.04%20x86_64%20Coverage%20%28TEST%29"

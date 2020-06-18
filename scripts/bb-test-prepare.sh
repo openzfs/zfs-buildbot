@@ -122,6 +122,8 @@ esac
 
 . $TEST_FILE
 
+set -x
+
 # Preserve the results directory for future analysis.  The contents
 # of this directory will be uploaded the the build master after all
 # of the requested tests have completed.
@@ -143,9 +145,11 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         ;;
 
     CentOS*)
-        if cat /etc/redhat-release | grep -Eq "6."; then
+        if cat /etc/redhat-release | grep -Eq "release 6."; then
             sudo -E /etc/init.d/watchdog start
-        elif cat /etc/redhat-release | grep -Eq "7."; then
+        elif cat /etc/redhat-release | grep -Eq "release 7."; then
+            sudo -E systemctl start watchdog
+        elif cat /etc/redhat-release | grep -Eq "release 8."; then
             sudo -E systemctl start watchdog
         fi
         ;;
@@ -160,14 +164,6 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
 
     FreeBSD*)
         sudo -E service watchdogd onestart
-        ;;
-
-    RHEL*)
-        if cat /etc/redhat-release | grep -Eq "6."; then
-            sudo -E /etc/init.d/watchdog start
-        elif cat /etc/redhat-release | grep -Eq "7."; then
-            sudo -E systemctl start watchdog
-        fi
         ;;
 
     Ubuntu*)
@@ -192,11 +188,14 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         ;;
 
     CentOS*)
-        if cat /etc/redhat-release | grep -Eq "6."; then
+        if cat /etc/redhat-release | grep -Eq "release 6."; then
             sudo -E /etc/init.d/rpcbind start
             sudo -E /etc/init.d/nfs start
             sudo -E /etc/init.d/smb start
-        elif cat /etc/redhat-release | grep -Eq "7."; then
+        elif cat /etc/redhat-release | grep -Eq "release 7."; then
+            sudo -E systemctl start nfs-server
+            sudo -E systemctl start smb
+        elif cat /etc/redhat-release | grep -Eq "release 8."; then
             sudo -E systemctl start nfs-server
             sudo -E systemctl start smb
         fi
@@ -218,17 +217,6 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
         sudo -E service nfsd onestart
         echo '[global]' | sudo -E tee /usr/local/etc/smb4.conf >/dev/null
         sudo -E service samba_server onestart
-        ;;
-
-    RHEL*)
-        if cat /etc/redhat-release | grep -Eq "6."; then
-            sudo -E /etc/init.d/rpcbind start
-            sudo -E /etc/init.d/nfs start
-            sudo -E /etc/init.d/smb start
-        elif cat /etc/redhat-release | grep -Eq "7."; then
-            sudo -E systemctl start nfs-server
-            sudo -E systemctl start smb
-        fi
         ;;
 
     Ubuntu*)

@@ -51,10 +51,12 @@ Amazon*)
 
 CentOS*)
     # Required repository packages
-    if cat /etc/centos-release | grep -Eq "6."; then
+    if cat /etc/centos-release | grep -Eq "release 6."; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "7."; then
+    elif cat /etc/centos-release | grep -Eq "release 7."; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    elif cat /etc/centos-release | grep -Eq "release 8."; then
+        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     else
         echo "No extra repo packages to install..."
     fi
@@ -63,29 +65,30 @@ CentOS*)
     sudo -E sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
     # Required development tools.
-    sudo -E yum -y install gcc make autoconf libtool gdb lcov
+    sudo -E yum -y --skip-broken install gcc make autoconf libtool gdb \
+        kernel-rpm-macros kernel-abi-whitelists
 
     # Required utilities.
-    sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
-        mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools dkms
+    sudo -E yum -y --skip-broken install --enablerepo=epel git rpm-build \
+        wget curl bc fio acl sysstat mdadm lsscsi parted attr dbench watchdog \
+        ksh nfs-utils samba rng-tools dkms pamtester
 
     # Required development libraries
-    sudo -E yum -y install kernel-devel \
+    sudo -E yum -y --skip-broken install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libffi-devel pam-devel \
-        python-devel libaio-devel python-setuptools python-cffi \
-        libyaml-devel
+        openssl-devel libffi-devel pam-devel libaio-devel
 
     # Packages that are version dependent and not always available
-    if cat /etc/centos-release | grep -Eq "7."; then
-        sudo -E yum -y install libasan libmount-devel
+    if cat /etc/centos-release | grep -Eq "release 7."; then
+        sudo -E yum -y --skip-broken install --enablerepo=epel libasan \
+            python-devel python-setuptools python-cffi \
+            python36 python36-devel python36-setuptools python36-cffi
+    elif cat /etc/centos-release | grep -Eq "release 8."; then
+        sudo -E yum -y --skip-broken install libasan libtirpc-devel \
+            python3-devel python3-setuptools python3-cffi
     fi
 
-    # Testing support libraries and tools
-    sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Debian*)
@@ -181,47 +184,6 @@ FreeBSD*)
     sudo -E pkg install -y --no-repo-update \
         py37-cffi \
         py37-sysctl
-    ;;
-
-RHEL*)
-    # Required repository packages
-    if cat /etc/redhat-release | grep -Eq "6."; then
-        EXTRA_REPO="--enablerepo=rhui-REGION-rhel-server-releases-optional"
-        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/redhat-release | grep -Eq "7."; then
-        EXTRA_REPO="--enablerepo=rhui-REGION-rhel-server-optional"
-        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    else
-        EXTRA_REPO=""
-        echo "No extra repo packages to install..."
-    fi
-
-    # To minimize EPEL leakage, disable by default...
-    sudo -E sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
-
-    # Required development tools.
-    sudo -E yum -y install gcc make autoconf libtool gdb lcov
-
-    # Required utilities.
-    sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
-        mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools dkms
-
-    # Required development libraries
-    sudo -E yum -y $EXTRA_REPO install kernel-devel-$(uname -r) zlib-devel \
-        libuuid-devel libblkid-devel libselinux-devel \
-        xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libffi-devel libaio-devel \
-        pam-devel python-devel python-setuptools python-cffi
-
-    # Packages that are version dependent and not always available
-    if cat /etc/redhat-release | grep -Eq "7."; then
-        sudo -E yum -y install libasan libmount-devel
-    fi
-
-    # Testing support libraries and tools
-    sudo -E yum -y install --enablerepo=epel fio \
-        python36 python36-devel python36-setuptools python36-cffi pamtester
     ;;
 
 Ubuntu*)

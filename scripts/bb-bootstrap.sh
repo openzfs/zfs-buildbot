@@ -133,12 +133,6 @@ Amazon*)
     yum -y install deltarpm gcc python-pip python-devel
     easy_install --quiet buildbot-slave
 
-    if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
-        BUILDSLAVE="/usr/bin/buildslave"
-    else
-        BUILDSLAVE="/usr/local/bin/buildslave"
-    fi
-
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
@@ -162,11 +156,19 @@ Amazon*)
     ;;
 
 CentOS*)
+    yum -y update
+    yum -y upgrade
+
     # Required repository packages
-    if cat /etc/centos-release | grep -Eq "6."; then
-        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "7."; then
-        sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    if cat /etc/centos-release | grep -Eq "release 6."; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+    elif cat /etc/centos-release | grep -Eq "release 7."; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    elif cat /etc/centos-release | grep -Eq "release 8."; then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        yum -y install gcc
+        yum -y module install python27
+        alternatives --set python /usr/bin/python2
     else
         echo "No extra repo packages to install..."
     fi
@@ -174,16 +176,25 @@ CentOS*)
     # To minimize EPEL leakage, disable by default...
     sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
-    if cat /etc/redhat-release | grep -Eq "6."; then
+    if cat /etc/redhat-release | grep -Eq "release 6."; then
         # The buildbot-slave package isn't available from a common repo.
         BUILDSLAVE_URL="http://build.zfsonlinux.org"
         BUILDSLAVE_RPM="buildbot-slave-0.8.8-2.el6.noarch.rpm"
         yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
-        BUILDSLAVE="/usr/bin/buildslave"
-    else
+    elif cat /etc/redhat-release | grep -Eq "release 7."; then
         yum --enablerepo=epel -y install gcc python-pip python-devel
         pip --quiet install buildbot-slave
-        BUILDSLAVE="/usr/bin/buildslave"
+    elif cat /etc/centos-release | grep -Eq "release 8."; then
+        if which pip2 > /dev/null ; then
+            pip2 install buildbot-slave
+        elif which pip > /dev/null ; then
+            pip install buildbot-slave
+        else
+            pip3 install buildbot-slave
+        fi
+    else
+        echo "Unknown CentOS release:"
+        cat /etc/centos-release
     fi
 
     # Install the latest kernel to reboot on to.
@@ -191,7 +202,7 @@ CentOS*)
         yum -y update kernel
 
         # User namespaces must be enabled at boot time for CentOS 7
-        if cat /etc/redhat-release | grep -Eq "7."; then
+        if cat /etc/redhat-release | grep -Eq "release 7."; then
             grubby --args="user_namespace.enable=1" \
                 --update-kernel="$(grubby --default-kernel)"
             grubby --args="namespace.unpriv_enable=1" \
@@ -234,10 +245,8 @@ Debian*)
     if test $BB_USE_PIP -ne 0; then
         apt-get --yes install gcc curl python-pip python-dev
         pip --quiet install buildbot-slave
-        BUILDSLAVE="/usr/local/bin/buildslave"
     else
         apt-get --yes install curl buildbot-slave
-        BUILDSLAVE="/usr/bin/buildslave"
     fi
 
     # Install the latest kernel to reboot on to.
@@ -294,10 +303,8 @@ Fedora*)
         else
             pip3 install buildbot-slave
         fi
-        BUILDSLAVE="/usr/bin/buildslave"
     else
         dnf -y install buildbot-slave
-        BUILDSLAVE="/usr/bin/buildslave"
     fi
 
     # Install the latest kernel to reboot on to.  When testing on Rawhide
@@ -350,7 +357,6 @@ FreeBSD*)
         py27-pip \
         sudo
     pip-2.7 --quiet install buildbot-slave
-    BUILDSLAVE="/usr/local/bin/buildslave"
 
     pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
@@ -375,46 +381,6 @@ FreeBSD*)
     fi
     ;;
 
-RHEL*)
-    # Required repository packages
-    if cat /etc/redhat-release | grep -Eq "6."; then
-        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/redhat-release | grep -Eq "7."; then
-        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    else
-        echo "No extra repo packages to install..."
-    fi
-
-    # To minimize EPEL leakage, disable by default...
-    sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
-
-    yum --enablerepo=epel -y install deltarpm gcc python-pip python-devel
-    pip --quiet install buildbot-slave
-    BUILDSLAVE="/usr/bin/buildslave"
-
-    # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        yum -y update kernel
-    fi
-
-    # Use the debug kernel instead if indicated
-    if test "$BB_KERNEL_TYPE" = "DEBUG"; then
-        yum -y install kernel-debug
-        set_boot_kernel
-    fi
-
-    # User buildbot needs to be added to sudoers and requiretty disabled.
-    if ! id -u buildbot >/dev/null 2>&1; then
-        adduser buildbot
-        echo "buildbot  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-        sed -i.bak 's/ requiretty/ !requiretty/' /etc/sudoers
-        sed -i.bak '/secure_path/a\Defaults exempt_group+=buildbot' /etc/sudoers
-    fi
-
-    # Standardize ephemeral storage so it's available under /mnt.
-    standardize_storage /dev/null
-    ;;
-
 Ubuntu*)
     while [ -s /var/lib/dpkg/lock ]; do sleep 1; done
     apt-get --yes update
@@ -431,10 +397,8 @@ Ubuntu*)
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
         pip --quiet install buildbot-slave
-        BUILDSLAVE="/usr/local/bin/buildslave"
     else
         apt-get --yes install buildbot-slave
-        BUILDSLAVE="/usr/bin/buildslave"
     fi
 
     # Install the latest kernel to reboot on to.
@@ -466,6 +430,12 @@ Ubuntu*)
 esac
 
 set +x
+
+if [ -x /usr/bin/buildslave ]; then
+    BUILDSLAVE="/usr/bin/buildslave"
+else
+    BUILDSLAVE="/usr/local/bin/buildslave"
+fi
 
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then

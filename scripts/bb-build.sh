@@ -9,7 +9,7 @@ FreeBSD*)
 	MAKE=gmake
 	NCPU=$(sysctl -n hw.ncpu)
 	;;
-Amazon*|CentOS*|Debian*|Fedora*|RHEL*|SUSE*|Ubuntu*)
+Amazon*|CentOS*|Debian*|Fedora*|SUSE*|Ubuntu*)
 	MAKE=make
 	NCPU=$(nproc)
 	;;
@@ -80,9 +80,6 @@ packages|kmod|pkg-kmod|dkms|dkms-kmod)
 		;;
 	Fedora*)
 		sudo -E dnf -y localinstall *.rpm >$INSTALL_LOG 2>&1 || exit 1
-		;;
-	RHEL*)
-		sudo -E yum -y localinstall *.rpm >$INSTALL_LOG 2>&1 || exit 1
 		;;
 	Ubuntu-14.04*)
 		for file in *.deb; do
