@@ -351,6 +351,17 @@ Fedora*)
     ;;
 
 FreeBSD*)
+    cat >>/usr/local/etc/pkg.conf <<EOF
+
+# OpenZFS buildbot bootstrap needs pkg to succeed when we ask it to install
+# packages.  If that means waiting for other pkg installs to complete, fine.
+# We wait 60 seconds per try, and retry up to 5 times.
+LOCK_RETRIES = 5;
+LOCK_WAIT = 60;
+
+DEBUG_LEVEL = 1;
+EOF
+
     pkg install -y \
         curl \
         git-lite \
