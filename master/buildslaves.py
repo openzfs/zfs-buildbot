@@ -212,21 +212,21 @@ esac
 class ZFSEC2StyleSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="STYLE",
-            instance_type="c5d.large", max_spot_price=0.10, placement='a',
+            instance_type="m5d.large", max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 large latent build slave
 class ZFSEC2BuildSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
-            instance_type="c5d.large", max_spot_price=0.10, placement='a',
+            instance_type="c5d.large", max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
 class ZFSEC2TestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m5d.large", max_spot_price=0.10, placement='a',
+            instance_type="m5d.large", max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
@@ -234,19 +234,19 @@ class ZFSEC2TestSlave(ZFSEC2Slave):
 class ZFSEC2ENATestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m3.large", max_spot_price=0.10, placement='a',
+            instance_type="m3.large", max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
 class ZFSEC2CoverageSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m3.xlarge", max_spot_price=0.10, placement='a',
+            instance_type="m3.xlarge", max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create a d2.xlarge slave for performance testing because they have disks
 class ZFSEC2PerfTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="PERF",
-            instance_type="d2.xlarge", max_spot_price=0.60, placement='a',
+            instance_type="d2.xlarge", max_spot_price=0.60, placement='b',
             spot_instance=True, **kwargs)
