@@ -395,7 +395,6 @@ EOF
 Ubuntu*)
     while [ -s /var/lib/dpkg/lock ]; do sleep 1; done
     apt-get --yes update
-    apt-get --yes install gcc python-pip python-dev
 
     # As of Ubuntu 18.04 buildbot v1.0 is provided from the repository.  This
     # version is incompatible v0.8 on master, so use the older pip version.
@@ -407,6 +406,17 @@ Ubuntu*)
     # Relying on the pip version of the buildslave is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
+
+        # Python 2 has been removed from Ubuntu 20.04.  The required pip2
+        # packages are provided by https://pip.pypa.io/en/stable/installing/
+        if test $VERSION -eq 18; then
+            apt-get --yes install gcc python-pip python-dev
+        else
+            apt-get --yes install gcc python2 python2-dev
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python2 ./get-pip.py
+        fi
+
         pip --quiet install buildbot-slave
     else
         apt-get --yes install buildbot-slave
