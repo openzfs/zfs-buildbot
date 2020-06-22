@@ -116,6 +116,15 @@ standardize_storage () {
     fi
 }
 
+# Temporary workaround for FreeBSD pkg db locking race
+pkg_install () {
+    local pkg_pid=$(pgrep pkg 2>/dev/null)
+    if [ -n  "${pkg_pid}" ]; then
+        pwait ${pkg_pid}
+    fi
+    pkg install "${@}"
+}
+
 set -x
 
 case "$BB_NAME" in
@@ -362,7 +371,7 @@ LOCK_WAIT = 60;
 DEBUG_LEVEL = 1;
 EOF
 
-    pkg install -y \
+    pkg_install -y \
         curl \
         git-lite \
         py27-pip \
