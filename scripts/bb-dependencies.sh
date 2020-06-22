@@ -22,6 +22,15 @@ apt_get_install () {
     done 
 }
 
+# Temporary workaround for FreeBSD pkg db locking race
+pkg_install () {
+    local pkg_pid=$(pgrep pkg 2>/dev/null)
+    if [ -n  "${pkg_pid}" ]; then
+        pwait ${pkg_pid}
+    fi
+    sudo -E pkg install "${@}"
+}
+
 set -x
 
 case "$BB_NAME" in
@@ -140,6 +149,11 @@ Fedora*)
     ;;
 
 FreeBSD*)
+    # Temporary workaround for pkg db locking race
+    pkg_pid=$(pgrep pkg 2>/dev/null)
+    if [ -n "${pkg_pid}" ]; then
+	pwait ${pkg_pid}
+    fi
     # Always test with the latest packages on FreeBSD.
     sudo -E pkg upgrade -y --no-repo-update
 
@@ -154,7 +168,7 @@ FreeBSD*)
     )
 
     # Required development tools
-    sudo -E pkg install -y --no-repo-update \
+    pkg_install -y --no-repo-update \
         autoconf \
         automake \
         autotools \
@@ -163,7 +177,7 @@ FreeBSD*)
         libtool
 
     # Testing support utilities
-    sudo -E pkg install -y --no-repo-update \
+    pkg_install -y --no-repo-update \
         base64 \
         fio \
         ksh93 \
@@ -175,7 +189,7 @@ FreeBSD*)
         lcov
 
     # Python support libraries
-    sudo -E pkg install -y --no-repo-update \
+    pkg_install -y --no-repo-update \
         py37-cffi \
         py37-sysctl
     ;;
