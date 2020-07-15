@@ -12,11 +12,11 @@ from buildbot.status.web.hooks.github import GitHubEventHandler
 from dateutil.parser import parse as dateparse
 from twisted.python import log
 
-builders_common="arch,style,coverage,"
+builders_common="arch,style,"
 builders_linux="amazon2,centos7,centos8,debian10,fedora32,ubuntu18,ubuntu20,builtin,"
 builders_freebsd="freebsd12,freebsd13,"
 
-builders_push_master=builders_common+builders_linux+builders_freebsd+"fedora32"
+builders_push_master=builders_common+builders_linux+builders_freebsd+"coverage"
 builders_push_release=builders_common+builders_linux+"centos6"
 
 builders_pr_master=builders_common+builders_linux+builders_freebsd
