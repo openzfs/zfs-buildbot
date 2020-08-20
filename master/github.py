@@ -88,13 +88,16 @@ class CustomGitHubEventHandler(GitHubEventHandler):
                 prop_name = prop[1]
                 props[prop_name] = json.dumps(m.group(1).lower())
 
-        # Extract if the commit message has property overrides
-        # For 0.8 and earlier releases include the legacy builders.
-        match = re.match(r".*-0.[0-8]-release", branch)
+        match = re.match("master", branch)
         if match:
-            category = self.parse_comments(comments, builders_push_release)
-        else:
             category = self.parse_comments(comments, builders_push_master)
+        else:
+            # Don't run the zimport on release or staging branches
+            comments + "\nTEST_ZIMPORT_SKIP=\"yes\""
+
+            # Extract if the commit message has property overrides
+            # For 0.8 and earlier releases include the legacy builders.
+            category = self.parse_comments(comments, builders_push_release)
 
         props['branch'] = branch
 
@@ -195,11 +198,12 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         # Annotate the head commit to allow special handling.
         if commit['sha'] == payload['pull_request']['head']['sha']:
             # For 0.8 and earlier releases include the legacy builders.
-            match = re.match(r".*-0.[0-8]-release", branch)
+            match = re.match("master", branch)
             if match:
-                category = builders_pr_release
-            else:
                 category = builders_pr_master
+            else:
+                category = builders_pr_release
+
         else:
             category = builders_pr_minimum
 
