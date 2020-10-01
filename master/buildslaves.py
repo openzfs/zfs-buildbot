@@ -220,7 +220,7 @@ class ZFSEC2BuildSlave(ZFSEC2Slave):
     def __init__(self, name, arch="amd64", **kwargs):
         instance_types = {
             "amd64": "c5d.large",
-            "arm64": "a1.xlarge"
+            "arm64": "c6g.large"
         }
         assert arch in instance_types
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
