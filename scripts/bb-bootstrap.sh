@@ -69,6 +69,8 @@ METAROOT="http://${METAIP}/latest"
 # Don't print 404 error documents. Don't print progress information.
 CURL="curl --fail --silent"
 
+# Track if we need to reboot before starting buildbot
+REBOOT=0
 
 testbin () {
     BIN_PATH="$(which ${1})"
@@ -145,6 +147,7 @@ Amazon*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
+        REBOOT=1
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -209,6 +212,7 @@ CentOS*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         yum -y update kernel
+        REBOOT=1
 
         # User namespaces must be enabled at boot time for CentOS 7
         if cat /etc/redhat-release | grep -Eq "release 7."; then
@@ -224,6 +228,7 @@ CentOS*)
     if test "$BB_KERNEL_TYPE" = "DEBUG"; then
         yum -y install kernel-debug
         set_boot_kernel
+        REBOOT=1
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -261,6 +266,7 @@ Debian*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         apt-get --yes install --only-upgrade linux-image-amd64
+        REBOOT=1
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -328,6 +334,8 @@ Fedora*)
             dnf -y update kernel-core kernel-devel
         fi
 
+        REBOOT=1
+
         # Ensure crontab is installed to start the build slave post reboot.
         dnf -y install cronie
     fi
@@ -335,6 +343,7 @@ Fedora*)
     # Use the debug kernel instead if indicated
     if test "$BB_KERNEL_TYPE" = "DEBUG"; then
         dnf -y install kernel-debug kernel-debug-devel
+        REBOOT=1
     else
         dnf -y remove kernel-debug kernel-debug-devel
     fi
@@ -399,6 +408,8 @@ EOF
         echo "/dev/${nvme}p1 /mnt ufs rw,noatime" >> /etc/fstab
         mount /mnt
     fi
+
+    REBOOT=1
     ;;
 
 Ubuntu*)
@@ -434,6 +445,7 @@ Ubuntu*)
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
         apt-get --yes install --only-upgrade linux-image-generic
+        REBOOT=1
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -494,7 +506,7 @@ set -x
 # Finally, start it.  If all goes well, at this point you should see a buildbot
 # slave joining your farm.  You can then manage the rest of the work from the
 # buildbot master.
-if test "$BB_MODE" = "BUILD" -o "$BB_MODE" = "STYLE" -o "$(uname)" = "FreeBSD"; then
+if test REBOOT -eq 0; then
     sudo -E -u buildbot $BUILDSLAVE start $BB_DIR
 else
     echo "@reboot sudo -E -u buildbot $BUILDSLAVE start $BB_DIR" | crontab -
