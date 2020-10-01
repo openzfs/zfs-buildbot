@@ -104,7 +104,7 @@ standardize_storage () {
     inst_dev="$1"
     nvme_dev="$(ls -1 /dev/disk/by-id/*NVMe_Instance_Storage* | head -1)"
 
-    if test -b $nvme_dev; then
+    if test -b "$nvme_dev"; then
         echo "$nvme_dev /mnt ext4 defaults,noatime" >>/etc/fstab
         mkfs.ext4 $nvme_dev
     elif test -b $inst_dev; then
