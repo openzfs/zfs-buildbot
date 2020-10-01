@@ -217,9 +217,14 @@ class ZFSEC2StyleSlave(ZFSEC2Slave):
 
 # Create an HVM EC2 large latent build slave
 class ZFSEC2BuildSlave(ZFSEC2Slave):
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, arch="amd64", **kwargs):
+        instance_types = {
+            "amd64": "c5d.large",
+            "arm64": "a1.xlarge"
+        }
+        assert arch in instance_types
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
-            instance_type="c5d.large", max_spot_price=0.10, placement='b',
+            instance_type=instance_types.get(arch), max_spot_price=0.10, placement='b',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
