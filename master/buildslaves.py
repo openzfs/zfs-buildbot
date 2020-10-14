@@ -135,7 +135,7 @@ esac
                 subnet_id=None, security_group_ids=None,
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
-                price_multiplier=None, missing_timeout=60 * 40,
+                price_multiplier=None, missing_timeout=3600*12,
                 block_device_map=None, get_image=None, **kwargs):
 
         self.name = name
