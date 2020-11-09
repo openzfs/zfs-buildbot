@@ -56,7 +56,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         category = default_category
 
         # Extract any overrides for builders for this commit
-        # Requires-builders: style build arch distro test perf none
+        # Requires-builders: build arch distro test perf none
         category_pattern = '^Requires-builders:\s*([ ,a-zA-Z0-9]+)'
         m = re.search(category_pattern, comments, re.I | re.M)
         if m is not None:
