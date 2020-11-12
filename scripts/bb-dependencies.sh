@@ -183,7 +183,7 @@ FreeBSD*)
         ksh93 \
         python \
         python3 \
-        samba410 \
+        samba413 \
         gdb \
         pamtester \
         lcov
