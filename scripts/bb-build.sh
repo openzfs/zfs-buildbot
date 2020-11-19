@@ -7,6 +7,9 @@ fi
 case "$BB_NAME" in
 FreeBSD*)
 	MAKE=gmake
+	if [ $(freebsd-version -k) = "13.0-CURRENT" ]; then
+		MAKE="$MAKE WITH_DEBUG=true"
+	fi
 	NCPU=$(sysctl -n hw.ncpu)
 	;;
 Amazon*|CentOS*|Debian*|Fedora*|SUSE*|Ubuntu*)
