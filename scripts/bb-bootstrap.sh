@@ -412,8 +412,7 @@ EOF
         gpart create -s gpt ${nvme}
         gpart add -t freebsd-ufs ${nvme}
         newfs ${nvme}p1
-        echo "/dev/${nvme}p1 /mnt ufs rw,noatime" >> /etc/fstab
-        mount /mnt
+        mount -o noatime /dev/${nvme}p1 /mnt
     fi
     ;;
 
