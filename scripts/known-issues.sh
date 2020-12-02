@@ -9,6 +9,7 @@
 ZFSONLINUX_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
 ZFSONLINUX_MTIME=30
 ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
+ZFSONLINUX_PRS_INCLUDE="no"
 ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:openzfs/zfs+label:%22Test%20Suite%22)
 
 NUMBER_REGEX='^[0-9]+$'
@@ -47,7 +48,8 @@ OPTIONS:
 	-h		Show this message
 	-d directory	Directory containing the buildbot logs
 	-e exceptions	Exception file (using ZoL wiki if not specified)
-	-m mtime	Include test logs from the last N days.
+	-m mtime	Include test logs from the last N days
+	-p		Include PR failures in report
 
 EXAMPLE:
 
@@ -57,7 +59,7 @@ $0 -d ~/zfs-buildbot/master/*_TEST_ -m 30 \\
 EOF
 }
 
-while getopts 'hd:e:m:' OPTION; do
+while getopts 'hd:e:m:p' OPTION; do
 	case $OPTION in
 	h)
 		usage
@@ -72,6 +74,9 @@ while getopts 'hd:e:m:' OPTION; do
 	m)
 		ZFSONLINUX_MTIME=$OPTARG
 		ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
+		;;
+	p)
+		ZFSONLINUX_PRS_INCLUDE="yes"
 		;;
 	esac
 done
@@ -331,6 +336,11 @@ while read LINE1; do
 
 	# Test failure was from an open pull request or branch.
 	if [[ $ZFSONLINUX_ORIGIN =~ $NUMBER_REGEX ]]; then
+
+		if [ "$ZFSONLINUX_PRS_INCLUDE" = "no" ]; then
+			continue
+		fi
+
 		pr="https://github.com/openzfs/zfs/pull/$ZFSONLINUX_ORIGIN"
 		ZFSONLINUX_ISSUE="<a href='$pr'>PR-$ZFSONLINUX_ORIGIN</a>"
 		ZFSONLINUX_STATUS=$STATUS_PR
