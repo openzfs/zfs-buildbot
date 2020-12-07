@@ -176,13 +176,22 @@ FreeBSD*)
         gmake \
         libtool
 
-    # Testing support utilities
+    # Essential testing utilities
+    # No tests will run if these are missing.
     pkg_install -y --no-repo-update \
-        base64 \
-        fio \
         ksh93 \
         python \
-        python3 \
+        python3
+
+    # Important testing utilities
+    # Many tests will fail if these are missing.
+    pkg_install -y --no-repo-update \
+        base64 \
+        fio
+
+    # Testing support utilities
+    # Only a few tests require these.
+    pkg_install -y --no-repo-update \
         samba413 \
         gdb \
         pamtester \
