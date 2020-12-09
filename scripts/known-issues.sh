@@ -226,9 +226,6 @@ function build_url()
 	local url="http://build.zfsonlinux.org/builders"
 
 	case "$name" in
-	Amazon_2_x86_64_Release__TEST_)
-		encoded_name="Amazon%202%20x86_64%20Release%20%28TEST%29"
-		;;
 	CentOS_7_x86_64__TEST_)
 		encoded_name="CentOS%207%20x86_64%20%28TEST%29"
 		;;

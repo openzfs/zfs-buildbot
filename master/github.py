@@ -13,14 +13,14 @@ from dateutil.parser import parse as dateparse
 from twisted.python import log
 
 builders_common="arch,"
-builders_linux="amazon2,centos7,centos8,debian10,fedora33,ubuntu18,ubuntu20,builtin,"
+builders_linux="centos7,centos8,debian10,fedora33,ubuntu18,ubuntu20,builtin,"
 builders_freebsd="freebsd12,freebsd13,"
 
 builders_push_master=builders_common+builders_linux+builders_freebsd+"coverage"
-builders_push_release=builders_common+builders_linux+"centos6"
+builders_push_release=builders_common+builders_linux+builders_freebsd
 
 builders_pr_master=builders_common+builders_linux+builders_freebsd
-builders_pr_release=builders_common+builders_linux+"centos6"
+builders_pr_release=builders_common+builders_linux+builders_freebsd
 
 # Default builders for non-top PR commits
 builders_pr_minimum="arch"

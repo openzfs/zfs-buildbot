@@ -205,7 +205,7 @@ FreeBSD*)
 
 Ubuntu*)
     # Required development tools.
-    apt_get_install build-essential autoconf libtool gdb lcov
+    apt_get_install build-essential autoconf libtool gdb lcov bison flex
 
     # Required utilities.
     apt_get_install git alien fakeroot wget curl bc fio acl \
