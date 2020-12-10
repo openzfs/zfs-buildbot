@@ -19,11 +19,6 @@ Amazon*)
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut  zfs-test
     fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E yum -y remove '(spl-dkms.*|kmod-spl.*)' \
-	    spl spl-debuginfo spl-kmod-debuginfo
-    fi
     ;;
 
 CentOS*)
@@ -31,11 +26,6 @@ CentOS*)
         sudo -E yum -y remove '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
-    fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E yum -y remove '(spl-dkms.*|kmod-spl.*)' \
-            spl spl-debuginfo spl-kmod-debuginfo
     fi
     ;;
 
@@ -45,10 +35,6 @@ Debian*)
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-initramfs zfs-dracut zfs-test
     fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E apt-get --yes purge '(spl-dkms.*|kmod-spl.*)' spl
-    fi
     ;;
 
 Fedora*)
@@ -57,11 +43,6 @@ Fedora*)
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-debuginfo zfs-kmod-debuginfo zfs-dracut zfs-test
     fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E dnf -y remove '(spl-dkms.*|kmod-spl.*)' \
-            spl spl-debuginfo spl-kmod-debuginfo
-    fi
     ;;
 
 Ubuntu*)
@@ -69,10 +50,6 @@ Ubuntu*)
         sudo -E apt-get --yes purge '(zfs-dkms.*|kmod-zfs.*)' \
             libnvpair1 libuutil1 libzfs2 libzpool2 libzfs2-devel \
             zfs zfs-initramfs zfs-dracut zfs-test
-    fi
-
-    if test "$BUILT_PACKAGE" = "spl"; then
-        sudo -E apt-get --yes purge '(spl-dkms.*|kmod-spl.*)' spl
     fi
     ;;
 

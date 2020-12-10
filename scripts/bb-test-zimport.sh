@@ -44,7 +44,6 @@ TEST_ZIMPORT_CREATE_OPTIONS=${TEST_ZIMPORT_CREATE_OPTIONS:-""}
 
 sudo -E dmesg -c >/dev/null
 sudo -E mkdir -p $TEST_ZIMPORT_DIR || exit 1
-sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/spl/master || exit 1
 sudo -E rm -Rf $TEST_ZIMPORT_DIR/src/zfs/master || exit 1
 
 sudo -E $ZIMPORT_SH $TEST_ZIMPORT_OPTIONS \

@@ -41,12 +41,10 @@ class CustomGitHubEventHandler(GitHubEventHandler):
     valid_props = [
         ('^Build[-\s]linux:\s*(yes|no)\s*$', 'override-buildlinux'),
         ('^Build[-\s]lustre:\s*(yes|no)\s*$', 'override-buildlustre'),
-        ('^Build[-\s]spl:\s*(yes|no)\s*$', 'override-buildspl'),
         ('^Build[-\s]zfs:\s*(yes|no)\s*$', 'override-buildzfs'),
         ('^Built[-\s]in:\s*(yes|no)\s*$', 'override-builtin'),
         ('^Check[-\s]lint:\s*(yes|no)\s*$', 'override-checklint'),
         ('^Configure[-|\s]lustre:(.*)$', 'override-configlustre'),
-        ('^Configure[-|\s]spl:(.*)$', 'override-configspl'),
         ('^Configure[-|\s]zfs:(.*)$', 'override-configzfs'),
         ('^Perf[-|\s]zts:\s*(yes|no)\s*$', 'override-perfzts'),
         ('^Perf[-|\s]pts:\s*(yes|no)\s*$', 'override-perfpts'),
@@ -100,13 +98,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             category = self.parse_comments(comments, builders_push_release)
 
         props['branch'] = branch
-
-        # Releases prior to 0.8.0 required an external spl build.
-        match = re.match(r".*-0.[0-7]-release", branch)
-        if not match:
-            props['buildspl'] = json.dumps("no")
-        else:
-            props['buildspl'] = json.dumps("yes")
 
         # Enabled performance testing on pushes by default.
         props['perfpts'] = json.dumps("yes")
@@ -173,7 +164,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         return changes, 'git'
 
     def handle_pull_request_commit(self, payload, commit, nr, commits_nr,
-                                   spl_pr, kernel_pr):
+                                   kernel_pr):
 
         pr_number = payload['number']
         refname = 'refs/pull/%d/head' % (pr_number,)
@@ -210,11 +201,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         # Extract if the commit message has property overrides
         category = self.parse_comments(comments, category)
 
-        # Annotate every commit with 'Requires-spl' when missing.
-        if spl_pr:
-            if re.search(spl_pattern, comments, re.I | re.M) is None:
-                comments = comments + spl_pr + "\n"
-
         if kernel_pr:
             if re.search(kernel_pattern, comments, re.I | re.M) is None:
                 comments = comments + kernel_pr + "\n"
@@ -224,13 +210,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
 
         props['branch'] = json.dumps(branch)
         props['pr_number'] = json.dumps(pr_number)
-
-        # Releases prior to 0.8.0 required an external spl build.
-        match = re.match(r".*-0.[0-7]-release", branch)
-        if not match:
-            props['buildspl'] = json.dumps("no")
-        else:
-            props['buildspl'] = json.dumps("yes")
 
         # Disabled performance testing on PRs by default.
         props['perfpts'] = json.dumps("no")
@@ -276,23 +255,12 @@ class CustomGitHubEventHandler(GitHubEventHandler):
             commit_url += "/" + payload['pull_request']['head']['sha']
             commit = query_url(commit_url, token=github_token)
             change = self.handle_pull_request_commit(payload, commit,
-                commits_nr, commits_nr, None, None)
+                commits_nr, commits_nr, None)
             changes.append(change)
         # Compile all commits in the stack and test the top commit.
         else:
             commits_url = payload['pull_request']['commits_url']
             commits = query_url(commits_url, token=github_token)
-
-            # Extract any dependency information.
-            # Requires-spl: refs/pull/PR/head
-            spl_pr = None
-            spl_pattern = '^Requires-spl:\s*([a-zA-Z0-9_\-\:\/\+]+)'
-            for commit in commits:
-                comments = commit['commit']['message']
-                m = re.search(spl_pattern, comments, re.I | re.M)
-                if m is not None:
-                    spl_pr = 'Requires-spl: %s' % m.group(1)
-                    break
 
             kernel_pr = None
             kernel_pattern = '^Requires-kernel:\s*([a-zA-Z0-9_\-\:\/\+\.]+)'
@@ -308,7 +276,7 @@ class CustomGitHubEventHandler(GitHubEventHandler):
                 nr += 1
                 commit = query_url(commit['url'], token=github_token)
                 change = self.handle_pull_request_commit(payload, commit,
-                    nr, commits_nr, spl_pr, kernel_pr)
+                    nr, commits_nr, kernel_pr)
                 changes.append(change)
 
         log.msg("Received %d changes from GitHub Pull Request #%d" % (

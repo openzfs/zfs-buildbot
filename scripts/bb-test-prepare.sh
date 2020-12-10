@@ -10,7 +10,6 @@ if echo "$TEST_PREPARE_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     exit 3
 fi
 
-SPL_BUILD_DIR=$(readlink -f ../spl)
 ZFS_BUILD_DIR=$(readlink -f ../zfs)
 TEST_DIR="$PWD"
 TEST_FILE="${TEST_DIR}/TEST"
@@ -27,17 +26,6 @@ fi
 # Create a TEST file which includes parameters which may appear in a top
 # level TEST file or the most recent git commit message.
 rm -f $TEST_FILE
-
-if test -d "$SPL_BUILD_DIR"; then
-    cd "$SPL_BUILD_DIR"
-
-    if test -f TEST; then
-        cat TEST >>$TEST_FILE
-    fi
-
-    git log -1 | sed "s/^ *//g" | grep ^TEST_ >>$TEST_FILE
-    cd "$TEST_DIR"
-fi
 
 if test -d "$ZFS_BUILD_DIR"; then
     cd "$ZFS_BUILD_DIR"
@@ -56,7 +44,6 @@ cat << EOF >> $TEST_FILE
 #
 # Additional environment variables for use by bb-test-* scripts.
 #
-SPL_BUILD_DIR=$SPL_BUILD_DIR
 ZFS_BUILD_DIR=$ZFS_BUILD_DIR
 TEST_DIR=$TEST_DIR
 TEST_METHOD=$TEST_METHOD
@@ -68,7 +55,6 @@ TEST_METHOD=${TEST_METHOD:-"packages"}
 case "$TEST_METHOD" in
 packages|kmod|pkg-kmod|dkms|dkms-kmod|system)
     cat << EOF >> $TEST_FILE
-SPLAT=${SPLAT:-"splat"}
 ZPOOL=${ZPOOL:-"zpool"}
 ZFS=${ZFS:-"zfs"}
 
@@ -80,7 +66,6 @@ EOF
     ;;
 in-tree)
     cat << EOF >> $TEST_FILE
-SPLAT=${SPLAT:-"\$SPL_BUILD_DIR/bin/splat"}
 ZPOOL=${ZPOOL:-"\$ZFS_BUILD_DIR/bin/zpool"}
 ZFS=${ZFS:-"\$ZFS_BUILD_DIR/bin/zfs"}
 
