@@ -60,7 +60,6 @@ ZFS=${ZFS:-"zfs"}
 
 ZFS_SH=${ZFS_SH:-"zfs.sh"}
 ZFS_TESTS_SH=${ZFS_TESTS_SH:-"zfs-tests.sh"}
-ZIMPORT_SH=${ZIMPORT_SH:-"zimport.sh"}
 ZLOOP_SH=${ZLOOP_SH:-"zloop.sh"}
 EOF
     ;;
@@ -71,7 +70,6 @@ ZFS=${ZFS:-"\$ZFS_BUILD_DIR/bin/zfs"}
 
 ZFS_SH=${ZFS_SH:-"\$ZFS_BUILD_DIR/scripts/zfs.sh"}
 ZFS_TESTS_SH=${ZFS_TESTS_SH:-"\$ZFS_BUILD_DIR/scripts/zfs-tests.sh"}
-ZIMPORT_SH=${ZIMPORT_SH:-"\$ZFS_BUILD_DIR/scripts/zimport.sh"}
 ZLOOP_SH=${ZLOOP_SH:-"\$ZFS_BUILD_DIR/scripts/zloop.sh"}
 EOF
     ;;
@@ -85,9 +83,6 @@ esac
 
 # Uncomment when abreviated test runs are needed.
 #cat << EOF >> $TEST_FILE
-#TEST_ZIMPORT_SKIP="yes"
-#TEST_XFSTESTS_SKIP="yes"
-#TEST_ZFSSTRESS_SKIP="yes"
 #TEST_ZTEST_SKIP="no"
 #TEST_ZFSTESTS_SKIP="no"
 #TEST_PTS_SKIP="no"

@@ -88,9 +88,6 @@ class CustomGitHubEventHandler(GitHubEventHandler):
         if match:
             category = self.parse_comments(comments, builders_push_master)
         else:
-            # Don't run the zimport on release or staging branches
-            comments + "\nTEST_ZIMPORT_SKIP=\"yes\""
-
             # Extract if the commit message has property overrides
             # For 0.8 and earlier releases include the legacy builders.
             category = self.parse_comments(comments, builders_push_release)
