@@ -11,7 +11,7 @@ else
     exit 1
 fi
 
-TEST_ZTEST_SKIP=${TEST_ZTEST_SKIP:-"No"}
+TEST_ZTEST_SKIP=${TEST_ZTEST_SKIP:-"Yes"}
 if echo "$TEST_ZTEST_SKIP" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     echo "Skipping disabled test"
     exit 3
