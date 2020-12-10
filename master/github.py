@@ -40,11 +40,9 @@ def query_url(url, token=None):
 class CustomGitHubEventHandler(GitHubEventHandler):
     valid_props = [
         ('^Build[-\s]linux:\s*(yes|no)\s*$', 'override-buildlinux'),
-        ('^Build[-\s]lustre:\s*(yes|no)\s*$', 'override-buildlustre'),
         ('^Build[-\s]zfs:\s*(yes|no)\s*$', 'override-buildzfs'),
         ('^Built[-\s]in:\s*(yes|no)\s*$', 'override-builtin'),
         ('^Check[-\s]lint:\s*(yes|no)\s*$', 'override-checklint'),
-        ('^Configure[-|\s]lustre:(.*)$', 'override-configlustre'),
         ('^Configure[-|\s]zfs:(.*)$', 'override-configzfs'),
         ('^Perf[-|\s]zts:\s*(yes|no)\s*$', 'override-perfzts'),
         ('^Perf[-|\s]pts:\s*(yes|no)\s*$', 'override-perfpts'),
