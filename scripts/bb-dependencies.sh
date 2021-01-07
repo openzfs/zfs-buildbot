@@ -64,7 +64,7 @@ CentOS*)
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
     elif cat /etc/centos-release | grep -Eq "release 7."; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 8."; then
+    elif cat /etc/centos-release | grep -Eq "release 8"; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     else
         echo "No extra repo packages to install..."
@@ -93,7 +93,7 @@ CentOS*)
         sudo -E yum -y --skip-broken install --enablerepo=epel libasan \
             python-devel python-setuptools python-cffi \
             python36 python36-devel python36-setuptools python36-cffi
-    elif cat /etc/centos-release | grep -Eq "release 8."; then
+    elif cat /etc/centos-release | grep -Eq "release 8"; then
         sudo -E yum -y --skip-broken install libasan libtirpc-devel \
             python3-devel python3-setuptools python3-cffi
     fi
