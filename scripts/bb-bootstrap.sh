@@ -176,7 +176,7 @@ CentOS*)
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
     elif cat /etc/centos-release | grep -Eq "release 7."; then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 8."; then
+    elif cat /etc/centos-release | grep -Eq "release 8"; then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
         yum -y install gcc
         yum -y module install python27
@@ -204,7 +204,7 @@ CentOS*)
         yum --enablerepo=epel -y install gcc python-pip python-devel
         pip install --upgrade pip
         pip --quiet install buildbot-slave
-    elif cat /etc/centos-release | grep -Eq "release 8."; then
+    elif cat /etc/centos-release | grep -Eq "release 8"; then
         if which pip2 > /dev/null ; then
             pip2 install buildbot-slave
         elif which pip > /dev/null ; then
