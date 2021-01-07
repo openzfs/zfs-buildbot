@@ -188,6 +188,13 @@ CentOS*)
     # To minimize EPEL leakage, disable by default...
     sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
+    # The cloud-init-19.4-7.el7 package broke rebooting instances due to
+    # an incorrect dependency on NetworkManager.  Apply a workaround:
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1748015
+    if cat /etc/centos-release | grep -Eq "release 7."; then
+        sed --in-place '/reload-or-try-restart NetworkManager.service/d' /etc/systemd/system/cloud-init.target.wants/cloud-final.service
+    fi
+
     if cat /etc/redhat-release | grep -Eq "release 6."; then
         # The buildbot-slave package isn't available from a common repo.
         BUILDSLAVE_URL="http://build.zfsonlinux.org"
@@ -195,6 +202,7 @@ CentOS*)
         yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
     elif cat /etc/redhat-release | grep -Eq "release 7."; then
         yum --enablerepo=epel -y install gcc python-pip python-devel
+        pip install --upgrade pip
         pip --quiet install buildbot-slave
     elif cat /etc/centos-release | grep -Eq "release 8."; then
         if which pip2 > /dev/null ; then
