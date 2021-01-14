@@ -398,9 +398,10 @@ EOF
     pkg_install -y \
         curl \
         git-lite \
-        py27-pip \
+        python27 \
         sudo
-    pip-2.7 --quiet install buildbot-slave
+    python2.7 -m ensurepip
+    pip --quiet install buildbot-slave
 
     pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
