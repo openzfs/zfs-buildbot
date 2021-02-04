@@ -7,7 +7,7 @@ fi
 case "$BB_NAME" in
 FreeBSD*)
 	MAKE="gmake WITH_DEBUG=true"
-	if expr $(freebsd-version -k) : "13.0-" >/dev/null; then
+	if expr $(freebsd-version -k) : "14.0-" >/dev/null; then
 		MAKE="$MAKE WITH_INVARIANTS=true"
 	fi
 	NCPU=$(sysctl -n hw.ncpu)
