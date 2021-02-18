@@ -202,7 +202,11 @@ CentOS*)
         yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
     elif cat /etc/redhat-release | grep -Eq "release 7."; then
         yum --enablerepo=epel -y install gcc python-pip python-devel
-        pip install --upgrade pip
+
+        # python2 pip support has ended, install last version released
+        # https://stackoverflow.com/questions/65896334/python-pip-broken-wiith-sys-stderr-writeferror-exc
+        pip install --upgrade "pip < 21.0"
+
         pip --quiet install buildbot-slave
     elif cat /etc/centos-release | grep -Eq "release 8"; then
         if which pip2 > /dev/null ; then
