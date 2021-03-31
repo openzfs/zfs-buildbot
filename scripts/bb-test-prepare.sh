@@ -210,6 +210,19 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
      esac
 fi
 
+# Ensure the default zfs-zed daemon is disabled during testing since
+# it may interfere with some of the ZTS test cases.
+case "$BB_NAME" in
+    Amazon*|CentOS*|Debian*|Fedora*|Ubuntu*)
+        sudo -E systemctl stop zfs-zed
+        ;;
+    FreeBSD*)
+	;;
+    *)
+        echo "$BB_NAME unknown platform"
+        ;;
+esac
+
 # Latent slaves, which set BB_SHUTDOWN="Yes" in /etc/buildslave when
 # bootstrapping should be automatically shutdown after 8 hours.  This
 # is done to ensure if the buildmaster terminates unexpectedly any
