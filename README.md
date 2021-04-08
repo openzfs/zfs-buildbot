@@ -53,6 +53,7 @@ specific builders they should be enumerated as a comma separated list.
   * __ubuntu18__: Ubuntu 18.04 LTS (x86_64)
   * __freebsd12__: FreeBSD 12 (x86_64)
   * __freebsd13__: FreeBSD 13 (x86_64)
+  * __freebsd14__: FreeBSD 14 (x86_64)
 
 * Additional Builders:
 
