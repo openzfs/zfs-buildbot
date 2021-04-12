@@ -278,6 +278,9 @@ check() {
 	name=$(basename "$(dirname "$1")")
 	test_url=$(build_url $name $nr)
 
+	# Ignore the coverage builder
+	[[ "$name" = "Ubuntu_18_04_x86_64_Coverage__TEST_" ]] && return 1
+
 	# Annotate pull requests vs branch commits
 	if grep -q "refs/pull" "$git_log"; then
 		origin=$(grep -m1 "git fetch" "$git_log" | \
@@ -372,8 +375,14 @@ while read LINE1; do
 			ZFSONLINUX_STATUS_TEXT=$STATUS_HIGH_TEXT
 		fi
 
-		# Match ZTS base name in exceptions list.
-		EXCEPTION=$(echo "$ZFSONLINUX_EXCEPTIONS" | grep -E "^$base")
+		# Invalid test names should be ignored.
+		if [[ ! "${ZFSONLINUX_NAME}" =~ ^tests/functional/.* ]]; then
+			continue
+		fi
+
+		# Match ZTS name in exceptions list.
+		EXCEPTION=$(echo "$ZFSONLINUX_EXCEPTIONS" | \
+		    grep -E "^${ZFSONLINUX_NAME##*tests/functional/}")
 		if [ -n "$EXCEPTION" ]; then
 			EXCEPTION_ISSUE=$(echo $EXCEPTION | cut -f2 -d'|' | tr -d ' ')
 			EXCEPTION_STATE=$(echo $EXCEPTION | cut -d'|' -f3-)
