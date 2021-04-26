@@ -34,6 +34,7 @@ cli_root/zpool_destroy/zpool_destroy_001_pos |- |
 cli_root/zpool_import/import_rewind_device_replaced |- | 
 cli_root/zpool_import/import_rewind_config_changed |- | 
 cli_root/zpool_import/zpool_import_missing_003_pos |- | 
+cli_root/zpool_initialize/zpool_initialize_import_export |- | 
 cli_root/zpool_upgrade/zpool_upgrade_004_pos |- | 
 history/history_004_pos |- | 
 history/history_005_neg |- | 
@@ -44,6 +45,7 @@ io/mmap |- |
 l2arc/persist_l2arc_007_pos |- | 
 largest_pool/largest_pool_001_pos |- | 
 mmp/mmp_on_uberblocks |- | 
+pool_checkpoint/checkpoint_discard_busy |- | 
 pyzfs/pyzfs_unittest |- | 
 no_space/enospc_002_pos |- | 
 redundancy/redundancy_004_neg |- | 
