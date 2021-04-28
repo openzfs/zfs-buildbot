@@ -19,7 +19,7 @@ apt_get_install () {
         [ $? -ne 11 ] && break
 
         sleep 0.5
-    done 
+    done
 }
 
 # Temporary workaround for FreeBSD pkg db locking race
@@ -55,7 +55,7 @@ Amazon*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel \
         libffi-devel libaio-devel libmount-devel pam-devel \
-        python-devel python-setuptools python-cffi
+        python-devel python-setuptools python-cffi libcurl-devel
     ;;
 
 CentOS*)
@@ -86,7 +86,7 @@ CentOS*)
     sudo -E yum -y --skip-broken install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        openssl-devel libffi-devel pam-devel libaio-devel
+        openssl-devel libffi-devel pam-devel libaio-devel libcurl-devel
 
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Eq "release 7."; then
@@ -118,7 +118,8 @@ Debian*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
-        python3 python3-dev python3-setuptools python3-cffi
+        python3 python3-dev python3-setuptools python3-cffi \
+        libcurl4-openssl-dev
 
     # Testing support libraries
     sudo -E apt-get --yes install libasan4
@@ -142,7 +143,7 @@ Fedora*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
         libaio-devel libmount-devel pam-devel pamtester python-devel python-setuptools \
-        python-cffi python3 python3-devel python3-setuptools python3-cffi
+        python-cffi python3 python3-devel python3-setuptools python3-cffi libcurl-devel
 
     # Testing support libraries
     sudo -E dnf -y install libasan
@@ -221,7 +222,8 @@ Ubuntu*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
-        python3 python3-dev python3-setuptools python3-cffi
+        python3 python3-dev python3-setuptools python3-cffi \
+        libcurl4-openssl-dev
 
     if test "$BB_MODE" = "STYLE"; then
         apt_get_install pax-utils shellcheck cppcheck mandoc
