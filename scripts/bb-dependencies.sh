@@ -202,9 +202,11 @@ FreeBSD*)
         lcov
 
     # Python support libraries
-    pkg_install -y --no-repo-update \
-        py37-cffi \
-        py37-sysctl
+    pkg_install -xy --no-repo-update \
+        '^py3.+-cffi$' \
+        '^py3.+-sysctl$'
+
+    : # Succeed even if the last set of packages failed to install.
     ;;
 
 Ubuntu*)
