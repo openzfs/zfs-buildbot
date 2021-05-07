@@ -163,10 +163,7 @@ FreeBSD*)
         ABI=$(uname -p)
         VERSION=$(freebsd-version -r)
         cd /tmp
-        # One of these will work, the other will fail.  We try both because 13 is
-        # in RC so there are not stable/13 snapshots at the moment.
         fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz
-        fetch https://download.freebsd.org/ftp/releases/${ABI}/${VERSION}/src.txz
         sudo tar xpf src.txz -C /
         rm src.txz
     )
