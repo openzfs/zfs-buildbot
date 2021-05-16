@@ -25,7 +25,6 @@ CONFIG_CRYPTO_DEFLATE=y
 CONFIG_ZLIB_DEFLATE=y
 CONFIG_KALLSYMS=y
 CONFIG_EFI_PARTITION=y
-CONFIG_ZFS=y
 EOF
 
 # Prepare the kernel source.
@@ -40,6 +39,12 @@ sh ./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
 
 # Build the kernel.
 cd $LINUX_DIR
+# if we don't do this, make prints a warning
+grep -v 'CONFIG_ZFS' .config > .tmpconfig
+mv .tmpconfig .config
+cat >> .config << EOF
+CONFIG_ZFS=y
+EOF
 make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
 make -j$(nproc) modules >>$MAKE_LOG 2>&1 || exit 1
 
