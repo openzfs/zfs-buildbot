@@ -46,7 +46,8 @@ Amazon*)
 
     if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
         sudo -E yum -y install \
-            python3 python3-devel python3-setuptools python3-cffi
+            python3 python3-devel python3-setuptools python3-cffi \
+            python3-packaging
     fi
 
     # Required development libraries
@@ -55,7 +56,8 @@ Amazon*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel elfutils-libelf-devel \
         libffi-devel libaio-devel libmount-devel pam-devel \
-        python-devel python-setuptools python-cffi libcurl-devel
+        python-devel python-setuptools python-cffi libcurl-devel \
+        python-packaging
     ;;
 
 CentOS*)
@@ -91,11 +93,13 @@ CentOS*)
     # Packages that are version dependent and not always available
     if cat /etc/centos-release | grep -Eq "release 7."; then
         sudo -E yum -y --skip-broken install --enablerepo=epel libasan \
-            python-devel python-setuptools python-cffi \
-            python36 python36-devel python36-setuptools python36-cffi
+            python-devel python-setuptools python-cffi python-packaging \
+            python36 python36-devel python36-setuptools python36-cffi \
+            python36-packaging
     elif cat /etc/centos-release | grep -Eq "release 8"; then
         sudo -E yum -y --skip-broken install libasan libtirpc-devel \
-            python3-devel python3-setuptools python3-cffi
+            python3-devel python3-setuptools python3-cffi \
+            python3-packaging
     fi
 
     ;;
@@ -118,8 +122,8 @@ Debian*)
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
-        python3 python3-dev python3-setuptools python3-cffi \
-        libcurl4-openssl-dev
+        python-packaging python3 python3-dev python3-setuptools python3-cffi \
+        libcurl4-openssl-dev python3-packaging python-distlib python3-distlib
 
     # Testing support libraries
     sudo -E apt-get --yes install libasan4
@@ -143,7 +147,8 @@ Fedora*)
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
         device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
         libaio-devel libmount-devel pam-devel pamtester python-devel python-setuptools \
-        python-cffi python3 python3-devel python3-setuptools python3-cffi libcurl-devel
+        python-cffi python-packaging python3 python3-devel python3-setuptools \
+        python3-cffi libcurl-devel python3-packaging
 
     # Testing support libraries
     sudo -E dnf -y install libasan
@@ -201,7 +206,8 @@ FreeBSD*)
     # Python support libraries
     pkg_install -xy --no-repo-update \
         '^py3.+-cffi$' \
-        '^py3.+-sysctl$'
+        '^py3.+-sysctl$' \
+        '^py3.+-packaging$'
 
     : # Succeed even if the last set of packages failed to install.
     ;;
@@ -222,7 +228,8 @@ Ubuntu*)
         libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi \
-        libcurl4-openssl-dev
+        libcurl4-openssl-dev python-packaging python3-packaging \
+        python-distlib python3-distlib
 
     if test "$BB_MODE" = "STYLE"; then
         apt_get_install pax-utils shellcheck cppcheck mandoc
