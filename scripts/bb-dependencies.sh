@@ -98,7 +98,9 @@ CentOS*)
             python36-packaging
     elif cat /etc/centos-release | grep -Eq "release 8"; then
         sudo -E yum -y --skip-broken install libasan libtirpc-devel \
-            python3-devel python3-setuptools python3-cffi \
+            python3-devel python3-setuptools python3-cffi
+        # EL8 moved some dev tools into an entirely new repo.
+        sudo -E yum -y --skip-broken install --enablerepo=powertools \
             python3-packaging
     fi
 
