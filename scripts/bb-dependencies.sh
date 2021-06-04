@@ -57,7 +57,7 @@ Amazon*)
         device-mapper-devel openssl-devel elfutils-libelf-devel \
         libffi-devel libaio-devel libmount-devel pam-devel \
         python-devel python-setuptools python-cffi libcurl-devel \
-        python-packaging
+        python-packaging ncompress
     ;;
 
 CentOS*)
@@ -82,7 +82,7 @@ CentOS*)
     # Required utilities.
     sudo -E yum -y --skip-broken install --enablerepo=epel git rpm-build \
         wget curl bc fio acl sysstat mdadm lsscsi parted attr dbench watchdog \
-        ksh nfs-utils samba rng-tools dkms pamtester
+        ksh nfs-utils samba rng-tools dkms pamtester ncompress
 
     # Required development libraries
     sudo -E yum -y --skip-broken install kernel-devel \
@@ -141,7 +141,7 @@ Fedora*)
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools dkms
+        rng-tools dkms ncompress
 
     # Required development libraries
     sudo -E dnf -y install kernel-devel zlib-devel \
