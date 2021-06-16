@@ -42,7 +42,7 @@ Amazon*)
     sudo -E yum -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
         rng-tools dkms php php-gd php-dom php-curl php-zip php-posix php-cli \
-        php-xml php-sqlite3
+        php-xml php-sqlite3 rsync
 
     if cat /etc/os-release | grep -Eq "Amazon Linux 2"; then
         sudo -E yum -y install \
@@ -82,7 +82,7 @@ CentOS*)
     # Required utilities.
     sudo -E yum -y --skip-broken install --enablerepo=epel git rpm-build \
         wget curl bc fio acl sysstat mdadm lsscsi parted attr dbench watchdog \
-        ksh nfs-utils samba rng-tools dkms pamtester ncompress
+        ksh nfs-utils samba rng-tools dkms pamtester ncompress rsync
 
     # Required development libraries
     sudo -E yum -y --skip-broken install kernel-devel \
@@ -116,7 +116,7 @@ Debian*)
     # Required utilities.
     sudo -E apt-get --yes install git alien fakeroot wget curl bc fio acl \
         sysstat lsscsi parted gdebi attr dbench watchdog ksh nfs-kernel-server \
-        samba rng-tools dkms
+        samba rng-tools dkms rsync
 
     # Required development libraries
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
@@ -141,7 +141,7 @@ Fedora*)
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools dkms ncompress
+        rng-tools dkms ncompress rsync
 
     # Required development libraries
     sudo -E dnf -y install kernel-devel zlib-devel \
@@ -160,7 +160,7 @@ FreeBSD*)
     # Temporary workaround for pkg db locking race
     pkg_pid=$(pgrep pkg 2>/dev/null)
     if [ -n "${pkg_pid}" ]; then
-	pwait ${pkg_pid}
+        pwait ${pkg_pid}
     fi
     # Always test with the latest packages on FreeBSD.
     sudo -E pkg upgrade -y --no-repo-update
@@ -203,7 +203,8 @@ FreeBSD*)
         samba413 \
         gdb \
         pamtester \
-        lcov
+        lcov \
+        rsync
 
     # Python support libraries
     pkg_install -xy --no-repo-update \
@@ -221,7 +222,7 @@ Ubuntu*)
     # Required utilities.
     apt_get_install git alien fakeroot wget curl bc fio acl \
         sysstat mdadm lsscsi parted gdebi attr dbench watchdog ksh \
-        nfs-kernel-server samba rng-tools xz-utils dkms
+        nfs-kernel-server samba rng-tools xz-utils dkms rsync
 
     # Required development libraries
     apt_get_install linux-headers-$(uname -r) \
