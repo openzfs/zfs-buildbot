@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if test -f /etc/buildslave; then
-	. /etc/buildslave
+if test -f /etc/buildworker; then
+	. /etc/buildworker
 fi
 
 case "$BB_NAME" in

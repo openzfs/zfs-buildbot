@@ -17,8 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Check for a local cached configuration.
-if test -f /etc/buildslave; then
-    . /etc/buildslave
+if test -f /etc/buildworker; then
+    . /etc/buildworker
 fi
 
 # These parameters should be set and exported in the user-data script that
@@ -37,10 +37,10 @@ if test ! "$BB_MODE"; then
     BB_MODE="BUILD"
 fi
 if test ! "$BB_ADMIN"; then
-    BB_ADMIN="Automated latent BuildBot slave <buildbot@zfsonlinux.org>"
+    BB_ADMIN="Automated latent BuildBot worker <buildbot@zfsonlinux.org>"
 fi
 if test ! "$BB_DIR"; then
-    BB_DIR="/var/lib/buildbot/slaves/zfs"
+    BB_DIR="/var/lib/buildbot/workers/zfs"
 fi
 if test ! "$BB_USE_PIP"; then
     BB_USE_PIP=0
@@ -49,14 +49,14 @@ if test ! "$BB_KERNEL_TYPE"; then
     BB_KERNEL_TYPE="STD"
 fi
 
-if test ! -f /etc/buildslave; then
-    echo "BB_MASTER=\"$BB_MASTER\""      > /etc/buildslave
-    echo "BB_NAME=\"$BB_NAME\""         >> /etc/buildslave
-    echo "BB_PASSWORD=\"$BB_PASSWORD\"" >> /etc/buildslave
-    echo "BB_MODE=\"$BB_MODE\""         >> /etc/buildslave
-    echo "BB_ADMIN=\"$BB_ADMIN\""       >> /etc/buildslave
-    echo "BB_DIR=\"$BB_DIR\""           >> /etc/buildslave
-    echo "BB_SHUTDOWN=\"Yes\""          >> /etc/buildslave
+if test ! -f /etc/buildworker; then
+    echo "BB_MASTER=\"$BB_MASTER\""      > /etc/buildworker
+    echo "BB_NAME=\"$BB_NAME\""         >> /etc/buildworker
+    echo "BB_PASSWORD=\"$BB_PASSWORD\"" >> /etc/buildworker
+    echo "BB_MODE=\"$BB_MODE\""         >> /etc/buildworker
+    echo "BB_ADMIN=\"$BB_ADMIN\""       >> /etc/buildworker
+    echo "BB_DIR=\"$BB_DIR\""           >> /etc/buildworker
+    echo "BB_SHUTDOWN=\"Yes\""          >> /etc/buildworker
 fi
 
 
@@ -142,7 +142,7 @@ Amazon*)
     sed -e "s/enabled=1/enabled=0/g" -i /etc/yum.repos.d/epel.repo
 
     yum -y install deltarpm gcc python-pip python-devel
-    easy_install --quiet buildbot-slave
+    easy_install --quiet buildbot-worker
 
     # Install the latest kernel to reboot on to.
     if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
@@ -196,10 +196,10 @@ CentOS*)
     fi
 
     if cat /etc/redhat-release | grep -Eq "release 6."; then
-        # The buildbot-slave package isn't available from a common repo.
-        BUILDSLAVE_URL="http://build.zfsonlinux.org"
-        BUILDSLAVE_RPM="buildbot-slave-0.8.8-2.el6.noarch.rpm"
-        yum -y install $BUILDSLAVE_URL/$BUILDSLAVE_RPM
+        # The buildbot-worker package isn't available from a common repo.
+        BUILDWORKER_URL="http://build.zfsonlinux.org"
+        BUILDWORKER_RPM="buildbot-slave-0.8.8-2.el6.noarch.rpm"
+        yum -y install $BUILDWORKER_URL/$BUILDWORKER_RPM
     elif cat /etc/redhat-release | grep -Eq "release 7."; then
         yum --enablerepo=epel -y install gcc python-pip python-devel
 
@@ -207,14 +207,14 @@ CentOS*)
         # https://stackoverflow.com/questions/65896334/python-pip-broken-wiith-sys-stderr-writeferror-exc
         pip install --upgrade "pip < 21.0"
 
-        pip --quiet install buildbot-slave
+        pip --quiet install buildbot-worker
     elif cat /etc/centos-release | grep -Eq "release 8"; then
         if which pip2 > /dev/null ; then
-            pip2 install buildbot-slave
+            pip2 install buildbot-worker
         elif which pip > /dev/null ; then
-            pip install buildbot-slave
+            pip install buildbot-worker
         else
-            pip3 install buildbot-slave
+            pip3 install buildbot-worker
         fi
     else
         echo "Unknown CentOS release:"
@@ -266,13 +266,13 @@ Debian*)
         BB_USE_PIP=1
     fi
 
-    # Relying on the pip version of the buildslave is more portable but
+    # Relying on the pip version of the buildworker is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
         apt-get --yes install gcc curl python-pip python-dev
-        pip --quiet install buildbot-slave
+        pip --quiet install buildbot-worker
     else
-        apt-get --yes install curl buildbot-slave
+        apt-get --yes install curl buildbot-worker
     fi
 
     ARCH=$(dpkg --print-architecture)
@@ -318,7 +318,7 @@ Fedora*)
         BB_USE_PIP=1
     fi
 
-    # Relying on the pip version of the buildslave is more portable but
+    # Relying on the pip version of the buildworker is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
 
@@ -331,14 +331,14 @@ Fedora*)
 
         dnf -y install gcc python2 python2-devel python2-pip
         if which pip2 > /dev/null ; then
-            pip2 install buildbot-slave
+            pip2 install buildbot-worker
         elif which pip > /dev/null ; then
-            pip install buildbot-slave
+            pip install buildbot-worker
         else
-            pip3 install buildbot-slave
+            pip3 install buildbot-worker
         fi
     else
-        dnf -y install buildbot-slave
+        dnf -y install buildbot-worker
     fi
 
     # Install the latest kernel to reboot on to.  When testing on Rawhide
@@ -354,8 +354,7 @@ Fedora*)
         fi
 
         REBOOT=1
-
-        # Ensure crontab is installed to start the build slave post reboot.
+        # Ensure crontab is installed to start the build worker post reboot.
         dnf -y install cronie
     fi
 
@@ -405,7 +404,7 @@ EOF
         python27 \
         sudo
     python2.7 -m ensurepip
-    pip --quiet install buildbot-slave
+    pip --quiet install buildbot-worker
 
     pw useradd buildbot
     echo "buildbot ALL=(ALL) NOPASSWD: ALL" \
@@ -440,7 +439,7 @@ Ubuntu*)
         BB_USE_PIP=1
     fi
 
-    # Relying on the pip version of the buildslave is more portable but
+    # Relying on the pip version of the buildworker is more portable but
     # slower to bootstrap.  By default prefer the packaged version.
     if test $BB_USE_PIP -ne 0; then
 
@@ -454,9 +453,9 @@ Ubuntu*)
             python2 ./get-pip.py
         fi
 
-        pip --quiet install buildbot-slave
+        pip --quiet install buildbot-worker
     else
-        apt-get --yes install buildbot-slave
+        apt-get --yes install buildbot-worker
     fi
 
     # Install the latest kernel to reboot on to.
@@ -491,19 +490,19 @@ esac
 set +x
 
 if [ -x /usr/bin/buildslave ]; then
-    BUILDSLAVE="/usr/bin/buildslave"
+    BUILDWORKER="/usr/bin/buildslave"
 else
-    BUILDSLAVE="/usr/local/bin/buildslave"
+    BUILDWORKER="/usr/local/bin/buildslave"
 fi
 
-# Generic buildslave configuration
+# Generic buildworker configuration
 if test ! -d $BB_DIR; then
     mkdir -p $BB_DIR/info
     chown buildbot:buildbot $BB_DIR
-    sudo -E -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
+    sudo -E -u buildbot $BUILDWORKER create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
 
-# Extract some of the EC2 meta-data and make it visible in the buildslave
+# Extract some of the EC2 meta-data and make it visible in the buildworker
 echo $BB_ADMIN > $BB_DIR/info/admin
 $CURL "${METAROOT}/meta-data/public-hostname" > $BB_DIR/info/host
 echo >> $BB_DIR/info/host
@@ -521,12 +520,12 @@ grep 'processor' /proc/cpuinfo >> $BB_DIR/info/host
 set -x
 
 # Finally, start it.  If all goes well, at this point you should see a buildbot
-# slave joining your farm.  You can then manage the rest of the work from the
+# worker joining your farm.  You can then manage the rest of the work from the
 # buildbot master.
 if test $REBOOT -eq 0; then
     sudo -E -u buildbot $BUILDSLAVE start $BB_DIR
 else
-    echo "@reboot sudo -E -u buildbot $BUILDSLAVE start $BB_DIR" | crontab -
+    echo "@reboot sudo -E -u buildbot $BUILDWORKER start $BB_DIR" | crontab -
     crontab -l
     sudo -E reboot
 fi

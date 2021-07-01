@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check for a local cached configuration.
-if test -f /etc/buildslave; then
-	. /etc/buildslave
+if test -f /etc/buildworker; then
+	. /etc/buildworker
 fi
 
 # Custom test options will be saved in the tests directory.
