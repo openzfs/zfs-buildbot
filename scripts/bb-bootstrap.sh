@@ -323,7 +323,7 @@ Fedora*)
     if test $BB_USE_PIP -ne 0; then
 
         # Python 2 has been removed from Fedora 32.  The required pip2
-        # pacakages are still provided by the UnitedRPMs repository.
+        # packages are still provided by the UnitedRPMs repository.
         if test $VERSION -ge 32; then
             rpm --import https://raw.githubusercontent.com/UnitedRPMs/unitedrpms/master/URPMS-GPG-PUBLICKEY-Fedora
             dnf -y install https://github.com/UnitedRPMs/unitedrpms/releases/download/17/unitedrpms-$(rpm -E %fedora)-17.fc$(rpm -E %fedora).noarch.rpm
