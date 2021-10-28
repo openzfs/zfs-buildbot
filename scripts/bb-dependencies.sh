@@ -118,8 +118,21 @@ Debian*)
         sysstat lsscsi parted gdebi attr dbench watchdog ksh nfs-kernel-server \
         samba rng-tools dkms rsync
 
+    # Workaround weirdness with the Debian 10 arm64 image
+    # It's trying to get an old bpo header package because it's running an old
+    # bpo kernel.
+    # Since it's no longer in the repos, let's put this in a separate command in case it fails,
+    # and just...go grab it, for now.
+    sudo -E apt-get --yes install linux-headers-$(uname -r)
+
+    if [ "$(uname -r)" = "5.10.0-0.bpo.8-cloud-arm64" ]; then
+	wget "https://snapshot.debian.org/archive/debian/20210901T090918Z/pool/main/l/linux/linux-headers-5.10.0-0.bpo.8-common_5.10.46-4~bpo10%2B1_all.deb"
+	wget "https://snapshot.debian.org/archive/debian/20210901T090918Z/pool/main/l/linux/linux-headers-5.10.0-0.bpo.8-arm64_5.10.46-4~bpo10%2B1_arm64.deb"
+	apt install `pwd`/linux-headers-*.deb
+    fi
+
     # Required development libraries
-    sudo -E apt-get --yes install linux-headers-$(uname -r) \
+    sudo -E apt-get --yes install \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
