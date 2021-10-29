@@ -281,12 +281,6 @@ Debian*)
         apt-get --yes install --only-upgrade linux-image-$ARCH
         REBOOT=1
     fi
-    # Buster has a different arm64 kernel (5.7 vs 4.19) for EC2
-    # From Bullseye up linux-image and limux-image-cloud are the same release
-    if test $VERSION -eq 10 -a "$ARCH" = "arm64"; then
-        apt-get --yes install linux-image-cloud-arm64
-        REBOOT=1
-    fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
