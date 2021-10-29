@@ -145,10 +145,8 @@ Amazon*)
     easy_install --quiet buildbot-slave
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        yum -y update kernel
-        REBOOT=1
-    fi
+    yum -y update kernel
+    REBOOT=1
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
@@ -222,25 +220,22 @@ CentOS*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        yum -y update kernel
-        REBOOT=1
+    yum -y update kernel
+    REBOOT=1
 
-        # User namespaces must be enabled at boot time for CentOS 7
-        if cat /etc/redhat-release | grep -Eq "release 7."; then
-            grubby --args="user_namespace.enable=1" \
-                --update-kernel="$(grubby --default-kernel)"
-            grubby --args="namespace.unpriv_enable=1" \
-                --update-kernel="$(grubby --default-kernel)"
-            echo "user.max_user_namespaces=3883" > /etc/sysctl.d/99-userns.conf
-        fi
+    # User namespaces must be enabled at boot time for CentOS 7
+    if cat /etc/redhat-release | grep -Eq "release 7."; then
+        grubby --args="user_namespace.enable=1" \
+            --update-kernel="$(grubby --default-kernel)"
+        grubby --args="namespace.unpriv_enable=1" \
+            --update-kernel="$(grubby --default-kernel)"
+        echo "user.max_user_namespaces=3883" > /etc/sysctl.d/99-userns.conf
     fi
 
     # Use the debug kernel instead if indicated
     if test "$BB_KERNEL_TYPE" = "DEBUG"; then
         yum -y install kernel-debug
         set_boot_kernel
-        REBOOT=1
     fi
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
@@ -275,12 +270,10 @@ Debian*)
         apt-get --yes install curl buildbot-slave
     fi
 
-    ARCH=$(dpkg --print-architecture)
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        apt-get --yes install --only-upgrade linux-image-$ARCH
-        REBOOT=1
-    fi
+    ARCH=$(dpkg --print-architecture)
+    apt-get --yes install --only-upgrade linux-image-$ARCH
+    REBOOT=1
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     if ! id -u buildbot >/dev/null 2>&1; then
@@ -337,26 +330,23 @@ Fedora*)
 
     # Install the latest kernel to reboot on to.  When testing on Rawhide
     # always install the nodebug kernel rather than the default kernel.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        if grep -q "Rawhide" /etc/fedora-release; then
-            dnf config-manager --add-repo=http://dl.fedoraproject.org/pub/alt/rawhide-kernel-nodebug/fedora-rawhide-kernel-nodebug.repo
-            dnf update
-            dnf -y --enablerepo=fedora-rawhide-kernel-nodebug \
-                update kernel-core kernel-devel
-        else
-            dnf -y update kernel-core kernel-devel
-        fi
-
-        REBOOT=1
-
-        # Ensure crontab is installed to start the build slave post reboot.
-        dnf -y install cronie
+    if grep -q "Rawhide" /etc/fedora-release; then
+        dnf config-manager --add-repo=http://dl.fedoraproject.org/pub/alt/rawhide-kernel-nodebug/fedora-rawhide-kernel-nodebug.repo
+        dnf update
+        dnf -y --enablerepo=fedora-rawhide-kernel-nodebug \
+            update kernel-core kernel-devel
+    else
+        dnf -y update kernel-core kernel-devel
     fi
+
+    REBOOT=1
+
+    # Ensure crontab is installed to start the build slave post reboot.
+    dnf -y install cronie
 
     # Use the debug kernel instead if indicated
     if test "$BB_KERNEL_TYPE" = "DEBUG"; then
         dnf -y install kernel-debug kernel-debug-devel
-        REBOOT=1
     else
         dnf -y remove kernel-debug kernel-debug-devel
     fi
@@ -454,10 +444,8 @@ Ubuntu*)
     fi
 
     # Install the latest kernel to reboot on to.
-    if test "$BB_MODE" = "TEST" -o "$BB_MODE" = "PERF"; then
-        apt-get --yes install --only-upgrade linux-image-generic
-        REBOOT=1
-    fi
+    apt-get --yes install --only-upgrade linux-image-generic
+    REBOOT=1
 
     # User buildbot needs to be added to sudoers and requiretty disabled.
     # Set the sudo umask to 0000, this ensures that all .gcda profiling files
