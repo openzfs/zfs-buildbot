@@ -170,7 +170,8 @@ FreeBSD*)
         ABI=$(uname -p)
         VERSION=$(freebsd-version -r)
         cd /tmp
-        fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz
+        fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz ||
+        fetch https://download.freebsd.org/ftp/releases/${ABI}/${VERSION}/src.txz
         sudo tar xpf src.txz -C /
         rm src.txz
     )
