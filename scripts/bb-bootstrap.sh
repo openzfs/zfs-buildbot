@@ -312,8 +312,9 @@ Fedora*)
         # Python 2 has been removed from Fedora 32.  The required pip2
         # pacakages are still provided by the UnitedRPMs repository.
         if test $VERSION -ge 32; then
-            rpm --import https://raw.githubusercontent.com/UnitedRPMs/unitedrpms/master/URPMS-GPG-PUBLICKEY-Fedora
-            dnf -y install https://github.com/UnitedRPMs/unitedrpms/releases/download/17/unitedrpms-$(rpm -E %fedora)-17.fc$(rpm -E %fedora).noarch.rpm
+            yum -y install --skip-broken \
+                https://kojipkgs.fedoraproject.org/packages/python-pip/19.1.1/7.fc31/noarch/python2-pip-19.1.1-7.fc31.noarch.rpm \
+                https://kojipkgs.fedoraproject.org/packages/python-setuptools/41.6.0/1.fc31/noarch/python2-setuptools-41.6.0-1.fc31.noarch.rpm
         fi
 
         dnf -y install gcc python2 python2-devel python2-pip
