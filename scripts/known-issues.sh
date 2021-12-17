@@ -238,8 +238,11 @@ function build_url()
 	Debian_10_x86_64__TEST_)
 		encoded_name="Debian%2010%20x86_64%20%28TEST%29"
 		;;
-	Fedora_33_x86_64__TEST_)
-		encoded_name="Fedora%2033%20x86_64%20%28TEST%29"
+	Debian_11_x86_64__TEST_)
+		encoded_name="Debian%2011%20x86_64%20%28TEST%29"
+		;;
+	Fedora_34_x86_64__TEST_)
+		encoded_name="Fedora%2034%20x86_64%20%28TEST%29"
 		;;
 	FreeBSD_stable_12_amd64__TEST_)
 		encoded_name="FreeBSD%20stable%2F12%20amd64%20%28TEST%29"
