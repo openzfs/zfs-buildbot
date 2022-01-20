@@ -209,9 +209,9 @@ FreeBSD*)
 
     # Python support libraries
     pkg_install -xy --no-repo-update \
-        '^py3.+-cffi$' \
-        '^py3.+-sysctl$' \
-        '^py3.+-packaging$'
+        '^py3[[:digit:]]+-cffi$' \
+        '^py3[[:digit:]]+-sysctl$' \
+        '^py3[[:digit:]]+-packaging$'
 
     : # Succeed even if the last set of packages failed to install.
     ;;
