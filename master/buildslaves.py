@@ -136,7 +136,7 @@ esac
                 user_data=None, region="us-west-1", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
                 price_multiplier=None, missing_timeout=3600*12,
-                block_device_map=None, get_image=None, **kwargs):
+                block_device_map=None, **kwargs):
 
         self.name = name
         bin_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -190,14 +190,6 @@ esac
                                  "/dev/sdf": { "ephemeral_name": "ephemeral4" },
                                  "/dev/sdg": { "ephemeral_name": "ephemeral5" },
                                }
-
-        # get_image can be used to determine an AMI when the slave starts.
-        if callable(get_image):
-            # Trick EC2LatentBuildSlave input validation by providing a "valid" regex.
-            # This won't actually be used because we override get_image().
-            kwargs['valid_ami_location_regex'] = ''
-            # If we just set `self.get_image = get_image` then self doesn't get passed.
-            self.get_image = lambda: get_image(self)
 
         EC2LatentBuildSlave.__init__(
             self, name=name, password=password, instance_type=instance_type, 
