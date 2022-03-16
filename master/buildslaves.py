@@ -80,6 +80,8 @@ FreeBSD)
     # ttyv0,ttyu0,gdb -> ttyu0,ttyv0,gdb
     conscontrol delete ttyu0
     conscontrol add ttyu0
+    # While here, we also need to disable the automatic updates in release AMIs.
+    sysrc firstboot_freebsd_update_enable=NO
     ;;
 *)
     ;;
