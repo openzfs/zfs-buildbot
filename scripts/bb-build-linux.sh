@@ -41,7 +41,7 @@ sh ./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
 cd $LINUX_DIR
 # if we don't do this, make prints a warning
 sed -i '/CONFIG_ZFS/d;$aCONFIG_ZFS=y' .config
-make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
-make -j$(nproc) modules >>$MAKE_LOG 2>&1 || exit 1
+make -kj$(nproc) >>$MAKE_LOG 2>&1 || exit 1
+make -kj$(nproc) modules >>$MAKE_LOG 2>&1 || exit 1
 
 exit 0
