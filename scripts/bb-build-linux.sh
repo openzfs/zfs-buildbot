@@ -40,11 +40,7 @@ sh ./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
 # Build the kernel.
 cd $LINUX_DIR
 # if we don't do this, make prints a warning
-grep -v 'CONFIG_ZFS' .config > .tmpconfig
-mv .tmpconfig .config
-cat >> .config << EOF
-CONFIG_ZFS=y
-EOF
+sed -i '/CONFIG_ZFS/d;$aCONFIG_ZFS=y' .config
 make -j$(nproc) >>$MAKE_LOG 2>&1 || exit 1
 make -j$(nproc) modules >>$MAKE_LOG 2>&1 || exit 1
 
