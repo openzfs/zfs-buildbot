@@ -7,7 +7,7 @@ fi
 case "$BB_NAME" in
 FreeBSD*)
 	MAKE="gmake WITH_DEBUG=true"
-	if sysctl -n kern.conftxt | fgrep -qx $'options\tINVARIANTS'; then
+	if sysctl -n kern.conftxt | grep -Fqx $'options\tINVARIANTS'; then
 		MAKE="$MAKE WITH_INVARIANTS=true"
 	fi
 	NCPU=$(sysctl -n hw.ncpu)
@@ -44,7 +44,7 @@ fi
 
 set -x
 
-sh ./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
+./autogen.sh >>$CONFIG_LOG 2>&1 || exit 1
 
 case "$INSTALL_METHOD" in
 packages|kmod|pkg-kmod|dkms|dkms-kmod)
