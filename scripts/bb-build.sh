@@ -22,6 +22,7 @@ Amazon*|CentOS*|Debian*|Fedora*|SUSE*|Ubuntu*)
 	NCPU=$(nproc)
 	;;
 esac
+export MAKE
 
 LINUX_OPTIONS=${LINUX_OPTIONS:-""}
 CONFIG_OPTIONS=${CONFIG_OPTIONS:-""}
