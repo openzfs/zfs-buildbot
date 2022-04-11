@@ -8,7 +8,7 @@
 # requirements.
 #
 # Repository setup for valid compilation check:
-#	sh autogen.sh
+#	./autogen.sh
 #	./configure --enable-debug
 #
 # mandatory git settings:

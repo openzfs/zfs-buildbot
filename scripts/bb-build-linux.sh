@@ -32,7 +32,7 @@ make prepare >>$MAKE_LOG 2>&1 || exit 1
 
 # Configure ZFS and add it to the kernel tree.
 cd $ZFS_DIR
-sh ./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
+./autogen.sh >>$MAKE_LOG 2>&1 || exit 1
 ./configure --enable-linux-builtin --with-linux=$LINUX_DIR \
     --with-linux-obj=$LINUX_DIR >>$MAKE_LOG 2>&1 || exit 1
 ./copy-builtin $LINUX_DIR >>$MAKE_LOG 2>&1 || exit 1
