@@ -101,7 +101,7 @@ CentOS*)
             python3-devel python3-setuptools python3-cffi
         # EL8 moved some dev tools into an entirely new repo.
         sudo -E yum -y --skip-broken install --enablerepo=powertools \
-            python3-packaging
+            python3-packaging rpcgen
     fi
 
     ;;
@@ -136,7 +136,7 @@ Fedora*)
     sudo -E dnf -y upgrade
 
     # Required development tools.
-    sudo -E dnf -y install gcc make autoconf libtool gdb lcov
+    sudo -E dnf -y install gcc make autoconf libtool gdb lcov rpcgen
 
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
