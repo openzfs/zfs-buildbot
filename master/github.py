@@ -14,7 +14,7 @@ from twisted.python import log
 
 builders_common="arch,"
 builders_linux="centos7,centos8,centos9,centosstream8,debian10,fedora35,builtin,"
-builders_freebsd="freebsd12,freebsd13,freebsd14"
+builders_freebsd="freebsd13,freebsd14"
 
 builders_push_master=builders_common+builders_linux+builders_freebsd+"coverage"
 builders_push_release=builders_common+builders_linux+builders_freebsd
