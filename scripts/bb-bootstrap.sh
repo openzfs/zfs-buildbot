@@ -99,6 +99,103 @@ set_boot_kernel () {
 	fi
 }
 
+enable_local_gpg_check () {
+	# Make sure any F31 package we directly "yum install https://...."
+	# does a signature check.
+	echo "localpkg_gpgcheck=1" >> /etc/yum.conf
+	echo "localpkg_gpgcheck=1" >> /etc/dnf/dnf.conf
+}
+
+disable_local_gpg_check () {
+	sed -i 's/localpkg_gpgcheck=1/localpkg_gpgcheck=0/g' /etc/yum.conf /etc/dnf/dnf.conf
+}
+
+# Install the Fedora 31 RPM signing keys and verify they're correct.
+# This is needed to install F31 python RPMs (and others) for workarounds
+install_f31_keys () {
+	if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-31-x86_64 ] ; then
+		yum -y install https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/31/Everything/x86_64/os/Packages/f/fedora-gpg-keys-31-1.noarch.rpm
+	fi
+	gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-31-x86_64
+
+	# Sanity check the signature we're importing
+	# (From https://getfedora.org/security/)
+	if ! gpg --fingerprint | sed 's/  / /g' 2>&1  | grep -q '7D22 D586 7F2A 4236 474B F7B8 50CB 390B 3C33 59C4' ; then
+		echo "not correct F31 signature"
+		exit 1
+	fi
+	enable_local_gpg_check
+	rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-31-x86_64
+}
+
+# Hacks to install Python 2.7
+#
+# Only used on Almalinux 9
+install_python2_from_source () {
+	dnf -y install zlib-devel bzip2-devel ncurses-devel sqlite-devel gcc wget tar rpm cpio || true
+	install_f31_keys
+
+	# Python 2.7 can't build against the older openssl versions, so need
+	# to install an older one.  The best canidate is to use the
+	# Fedora 31 packages (which install without issue).
+	dnf -y install alternatives || true
+	dnf -y install https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/31/Everything/x86_64/os/Packages/c/compat-openssl10-1.0.2o-8.fc31.x86_64.rpm
+	dnf -y install https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/31/Everything/x86_64/os/Packages/c/compat-openssl10-devel-1.0.2o-8.fc31.x86_64.rpm
+
+	# Get the python source from the F31 src RPM.  The src RPM is signed
+	# by Fedora, so we know it's valid.
+	wget https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/31/Everything/source/tree/Packages/p/python2-2.7.16-4.fc31.src.rpm
+
+	# Sanity: check for Fedora key
+	if ! rpm -K -v 'python2-2.7.16-4.fc31.src.rpm' | grep -q 'key ID' ; then
+		echo "No key for package"
+		exit 1
+	fi
+	# Verify key
+	if ! rpm -K 'python2-2.7.16-4.fc31.src.rpm' ; then
+		echo "Signature doesn't match"
+		exit 1
+	fi
+
+	# Extract source
+	rpm2cpio python2-2.7.16-4.fc31.src.rpm | cpio -idmv
+	cp Python-2.7.16.tar.xz /opt
+
+	cd /opt
+	tar xf Python-2.7.16.tar.xz
+	cd Python-2.7.16
+
+	./configure --prefix=/usr --enable-shared --enable-unicode=ucs4 --with-ensurepip=install
+	make -j
+	make -j altinstall
+
+	sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	sudo update-alternatives --install /usr/bin/python python2 /usr/bin/python2.7 1
+	sudo alternatives --set python /usr/bin/python2.7
+	sudo alternatives --set python2 /usr/bin/python2.7
+
+	if [ ! -e /usr/bin/python2 ] ; then
+		ln -s /usr/bin/python2.7 /usr/bin/python2
+	fi
+
+	echo "/usr/lib/python2.7" > /etc/ld.so.conf.d/python2.7-x86_64.conf
+	echo "/usr/lib/python2.7" > /etc/ld.so.conf.d/python2-x86_64.conf
+	echo "/usr/lib/python2.7" > /etc/ld.so.conf.d/pip2.7-x86_64.conf
+	export LD_LIBRARY_PATH=/usr/lib/python2.7:$LD_LIBRARY_PATH
+	ldconfig
+
+	# Note that when we install the newly built zfs-dkms later on, it will
+	# bring in kernel-devel as a dependency, which in turn brings in
+	# openssl-devel as a dependency, which conflicts with
+	# compat-openssl10-devel.  Now that we are done building python2, we
+	# can remove compat-openssl10-devel to solve the problem.
+	dnf -y remove compat-openssl10-devel
+
+	# Disable localinstall rpm gpg check since we will be doing a
+	# localinstall of our built packages later on (which are not signed).
+	disable_local_gpg_check
+}
+
 # Standardize unused instance storage under /mnt.  Either the first unused
 # NVMe device found, or any ephemeral storage specified in the block mapping.
 # Passing /dev/null for inst_dev will result in the default AMI behavior.
@@ -170,15 +267,19 @@ CentOS*)
     yum -y upgrade
 
     # Required repository packages
-    if cat /etc/centos-release | grep -Eq "release 6."; then
+    if cat /etc/redhat-release | grep -Eq "release 6."; then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 7."; then
+    elif cat /etc/redhat-release | grep -Eq "release 7."; then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 8"; then
+    elif cat /etc/redhat-release | grep -Eq "release 8"; then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
         yum -y install gcc
         yum -y module install python27
         alternatives --set python /usr/bin/python2
+    elif cat /etc/redhat-release | grep -Eq "release 9."; then
+	dnf config-manager --set-enabled crb
+	dnf -y install epel-release
+	yum --enablerepo=epel -y install deltarpm gcc
     else
         echo "No extra repo packages to install..."
     fi
@@ -189,7 +290,7 @@ CentOS*)
     # The cloud-init-19.4-7.el7 package broke rebooting instances due to
     # an incorrect dependency on NetworkManager.  Apply a workaround:
     # https://bugzilla.redhat.com/show_bug.cgi?id=1748015
-    if cat /etc/centos-release | grep -Eq "release 7."; then
+    if cat /etc/redhat-release | grep -Eq "release 7."; then
         sed --in-place '/reload-or-try-restart NetworkManager.service/d' /etc/systemd/system/cloud-init.target.wants/cloud-final.service
     fi
 
@@ -206,7 +307,7 @@ CentOS*)
         pip install --upgrade "pip < 21.0"
 
         pip --quiet install buildbot-slave
-    elif cat /etc/centos-release | grep -Eq "release 8"; then
+    elif cat /etc/redhat-release | grep -Eq "release 8"; then
         if which pip2 > /dev/null ; then
             pip2 install buildbot-slave
         elif which pip > /dev/null ; then
@@ -214,9 +315,14 @@ CentOS*)
         else
             pip3 install buildbot-slave
         fi
+    elif cat /etc/redhat-release | grep -Eq "release 9."; then
+        install_python2_from_source
+        pip2.7 install pathlib
+        pip2.7 install twisted
+        pip2.7 install buildbot-slave==0.8.14
     else
         echo "Unknown CentOS release:"
-        cat /etc/centos-release
+        cat /etc/redhat-release
     fi
 
     # Install the latest kernel to reboot on to.

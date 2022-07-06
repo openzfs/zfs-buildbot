@@ -62,12 +62,18 @@ Amazon*)
 
 CentOS*)
     # Required repository packages
-    if cat /etc/centos-release | grep -Eq "release 6."; then
+    if cat /etc/redhat-release | grep -Eq "release 6."; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 7."; then
+    elif cat /etc/redhat-release | grep -Eq "release 7."; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    elif cat /etc/centos-release | grep -Eq "release 8"; then
+    elif cat /etc/redhat-release | grep -Eq "release 8"; then
         sudo -E yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    elif cat /etc/redhat-release | grep -Eq "release 9"; then
+        sudo dnf config-manager --set-enabled crb
+        sudo dnf -y install epel-release
+
+	# Needed for kmod rpm
+        sudo dnf -y install kernel-abi-stablelists
     else
         echo "No extra repo packages to install..."
     fi
@@ -91,12 +97,12 @@ CentOS*)
         openssl-devel libffi-devel pam-devel libaio-devel libcurl-devel
 
     # Packages that are version dependent and not always available
-    if cat /etc/centos-release | grep -Eq "release 7."; then
+    if cat /etc/redhat-release | grep -Eq "release 7."; then
         sudo -E yum -y --skip-broken install --enablerepo=epel libasan \
             python-devel python-setuptools python-cffi python-packaging \
             python36 python36-devel python36-setuptools python36-cffi \
             python36-packaging
-    elif cat /etc/centos-release | grep -Eq "release 8"; then
+    elif cat /etc/redhat-release | grep -Eq "release [8|9]"; then
         sudo -E yum -y --skip-broken install libasan libtirpc-devel \
             python3-devel python3-setuptools python3-cffi
         # EL8 moved some dev tools into an entirely new repo.
