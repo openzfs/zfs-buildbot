@@ -127,9 +127,7 @@ if echo "$TEST_PREPARE_WATCHDOG" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
     CentOS*)
         if cat /etc/redhat-release | grep -Eq "release 6."; then
             sudo -E /etc/init.d/watchdog start
-        elif cat /etc/redhat-release | grep -Eq "release 7."; then
-            sudo -E systemctl start watchdog
-        elif cat /etc/redhat-release | grep -Eq "release 8"; then
+        elif cat /etc/redhat-release | grep -Eq "release [7|8|9]"; then
             sudo -E systemctl start watchdog
         fi
         ;;
@@ -172,10 +170,7 @@ if echo "$TEST_PREPARE_SHARES" | grep -Eiq "^yes$|^on$|^true$|^1$"; then
             sudo -E /etc/init.d/rpcbind start
             sudo -E /etc/init.d/nfs start
             sudo -E /etc/init.d/smb start
-        elif cat /etc/redhat-release | grep -Eq "release 7."; then
-            sudo -E systemctl start nfs-server
-            sudo -E systemctl start smb
-        elif cat /etc/redhat-release | grep -Eq "release 8"; then
+        elif cat /etc/redhat-release | grep -Eq "release [7|8|9]"; then
             sudo -E systemctl start nfs-server
             sudo -E systemctl start smb
         fi
