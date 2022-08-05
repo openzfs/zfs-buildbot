@@ -514,9 +514,9 @@ EOF
     fi
     if [ -n "$nvme" ]; then
         gpart create -s gpt ${nvme}
-        gpart add -t freebsd-ufs ${nvme}
-        newfs ${nvme}p1
-        mount -o noatime /dev/${nvme}p1 /mnt
+        nvmepart=$(gpart add -t freebsd-ufs ${nvme} | awk '{ print $1 }')
+        newfs ${nvmepart}
+        mount -o noatime /dev/${nvmepart} /mnt
     fi
     ;;
 
