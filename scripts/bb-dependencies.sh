@@ -124,8 +124,14 @@ Debian*)
         sysstat lsscsi parted gdebi attr dbench watchdog ksh nfs-kernel-server \
         samba rng-tools dkms rsync
 
+    # Running kernel headers (separate so it failing doesn't fail to install
+    # other dependencies)
+    sudo -E apt-get --yes install linux-headers-$(uname -r)
+    # Latest kernel headers (just in case) (ditto)
+    sudo -E apt-get --yes install linux-headers-$(dpkg-architecture -q DEB_TARGET_ARCH)
+    
     # Required development libraries
-    sudo -E apt-get --yes install linux-headers-$(uname -r) \
+    sudo -E apt-get --yes install \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
         libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
