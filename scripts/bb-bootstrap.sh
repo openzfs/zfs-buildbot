@@ -496,6 +496,7 @@ EOF
         python27 \
         sudo
     python2.7 -m ensurepip
+    pip --quiet install typing
     pip --quiet install buildbot-slave
 
     pw useradd buildbot
