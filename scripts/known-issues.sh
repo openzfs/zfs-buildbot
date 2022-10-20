@@ -235,6 +235,9 @@ function build_url()
 	CentOS_Stream_8_x86_64__TEST_)
 		encoded_name="CentOS%20Stream%208%20x86_64%20%28TEST%29"
 		;;
+	CentOS_9_x86_64__TEST_)
+		encoded_name="CentOS%209%20x86_64%20%28TEST%29"
+		;;
 	Debian_10_x86_64__TEST_)
 		encoded_name="Debian%2010%20x86_64%20%28TEST%29"
 		;;
