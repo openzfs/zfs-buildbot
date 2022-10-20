@@ -253,12 +253,6 @@ function build_url()
 	Ubuntu_18_04_x86_64_Coverage__TEST_)
 		encoded_name="Ubuntu%2018.04%20x86_64%20Coverage%20%28TEST%29"
 		;;
-	Ubuntu_18_04_x86_64__TEST_)
-		encoded_name="Ubuntu%2018.04%20x86_64%20%28TEST%29"
-		;;
-	Ubuntu_20_04_x86_64__TEST_)
-		encoded_name="Ubuntu%2020.04%20x86_64%20%28TEST%29"
-		;;
 	*)
 		encoded_named="unknown"
 		;;
