@@ -588,7 +588,7 @@ fi
 
 # Generic buildslave configuration
 if test ! -d $BB_DIR; then
-    mkdir -p $BB_DIR/info
+    mkdir -p $BB_DIR
     chown buildbot:buildbot $BB_DIR
     sudo -E -u buildbot $BUILDSLAVE create-slave --umask=022 --usepty=0 $BB_PARAMS
 fi
