@@ -306,15 +306,33 @@ CentOS*)
         # https://stackoverflow.com/questions/65896334/python-pip-broken-wiith-sys-stderr-writeferror-exc
         pip install --upgrade "pip < 21.0"
 
+        # buildbot-slave installs 'Automat' as a dependency.  Newer versions
+        # of Automat give this error on buildbot client startup:
+        #
+        # "cannot import name getfullargspec"
+        #
+        # Automat 0.8.0 seems to not be affected
+        pip install Automat==0.8.0
+
         pip --quiet install buildbot-slave
     elif cat /etc/redhat-release | grep -Eq "release 8"; then
         if which pip2 > /dev/null ; then
-            pip2 install buildbot-slave
+            PIP=pip2
         elif which pip > /dev/null ; then
-            pip install buildbot-slave
+            PIP=pip
         else
-            pip3 install buildbot-slave
+            PIP=pip3
         fi
+
+        # buildbot-slave installs 'Automat' as a dependency.  Newer versions
+        # of Automat give this error on buildbot client startup:
+        #
+        # "cannot import name getfullargspec"
+        #
+        # Automat 0.8.0 seems to not be affected
+        $PIP install Automat==0.8.0
+
+        $PIP install buildbot-slave
     elif cat /etc/redhat-release | grep -Eq "release 9."; then
         install_python2_from_source
         pip2.7 install pathlib
@@ -424,13 +442,24 @@ Fedora*)
         fi
 
         dnf -y install gcc python2 python2-devel python2-pip
+
+
         if which pip2 > /dev/null ; then
-            pip2 install buildbot-slave
+            PIP=pip2
         elif which pip > /dev/null ; then
-            pip install buildbot-slave
+            PIP=pip
         else
-            pip3 install buildbot-slave
+            PIP=pip3
         fi
+
+        # buildbot-slave installs 'Automat' as a dependency.  Newer versions
+        # of Automat give this error on buildbot client startup:
+        #
+        # "cannot import name getfullargspec"
+        #
+        # Automat 0.8.0 seems to not be affected
+        $PIP install Automat==0.8.0
+        $PIP install buildbot-slave
     else
         dnf -y install buildbot-slave
     fi
