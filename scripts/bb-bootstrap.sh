@@ -525,6 +525,8 @@ EOF
         python27 \
         sudo
     python2.7 -m ensurepip
+    # Python 2 is EOL in pip.  We have to manually install some dependencies.
+    pip --quiet install Automat==0.8.0
     pip --quiet install typing
     pip --quiet install buildbot-slave
 
