@@ -325,6 +325,203 @@ with your credentials, then list your builders in the `master.cfg` file, and
 finally start the builder master.  It's assumed you're already familiar with
 Amazon ec2 instances and their terminology.
 
+#### Private master setup example on Ubuntu 18.04 AWS instance
+
+##### As "ubuntu" user:
+```
+sudo apt-get -y update
+sudo apt-get -y upgrade
+sudo apt-get -y dist-upgrade
+sudo reboot
+sudo apt-get -y install python python-pip gcc nginx virtualenv
+sudo adduser --home /home/buildbot buildbot
+sudo cp -a ~/.ssh /home/buildbot
+sudo chown -R buildbot:buildbot /home/buildbot/.ssh
+```
+
+##### Create a new `/etc/nginx/nginx.conf` to proxy the buildbot  webserver on port 8010 to port 80:
+```
+user www-data;
+
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+	worker_connections 768;
+	# multi_accept on;
+}
+
+http {
+	server {
+		listen 80 default_server;
+		listen [::]:80 default_server;
+
+		location / {
+			proxy_set_header Host $http_host;
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header X-Forwarded-Proto $scheme;
+
+			proxy_pass http://localhost:8010;
+		}
+
+		location /scripts/ {
+			root /home/buildbot/zfs-buildbot;
+		}
+
+		# Server sent event (sse) settings
+		location /sse {
+			proxy_buffering off;
+			proxy_pass http://localhost:8010;
+		}
+
+		# Websocket settings
+		location /ws {
+			proxy_http_version 1.1;
+			proxy_set_header Upgrade $http_upgrade;
+			proxy_set_header Connection "upgrade";
+			proxy_pass http://localhost:8010;
+			proxy_read_timeout 6000s;
+		}
+
+		location /change_hook/github {
+			proxy_set_header Host $http_host;
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header X-Forwarded-Proto $scheme;
+			proxy_pass http://localhost:8010/change_hook/github;
+		}
+	}
+}" > /etc/nginx/nginx.conf
+```
+##### Enable nginx
+```
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+##### Now login as "buildbot" user and run:
+```
+virtualenv sandbox
+source sandbox/bin/activate
+pip2 install boto
+pip2 install requests
+pip2 install txgithub
+pip2 install service_identity
+pip2 install buildbot==0.8.14
+
+# Patch our pip version of buildbot
+#
+# Note, the pip version of buildbot doesn't come with cfg-buildslaves.rst
+# which some of our patches require.  Create a fake cfg-buildslaves.rst
+# so that patch doesn't fail.
+mkdir -p ~/sandbox/lib/python2.7/site-packages/docs/manual/
+curl https://raw.githubusercontent.com/buildbot/buildbot/eight/master/docs/manual/cfg-buildslaves.rst -o ~/sandbox/lib/python2.7/site-packages/docs/manual/cfg-buildslaves.rst
+cd ~/zfs-buildbot/master/patches/
+for i in *.patch ; do patch -l -d ~/sandbox/lib/python2.7/site-packages -p2 < $i ; done
+
+# Do initial buildbot setup and start the server
+cd ~/zfs-buildbot/master
+buildbot create-master .
+buildbot start .
+```
+
+Here are some more tweaks you may want for your local buildbot server:
+
+1. Update buildslaves.py with a custom builder name (like "ZFSBuilder-devel")
+2. Set your name as the owner of the build workers.
+3. Use a different `security_name` firewall that allows you to login to a builder.
+   That way, if it doesn't start correctly you can login to the builder and troubleshoot.
+   You will also need to update your `ec2_default_keypair_name` in password.py to point
+   to your SSH key as well.
+4. Update the lines that reference 'build.zfsonlinux.org' and
+   'raw.githubusercontent.com' to point to your buildbot server's IP.
+5. If you're using a test branch from your own repo to kick off a buildbot
+   build, you will want to add your repo to repository.py.
+
+(see below diff for examples of 1-5).
+
+
+```diff
+diff --git a/master/buildslaves.py b/master/buildslaves.py
+index abc3911..2310dfd 100644
+--- a/master/buildslaves.py
++++ b/master/buildslaves.py
+@@ -133,7 +133,7 @@ esac
+     def __init__(self, name, password=None, master='', url='', mode="BUILD",
+                 instance_type="c5d.large", identifier=ec2_default_access,
+                 secret_identifier=ec2_default_secret,
+-                keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
++                keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder-can-ssh',
+                 subnet_id=None, security_group_ids=None,
+                 user_data=None, region="us-west-1", placement='a', max_builds=1,
+                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
+@@ -147,18 +147,20 @@ esac
+         if not tags or tags is None:
+             tags={
+                 "ENV"      : "DEV",
+-                "Name"     : "ZFSBuilder",
++                "Name"     : "ZFSBuilder-devel",
+                 "ORG"      : "COMP",
+-                "OWNER"    : "behlendorf1",
++                "OWNER"    : <your name here>,
+                 "PLATFORM" : self.name,
+                 "PROJECT"  : "ZFS",
+             }
+
+         if master in (None, ''):
+-            master = "build.zfsonlinux.org:9989"
++            master = "<your buildbot server IP address>:9989"
+
+         if url in (None, ''):
+-            url = "https://raw.githubusercontent.com/openzfs/zfs-buildbot/master/scripts/"
++            url = "http://<your buildbot server IP address>/scripts/"
+
+         if password is None:
+             password = ZFSEC2Slave.pass_generator()
+
+
+index 8082691..cf06f10 100644
+--- a/master/master.cfg
++++ b/master/master.cfg
+@@ -18,8 +18,10 @@ import re
+
+ bb_slave_port = 9989
+ bb_web_port = 8010
+-bb_master = "build.zfsonlinux.org:9989"
+-bb_url = "https://raw.githubusercontent.com/openzfs/zfs-buildbot/master/scripts/"
++bb_master = "<your buildbot server IP address>:9989"
++bb_url = "http://<your buildbot server IP address>/scripts/"
+
+
+diff --git a/master/repository.py b/master/repository.py
+index 8306bcc..d23d85c 100644
+--- a/master/repository.py
++++ b/master/repository.py
+@@ -1,7 +1,8 @@
+ # -*- python -*-
+ # ex: set syntax=python:
+
+-zfs_repo = "https://github.com/openzfs/zfs.git"
++zfs_repo = "https://github.com/<your repo here>/zfs.git"
+ linux_repo = "https://github.com/torvalds/linux.git"
+
+ all_repositories = {
+@@ -9,4 +10,8 @@ all_repositories = {
+     "https://github.com/openzfs/zfs" : 'zfs',
+     "https://github.com/torvalds/linux.git" : 'linux',
+     "https://github.com/openzfs/zfs.git" : 'zfs',
++    "https://github.com/<your repo here>/zfs" : 'zfs',
++    "https://github.com/<your repo here>/zfs.git" : 'zfs',
+```
+
+6. In your github settings, set your github webhook to point to:
+   `http://<your buildbot server IP>/change_hook/github`
+
+   Also set your github webhook secret to your `github_secret`
+   value in password.py.
+
+
 ## Licensing
 
 See the [LICENSE](LICENSE) file for license rights and limitations.
