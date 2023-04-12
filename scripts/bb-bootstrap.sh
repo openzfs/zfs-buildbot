@@ -335,6 +335,7 @@ CentOS*)
         $PIP install buildbot-slave
     elif cat /etc/redhat-release | grep -Eq "release 9."; then
         install_python2_from_source
+        pip2.7 install Automat==0.8.0
         pip2.7 install pathlib
         pip2.7 install twisted
         pip2.7 install buildbot-slave==0.8.14
