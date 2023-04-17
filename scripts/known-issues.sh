@@ -334,6 +334,11 @@ while read LINE1; do
 	    ($ZFSONLINUX_PASS + $ZFSONLINUX_FAIL))" | \
 	    awk '{printf "%.2f", $0}')
 
+	# Ignore test results with few samples.
+	if [ "$ZFSONLINUX_PASS" -lt 10 ]; then
+		continue
+	fi
+
 	# Test failure was from an open pull request or branch.
 	if [[ $ZFSONLINUX_ORIGIN =~ $NUMBER_REGEX ]]; then
 
