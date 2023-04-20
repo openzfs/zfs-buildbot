@@ -13,7 +13,7 @@ from dateutil.parser import parse as dateparse
 from twisted.python import log
 
 builders_common="arch,"
-builders_linux="centos7,centos8,centos9,centosstream8,fedora37,builtin,"
+builders_linux="centos7,centos8,centos9,centosstream8,fedora37,fedora38,builtin,"
 builders_freebsd="freebsd13"
 
 builders_push_master=builders_common+builders_linux+builders_freebsd+"coverage"
