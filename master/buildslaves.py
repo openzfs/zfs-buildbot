@@ -9,6 +9,10 @@ from buildbot.plugins import util
 from buildbot.buildslave import BuildSlave
 from buildbot.buildslave.ec2 import EC2LatentBuildSlave
 
+import socket
+hostname=socket.gethostname()
+my_ip=socket.gethostbyname(hostname)
+
 ### BUILDER CLASSES
 class ZFSBuilderConfig(util.BuilderConfig):
     @staticmethod
@@ -133,11 +137,11 @@ esac
     def __init__(self, name, password=None, master='', url='', mode="BUILD",
                 instance_type="c5d.large", identifier=ec2_default_access,
                 secret_identifier=ec2_default_secret,
-                keypair_name=ec2_default_keypair_name, security_name='ZFSBuilder',
-                subnet_id=None, security_group_ids=None,
-                user_data=None, region="us-west-1", placement='a', max_builds=1,
+                keypair_name=ec2_default_keypair_name, security_name="",
+                subnet_id='subnet-05816f35f14929ed5', security_group_ids=["sg-0bca95807c454e00f"],
+                user_data=None, region="us-west-2", placement='a', max_builds=1,
                 build_wait_timeout=60, spot_instance=False, max_spot_price=0.10,
-                price_multiplier=None, missing_timeout=3600*12,
+                price_multiplier=None, missing_timeout=3600*1,
                 block_device_map=None, get_image=None, **kwargs):
 
         self.name = name
@@ -155,7 +159,7 @@ esac
             }
 
         if master in (None, ''):
-            master = "build.zfsonlinux.org:9989"
+            master = my_ip + ":9989"
 
         if url in (None, ''):
             url = "https://raw.githubusercontent.com/openzfs/zfs-buildbot/master/scripts/"
@@ -214,7 +218,7 @@ esac
 class ZFSEC2StyleSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, mode="STYLE",
-            instance_type="m5d.large", max_spot_price=0.10, placement='b',
+            instance_type="m5d.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 large latent build slave
@@ -226,14 +230,14 @@ class ZFSEC2BuildSlave(ZFSEC2Slave):
         }
         assert arch in instance_types
         ZFSEC2Slave.__init__(self, name, mode="BUILD",
-            instance_type=instance_types.get(arch), max_spot_price=0.10, placement='b',
+            instance_type=instance_types.get(arch), max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
 class ZFSEC2TestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m5d.large", max_spot_price=0.10, placement='b',
+            instance_type="m5d.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
@@ -241,19 +245,19 @@ class ZFSEC2TestSlave(ZFSEC2Slave):
 class ZFSEC2ENATestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m3.large", max_spot_price=0.10, placement='b',
+            instance_type="m3.large", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create an HVM EC2 latent test slave
 class ZFSEC2CoverageSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="TEST",
-            instance_type="m3.xlarge", max_spot_price=0.10, placement='b',
+            instance_type="m3.xlarge", max_spot_price=0.10, placement='a',
             spot_instance=True, **kwargs)
 
 # Create a d2.xlarge slave for performance testing because they have disks
 class ZFSEC2PerfTestSlave(ZFSEC2Slave):
     def __init__(self, name, **kwargs):
         ZFSEC2Slave.__init__(self, name, build_wait_timeout=1, mode="PERF",
-            instance_type="d2.xlarge", max_spot_price=0.60, placement='b',
+            instance_type="d2.xlarge", max_spot_price=0.60, placement='a',
             spot_instance=True, **kwargs)
