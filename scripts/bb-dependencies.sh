@@ -180,6 +180,19 @@ FreeBSD*)
         fetch https://download.freebsd.org/ftp/releases/${ABI}/${VERSION}/src.txz
         sudo tar xpf src.txz -C /
         rm src.txz
+
+	# Confirm we have the source code, if not, try git
+	if [ ! -f /usr/src/sys/sys/param.h ]; then
+            if [ -z "$(echo $VERSION | grep -- -RELEASE)" ]; then
+		# This is not a release, try to extract the git commit
+                VSTRING="$(uname -v | cut -d " " -f 3)"
+                HASH="${VSTRING##*-}"
+                git clone -q $HASH https://github.com/freebsd/freebsd-src /usr/src
+            else
+                git clone -q -b releng/${VERSION%%-*} https://github.com/freebsd/freebsd-src /usr/src ||
+                git clone -q -b stable/${VERSION%%.*} https://github.com/freebsd/freebsd-src /usr/src
+            fi
+	fi
     )
 
     # Required development tools
