@@ -185,17 +185,27 @@ FreeBSD*)
 
 	# Confirm we have the source code, if not, try git
 	if [ ! -f /usr/src/sys/sys/param.h ]; then
-            if [ -z "$(echo $VERSION | grep -- -RELEASE)" ]; then
-		# This is not a release, try to extract the git commit
-                uname -v
-                VSTR="$(uname -v | awk 'match($0,/[[:alnum:]]+-n[[:digit:]]+-[[:alnum:]]+/) {print substr($0,RSTART,RLENGTH)}')"
-                HASH="${VSTR##*-}"
-                git clone -q https://github.com/freebsd/freebsd-src /usr/src
+            # Try to extract the git commit
+            uname -v
+            VSTR="$(uname -v | awk 'match($0,/[[:alnum:].-\/]+-n[[:digit:]]+-[[:alnum:]]+/) {print substr($0,RSTART,RLENGTH)}')"
+            BRANCH="${VSTR%%-*}"
+            HASH="${VSTR##*-}"
+            if [ "${BRANCH}" = "main" ]; then
+                git clone -q --single-branch --depth=1000 https://github.com/freebsd/freebsd-src /usr/src
+                cd /usr/src
+                git reset --hard $HASH
+            elif [ "${BRANCH%%/*}" = "releng" ]; then
+                git clone -q --single-branch --depth=200 -b ${BRANCH} https://github.com/freebsd/freebsd-src /usr/src
+                cd /usr/src
+                git reset --hard $HASH
+            elif [ "${BRANCH%%/*}" = "stable" ]; then
+                git clone -q --single-branch --depth=200 -b ${BRANCH} https://github.com/freebsd/freebsd-src /usr/src
                 cd /usr/src
                 git reset --hard $HASH
             else
-                git clone -q -b releng/${VERSION%%-*} https://github.com/freebsd/freebsd-src /usr/src ||
-                git clone -q -b stable/${VERSION%%.*} https://github.com/freebsd/freebsd-src /usr/src
+		# Not sure what branch we are on, so try something likely to work
+                git clone -q --single-branch --depth=1 -b releng/${VERSION%%-*} https://github.com/freebsd/freebsd-src /usr/src ||
+                git clone -q --single-branch --depth=1 -b stable/${VERSION%%.*} https://github.com/freebsd/freebsd-src /usr/src
             fi
 	fi
     )
