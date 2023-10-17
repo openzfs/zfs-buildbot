@@ -185,9 +185,12 @@ FreeBSD*)
 	if [ ! -f /usr/src/sys/sys/param.h ]; then
             if [ -z "$(echo $VERSION | grep -- -RELEASE)" ]; then
 		# This is not a release, try to extract the git commit
-                VSTRING="$(uname -v | cut -d " " -f 3)"
-                HASH="${VSTRING##*-}"
-                git clone -q $HASH https://github.com/freebsd/freebsd-src /usr/src
+                uname -v
+                VSTR="$(uname -v | awk 'match($0,/[[:alnum:]]+-n[[:digit:]]+-[[:alnum:]]+/) {print substr($0,RSTART,RLENGTH)}')"
+                HASH="${VSTR##*-}"
+                git clone -q https://github.com/freebsd/freebsd-src /usr/src
+                cd /usr/src
+                git reset --hard $HASH
             else
                 git clone -q -b releng/${VERSION%%-*} https://github.com/freebsd/freebsd-src /usr/src ||
                 git clone -q -b stable/${VERSION%%.*} https://github.com/freebsd/freebsd-src /usr/src
