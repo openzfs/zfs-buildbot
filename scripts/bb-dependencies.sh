@@ -175,10 +175,12 @@ FreeBSD*)
     (
         ABI=$(uname -p)
         VERSION=$(freebsd-version -r)
+        sudo mkdir -p /usr/src
+        sudo chown -R $(whoami) /usr/src
         cd /tmp
         fetch https://download.freebsd.org/ftp/snapshots/${ABI}/${VERSION}/src.txz ||
         fetch https://download.freebsd.org/ftp/releases/${ABI}/${VERSION}/src.txz
-        sudo tar xpf src.txz -C /
+        tar xpf src.txz -C /
         rm src.txz
 
 	# Confirm we have the source code, if not, try git
