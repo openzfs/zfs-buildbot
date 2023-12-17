@@ -54,7 +54,7 @@ Amazon*)
     sudo -E yum -y install kernel-devel-$(uname -r) \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel elfutils-libelf-devel \
+        device-mapper-devel openssl-devel libargon2-devel elfutils-libelf-devel \
         libffi-devel libaio-devel libmount-devel pam-devel \
         python-devel python-setuptools python-cffi libcurl-devel \
         python-packaging ncompress
@@ -94,7 +94,7 @@ CentOS*)
     sudo -E yum -y --skip-broken install kernel-devel \
         zlib-devel libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        openssl-devel libffi-devel pam-devel libaio-devel libcurl-devel
+        openssl-devel libargon2-devel libffi-devel pam-devel libaio-devel libcurl-devel
 
     # Packages that are version dependent and not always available
     if cat /etc/redhat-release | grep -Eq "release 7."; then
@@ -128,7 +128,7 @@ Debian*)
     sudo -E apt-get --yes install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libaio-dev libffi-dev libelf-dev libmount-dev \
+        libssl-dev libargon2-dev libaio-dev libffi-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
         python-packaging python3 python3-dev python3-setuptools python3-cffi \
         libcurl4-openssl-dev python3-packaging python-distlib python3-distlib
@@ -153,7 +153,7 @@ Fedora*)
     sudo -E dnf -y install kernel-devel zlib-devel \
         libuuid-devel libblkid-devel libselinux-devel \
         xfsprogs-devel libattr-devel libacl-devel libudev-devel \
-        device-mapper-devel openssl-devel libtirpc-devel libffi-devel \
+        device-mapper-devel openssl-devel libargon2-devel libtirpc-devel libffi-devel \
         libaio-devel libmount-devel pam-devel pamtester python-devel python-setuptools \
         python-cffi python-packaging python3 python3-devel python3-setuptools \
         python3-cffi libcurl-devel python3-packaging
@@ -210,6 +210,10 @@ FreeBSD*)
 	fi
     )
 
+    # Required libraries
+    pkg_install -y --no-repo-update \
+        libargon2
+
     # Required development tools
     pkg_install -y --no-repo-update \
         autoconf \
@@ -263,7 +267,7 @@ Ubuntu*)
     apt_get_install linux-headers-$(uname -r) \
         zlib1g-dev uuid-dev libblkid-dev libselinux-dev \
         xfslibs-dev libattr1-dev libacl1-dev libudev-dev libdevmapper-dev \
-        libssl-dev libffi-dev libaio-dev libelf-dev libmount-dev \
+        libssl-dev libargon2-dev libffi-dev libaio-dev libelf-dev libmount-dev \
         libpam0g-dev pamtester python-dev python-setuptools python-cffi \
         python3 python3-dev python3-setuptools python3-cffi \
         libcurl4-openssl-dev python-packaging python3-packaging \
