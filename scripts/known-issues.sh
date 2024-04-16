@@ -6,11 +6,11 @@
 # of any observed failures.
 #
 
-ZFSONLINUX_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
-ZFSONLINUX_MTIME=30
-ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
-ZFSONLINUX_PRS_INCLUDE="no"
-ZFSONLINUX_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:openzfs/zfs+label:%22Test%20Suite%22)
+OPENZFS_DIR="/home/buildbot/zfs-buildbot/master/*_TEST_"
+OPENZFS_MTIME=30
+OPENZFS_MMIN=$((OPENZFS_MTIME*24*60))
+OPENZFS_PRS_INCLUDE="no"
+OPENZFS_ISSUES=$(curl -s https://api.github.com/search/issues?q=repo:openzfs/zfs+label:%22Test%20Suite%22)
 
 NUMBER_REGEX='^[0-9]+$'
 DATE=$(date)
@@ -66,17 +66,17 @@ while getopts 'hd:e:m:p' OPTION; do
 		exit 1
 		;;
 	d)
-		ZFSONLINUX_DIR=$OPTARG
+		OPENZFS_DIR=$OPTARG
 		;;
 	e)
-		ZFSONLINUX_EXCEPTIONS=$OPTARG
+		OPENZFS_EXCEPTIONS=$OPTARG
 		;;
 	m)
-		ZFSONLINUX_MTIME=$OPTARG
-		ZFSONLINUX_MMIN=$((ZFSONLINUX_MTIME*24*60))
+		OPENZFS_MTIME=$OPTARG
+		OPENZFS_MMIN=$((OPENZFS_MTIME*24*60))
 		;;
 	p)
-		ZFSONLINUX_PRS_INCLUDE="yes"
+		OPENZFS_PRS_INCLUDE="yes"
 		;;
 	esac
 done
@@ -85,7 +85,7 @@ cat << EOF
 <!DOCTYPE html>
 <html>
 <head>
-<title>Known Issue Tracking</title>
+<title>OpenZFS Known Issue Tracking</title>
 <meta name="keyword" content="zfs, openzfs, linux, freebsd"/>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
@@ -191,12 +191,12 @@ tr.group:hover {
 
 </head>
 <body>
-<h1 align='center'>Known Issue Tracking</h1>
+<h1 align='center'>OpenZFS Known Issue Tracking</h1>
 <div id="intro">
 <p>This page is updated regularly and contains a list of all ZFS Test Suite
 issues observed during automated buildbot testing over the last
-<b>$ZFSONLINUX_MTIME days</b>.</p>
-<p>Refer to the <a href="https://github.com/openzfs/zfs/labels/Test%20Suite">Test Suite</a> label in the issue tracker for a complete list of known issues.</p>
+<b>$OPENZFS_MTIME days</b>.</p>
+<p>Refer to the <a href="https://github.com/openzfs/zfs/labels/Component%3A%20Test%20Suite">Test Suite</a> label in the issue tracker for a complete list of known issues.</p>
 </div>
 <div id='maindiv'>
 <table id="maintable" class="display">
@@ -223,7 +223,7 @@ function build_url()
 {
 	local name=$1
 	local nr=$2
-	local url="http://build.zfsonlinux.org/builders"
+	local url="https://build.openzfs.org/builders"
 
 	case "$name" in
 	CentOS_7_x86_64__TEST_)
@@ -241,8 +241,14 @@ function build_url()
 	Debian_10_x86_64__TEST_)
 		encoded_name="Debian%2010%20x86_64%20%28TEST%29"
 		;;
-	Fedora_35_x86_64__TEST_)
-		encoded_name="Fedora%2035%20x86_64%20%28TEST%29"
+	Fedora_37_x86_64__TEST_)
+		encoded_name="Fedora%2037%20x86_64%20%28TEST%29"
+		;;
+	Fedora_38_x86_64__TEST_)
+		encoded_name="Fedora%2038%20x86_64%20%28TEST%29"
+		;;
+	Fedora_39_x86_64__TEST_)
+		encoded_name="Fedora%2039%20x86_64%20%28TEST%29"
 		;;
 	FreeBSD_stable_12_amd64__TEST_)
 		encoded_name="FreeBSD%20stable%2F12%20amd64%20%28TEST%29"
@@ -250,8 +256,8 @@ function build_url()
 	FreeBSD_stable_13_amd64__TEST_)
 		encoded_name="FreeBSD%20stable%2F13%20amd64%20%28TEST%29"
 		;;
-	Ubuntu_18_04_x86_64_Coverage__TEST_)
-		encoded_name="Ubuntu%2018.04%20x86_64%20Coverage%20%28TEST%29"
+	FreeBSD_stable_14_amd64__TEST_)
+		encoded_name="FreeBSD%20stable%2F14%20amd64%20%28TEST%29"
 		;;
 	*)
 		encoded_named="unknown"
@@ -295,96 +301,96 @@ check() {
 export -f check
 
 # Get all exceptions and comments
-if [ -z ${ZFSONLINUX_EXCEPTIONS+x} ]; then
-	ZFSONLINUX_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/openzfs/zfs/ZTS-exceptions.md | awk '/---|---|---/{y=1;next}y')
+if [ -z ${OPENZFS_EXCEPTIONS+x} ]; then
+	OPENZFS_EXCEPTIONS=$(curl -s https://raw.githubusercontent.com/wiki/openzfs/zfs/ZTS-exceptions.md | awk '/---|---|---/{y=1;next}y')
 else
-	ZFSONLINUX_EXCEPTIONS=$(cat "$ZFSONLINUX_EXCEPTIONS" | awk '/---|---|---/{y=1;next}y')
+	OPENZFS_EXCEPTIONS=$(cat "$OPENZFS_EXCEPTIONS" | awk '/---|---|---/{y=1;next}y')
 fi
 
 # List of all tests which have passed
-ZFSONLINUX_PASSES=$(find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN \
+OPENZFS_PASSES=$(find $OPENZFS_DIR -type f -mmin -$OPENZFS_MMIN \
     -regex ".*/[0-9]*" -exec bash -c 'check "$0" "PASS"' {} \; | \
     cut -f3- -d' ' | sort | uniq -c | sort -nr)
 
 # List of all tests which have failed
-ZFSONLINUX_FAILURES=$(find $ZFSONLINUX_DIR -type f -mmin -$ZFSONLINUX_MMIN \
+OPENZFS_FAILURES=$(find $OPENZFS_DIR -type f -mmin -$OPENZFS_MMIN \
     -regex ".*/[0-9]*" -exec bash -c 'check "$0" "FAIL"' {} \;)
 
-echo "$ZFSONLINUX_FAILURES" | cut -f3- -d' ' | sort | uniq -c | sort -nr | \
+echo "$OPENZFS_FAILURES" | cut -f3- -d' ' | sort | uniq -c | sort -nr | \
 while read LINE1; do
-	ZFSONLINUX_ISSUE=""
-	ZFSONLINUX_NAME=$(echo $LINE1 | cut -f3 -d' ')
-	ZFSONLINUX_ORIGIN=$(echo $LINE1 | cut -f2 -d' ')
-	ZFSONLINUX_FAIL=$(echo $LINE1 | cut -f1 -d' ')
-	ZFSONLINUX_STATE=""
-	ZFSONLINUX_STATUS=""
+	OPENZFS_ISSUE=""
+	OPENZFS_NAME=$(echo $LINE1 | cut -f3 -d' ')
+	OPENZFS_ORIGIN=$(echo $LINE1 | cut -f2 -d' ')
+	OPENZFS_FAIL=$(echo $LINE1 | cut -f1 -d' ')
+	OPENZFS_STATE=""
+	OPENZFS_STATUS=""
 
 	# Create links buildbot logs for all failed tests.
-	ZFSONLINUX_BUILDS=$(echo "$ZFSONLINUX_FAILURES" | \
-	    grep "$ZFSONLINUX_ORIGIN $ZFSONLINUX_NAME" | cut -f1-2 -d' ')
+	OPENZFS_BUILDS=$(echo "$OPENZFS_FAILURES" | \
+	    grep "$OPENZFS_ORIGIN $OPENZFS_NAME" | cut -f1-2 -d' ')
 
-	ZFSONLINUX_PASS=$(echo "$ZFSONLINUX_PASSES" | \
-	    grep "$ZFSONLINUX_ORIGIN $ZFSONLINUX_NAME" | \
+	OPENZFS_PASS=$(echo "$OPENZFS_PASSES" | \
+	    grep "$OPENZFS_ORIGIN $OPENZFS_NAME" | \
 	    awk '{$1=$1;print}' | cut -f1 -d' ')
 
-	[[ "$ZFSONLINUX_FAIL" =~ $NUMBER_REGEX ]] || ZFSONLINUX_FAIL=0
-	[[ "$ZFSONLINUX_PASS" =~ $NUMBER_REGEX ]] || ZFSONLINUX_PASS=1
+	[[ "$OPENZFS_FAIL" =~ $NUMBER_REGEX ]] || OPENZFS_FAIL=0
+	[[ "$OPENZFS_PASS" =~ $NUMBER_REGEX ]] || OPENZFS_PASS=1
 
-	ZFSONLINUX_RATE=$(bc <<< "scale=2; ((100*$ZFSONLINUX_FAIL) / \
-	    ($ZFSONLINUX_PASS + $ZFSONLINUX_FAIL))" | \
+	OPENZFS_RATE=$(bc <<< "scale=2; ((100*$OPENZFS_FAIL) / \
+	    ($OPENZFS_PASS + $OPENZFS_FAIL))" | \
 	    awk '{printf "%.2f", $0}')
 
 	# Ignore test results with few samples.
-	if [ "$ZFSONLINUX_PASS" -lt 10 ]; then
+	if [ "$OPENZFS_PASS" -lt 10 ]; then
 		continue
 	fi
 
 	# Test failure was from an open pull request or branch.
-	if [[ $ZFSONLINUX_ORIGIN =~ $NUMBER_REGEX ]]; then
+	if [[ $OPENZFS_ORIGIN =~ $NUMBER_REGEX ]]; then
 
-		if [ "$ZFSONLINUX_PRS_INCLUDE" = "no" ]; then
+		if [ "$OPENZFS_PRS_INCLUDE" = "no" ]; then
 			continue
 		fi
 
-		pr="https://github.com/openzfs/zfs/pull/$ZFSONLINUX_ORIGIN"
-		ZFSONLINUX_ISSUE="<a href='$pr'>PR-$ZFSONLINUX_ORIGIN</a>"
-		ZFSONLINUX_STATUS=$STATUS_PR
-		ZFSONLINUX_STATUS_TEXT=$STATUS_PR_TEXT
-		ZFSONLINUX_ORIGIN="Pull Requests"
+		pr="https://github.com/openzfs/zfs/pull/$OPENZFS_ORIGIN"
+		OPENZFS_ISSUE="<a href='$pr'>PR-$OPENZFS_ORIGIN</a>"
+		OPENZFS_STATUS=$STATUS_PR
+		OPENZFS_STATUS_TEXT=$STATUS_PR_TEXT
+		OPENZFS_ORIGIN="Pull Requests"
 	else
-		ZFSONLINUX_ORIGIN="Branch: $ZFSONLINUX_ORIGIN"
+		OPENZFS_ORIGIN="Branch: $OPENZFS_ORIGIN"
 
 		# Match test case name against open issues.  For an issue
 		# to be matched it must be labeled "Test Suite" and contain
 		# the base name of the failing test case in the title.
-		base=$(basename $ZFSONLINUX_NAME)
-		issue=$(echo "$ZFSONLINUX_ISSUES" | jq ".items[] | \
+		base=$(basename $OPENZFS_NAME)
+		issue=$(echo "$OPENZFS_ISSUES" | jq ".items[] | \
 		    select(.title | contains(\"$base\")) | \
 		     {html_url, number, state}")
 		url=$(echo "$issue"|grep html_url|cut -f2- -d':'|tr -d ' ",')
 		number=$(echo "$issue"|grep number|cut -f2- -d':'|tr -d ' ",')
 		state=$(echo "$issue"|grep state|cut -f2- -d':'|tr -d "\" ")
-		ZFSONLINUX_ISSUE="<a href='$url'>$number</a>"
+		OPENZFS_ISSUE="<a href='$url'>$number</a>"
 
-		if [[ ${ZFSONLINUX_RATE%%.*} -le $STATUS_LOW_CUTOFF ]]; then
-			ZFSONLINUX_STATUS=$STATUS_LOW
-			ZFSONLINUX_STATUS_TEXT=$STATUS_LOW_TEXT
-		elif [[ ${ZFSONLINUX_RATE%%.*} -le $STATUS_MED_CUTOFF ]]; then
-			ZFSONLINUX_STATUS=$STATUS_MED
-			ZFSONLINUX_STATUS_TEXT=$STATUS_MED_TEXT
+		if [[ ${OPENZFS_RATE%%.*} -le $STATUS_LOW_CUTOFF ]]; then
+			OPENZFS_STATUS=$STATUS_LOW
+			OPENZFS_STATUS_TEXT=$STATUS_LOW_TEXT
+		elif [[ ${OPENZFS_RATE%%.*} -le $STATUS_MED_CUTOFF ]]; then
+			OPENZFS_STATUS=$STATUS_MED
+			OPENZFS_STATUS_TEXT=$STATUS_MED_TEXT
 		else
-			ZFSONLINUX_STATUS=$STATUS_HIGH
-			ZFSONLINUX_STATUS_TEXT=$STATUS_HIGH_TEXT
+			OPENZFS_STATUS=$STATUS_HIGH
+			OPENZFS_STATUS_TEXT=$STATUS_HIGH_TEXT
 		fi
 
 		# Invalid test names should be ignored.
-		if [[ ! "${ZFSONLINUX_NAME}" =~ ^tests/functional/.* ]]; then
+		if [[ ! "${OPENZFS_NAME}" =~ ^tests/functional/.* ]]; then
 			continue
 		fi
 
 		# Match ZTS name in exceptions list.
-		EXCEPTION=$(echo "$ZFSONLINUX_EXCEPTIONS" | \
-		    grep -E "^${ZFSONLINUX_NAME##*tests/functional/}")
+		EXCEPTION=$(echo "$OPENZFS_EXCEPTIONS" | \
+		    grep -E "^${OPENZFS_NAME##*tests/functional/}")
 		if [ -n "$EXCEPTION" ]; then
 			EXCEPTION_ISSUE=$(echo $EXCEPTION | cut -f2 -d'|' | tr -d ' ')
 			EXCEPTION_STATE=$(echo $EXCEPTION | cut -d'|' -f3-)
@@ -395,39 +401,39 @@ while read LINE1; do
 			if [ "$EXCEPTION_ISSUE" == "-" ]; then
 				continue;
 			elif [ "$EXCEPTION_ISSUE" == "!" ]; then
-				ZFSONLINUX_STATE="$EXCEPTION_STATE"
+				OPENZFS_STATE="$EXCEPTION_STATE"
 			else
-				issue=$(echo "$ZFSONLINUX_ISSUES" | \
+				issue=$(echo "$OPENZFS_ISSUES" | \
 				    jq ".items[] | \
 				    select(.number == $EXCEPTION_ISSUE) | \
 				    {html_url, number, state}")
 				url=$(echo "$issue"|grep html_url|cut -f2- -d':'|tr -d ' ",')
 				number=$(echo "$issue"|grep number|cut -f2- -d':'|tr -d ' ",')
 				state=$(echo "$issue"|grep state|cut -f2- -d':'|tr -d "\" ")
-				ZFSONLINUX_ISSUE="<a href='$url'>$number</a>"
-				ZFSONLINUX_STATE="${state}"
+				OPENZFS_ISSUE="<a href='$url'>$number</a>"
+				OPENZFS_STATE="${state}"
 			fi
 		else
-			ZFSONLINUX_STATE="${state}"
+			OPENZFS_STATE="${state}"
 		fi
 	fi
 	
 	# add styles for resolved issues
-	if [ "$ZFSONLINUX_STATE" == "closed" ]; then
-		ZFSONLINUX_STATUS=$STATUS_RESOLVED
+	if [ "$OPENZFS_STATE" == "closed" ]; then
+		OPENZFS_STATUS=$STATUS_RESOLVED
 	fi
 
 	cat << EOF
-<tr class='$ZFSONLINUX_STATUS'>
-  <td>$ZFSONLINUX_ISSUE</td>
-  <td>$ZFSONLINUX_RATE%</td>
-  <td>$ZFSONLINUX_PASS</td>
-  <td>$ZFSONLINUX_FAIL</td>
-  <td class='td_faillist'>$ZFSONLINUX_BUILDS</td>
-  <td class='td_text'>$ZFSONLINUX_NAME</td>
-  <td>$ZFSONLINUX_STATE</td>
-  <td>$ZFSONLINUX_ORIGIN</td>
-  <td>$ZFSONLINUX_STATUS_TEXT</td>
+<tr class='$OPENZFS_STATUS'>
+  <td>$OPENZFS_ISSUE</td>
+  <td>$OPENZFS_RATE%</td>
+  <td>$OPENZFS_PASS</td>
+  <td>$OPENZFS_FAIL</td>
+  <td class='td_faillist'>$OPENZFS_BUILDS</td>
+  <td class='td_text'>$OPENZFS_NAME</td>
+  <td>$OPENZFS_STATE</td>
+  <td>$OPENZFS_ORIGIN</td>
+  <td>$OPENZFS_STATUS_TEXT</td>
 </tr>
 EOF
 
