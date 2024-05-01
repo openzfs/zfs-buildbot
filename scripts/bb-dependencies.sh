@@ -239,7 +239,7 @@ FreeBSD*)
     # Testing support utilities
     # Only a few tests require these.
     pkg_install -y --no-repo-update \
-        samba413 \
+        samba416 \
         gdb \
         pamtester \
         lcov \
