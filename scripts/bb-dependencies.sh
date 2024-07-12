@@ -88,7 +88,7 @@ CentOS*)
     # Required utilities.
     sudo -E yum -y --skip-broken install --enablerepo=epel git rpm-build \
         wget curl bc fio acl sysstat mdadm lsscsi parted attr dbench watchdog \
-        ksh nfs-utils samba rng-tools dkms pamtester ncompress rsync
+        ksh nfs-utils samba rng-tools dkms pamtester ncompress rsync jq
 
     # Required development libraries
     sudo -E yum -y --skip-broken install kernel-devel \
@@ -147,7 +147,7 @@ Fedora*)
     # Required utilities.
     sudo -E dnf -y install git rpm-build wget curl bc fio acl sysstat \
         mdadm lsscsi parted attr dbench watchdog ksh nfs-utils samba \
-        rng-tools dkms ncompress rsync
+        rng-tools dkms ncompress rsync jq
 
     # Required development libraries
     sudo -E dnf -y install kernel-devel zlib-devel \
@@ -243,7 +243,8 @@ FreeBSD*)
         gdb \
         pamtester \
         lcov \
-        rsync
+        rsync \
+        jq
 
     # Python support libraries
     pkg_install -xy --no-repo-update \
